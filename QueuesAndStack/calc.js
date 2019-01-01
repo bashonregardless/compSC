@@ -34,15 +34,6 @@ Calc.init = function setup() {
 	'NEGATE'
   ];
 
-  /* operator to symbol mapping */
-  this.op_to_sym = {
-	'ADD': '+',
-	'SUBTRACT': '-',
-	'MULTIPLY': '*',
-	'DIVIDE': '%',
-	'NEGATE': '-',
-  }
-
   /* number of operands for each operator type */
   this.op_operands = [2, 2, 2, 2, 1];
 
@@ -140,15 +131,11 @@ Calc.infixToPostfix = function infix_to_postfix() {
 		break;
 	  case 'OPERATOR':
 		while (this.op_precendences[this.op.indexOf(op_stack[op_stack.length - 1])] >=
-		  this.op_precendences[this.op.indexOf(token.token_value.op_code)]) {
-		  if (this.op_precendences[this.op.indexOf(op_stack[op_stack.length - 1])] >
-			this.op_precendences[this.op.indexOf(token.token_value.op_code)]) {
-			this.queue_postfix.push(op_stack.pop());
-		  } else if (this.op_precendences[this.op.indexOf(op_stack[op_stack.length - 1])] === 
-			this.op_precendences[this.op.indexOf(token.token_value.op_code)] && 
-			this.op_associativity[this.op.indexOf(token.token_value.op_code)] === 'LEFT') {
-			this.queue_postfix.push(op_stack.pop());
-		  }
+		  this.op_precendences[this.op.indexOf(token.token_value.op_code)] || 
+		  (this.op_precendences[this.op.indexOf(token.token_value.op_code)] 
+			=== this.op_precendences[op_stack[op_stack.length]] && 
+			this.op_precendences[this.op.indexOf(token.token_value.op_code)])) {
+		  this.queue_postfix.push(op_stack.pop());
 		}
 		op_stack.push(token);
 		break;

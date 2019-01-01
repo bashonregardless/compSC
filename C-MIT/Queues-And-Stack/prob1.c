@@ -280,15 +280,46 @@ struct token_queue expr_to_infix(char * str) {
 struct token_queue infix_to_postfix(struct token_queue * pqueue_infix) {
   /* TODO: construct postfix-ordered queue from infix-ordered queue;
      all tokens from infix queue should be added to postfix queue or freed */
-  struct token_queue * postfix_queue;
-  struct s_expr_token * token = pqueue_infix->front;
+  struct token_queue queue_postfix;
+  p_expr_token * stack_top = NULL, ptoken;
 
-  while (pqueue_infix->front != NULL) {
-	//token = token->linked_token;
-	if (token->type == OPERAND) {
-	  enqueue(postfix_queue, token);
+  queue_postfix.front = queue_postfix.back = NULL;
+  for (ptoken = dequeue(pqueue_infix); ptoken; dequeue(pqueue_infix)) {
+	switch (ptoken->type) {
+	  case OPERAND:
+		/* operands added directly to postfix queue */
+		enqueue(&queue_postfix, ptoken);
+		break;
+	  case OPERATOR:
+		/* operator adde to stack, after operators of higher precedence are moved to queue */
+		while (stack_top && 
+			(op_precendence[stack_top->value.op_code] >= op_precendences[ptoken->value.op_code] || 
+			 (op_precendences[stack_top->value.op_code] == op_precendences[ptoken->value.op_code] &&
+			  op_associativity[op_precedences[ptoken->value.op_code]] == LEFT))) {
+		  enqueue(&queue_postfix, ptoken);
+		}
+		push(&stack_top, ptoken);
+		break;
+	  case LPARENS:
+		/* pushed to operator stack */
+		push(&stack_top, ptoken);
+		break;
+	  case RPARENS:
+		/* pop operators off stack until left parentheses reached */
+		free(ptoken); /* parentheses not included in postfix queue */
+		while ( (ptoken = pop(&stack_top)) ) {
+		  if (ptoken->type == LPARENS) {
+			free(ptoken);
+			break;
+		  }
+		  enqueue(&queue_postfix, ptoken)
+		}
 	}
   }
+  while (stack_top) {
+	enqueue(&queue_postfix, pop(&stack_pop));
+  }
+  return queue_postfix;
 }
 
 /* evalutes the postfix expression stored in the queue */
