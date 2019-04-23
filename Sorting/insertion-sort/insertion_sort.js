@@ -2,21 +2,31 @@
 
 var stdIn = require('../../input');
 
-var input = stdIn.init([]);
+var insertionSort = Object.create(stdIn);
 
-input.then((response) => {
-    let key = 1;
-    for (let i = key; i < response.length; i++) {
-      for (let j = i - 1; j >= 0; j--) {
-        if (+response[i] < +response[j]) {
-          const temp = response[i];
-          response[i] = response[j];
-          response[j] = temp;
-          i -= 1;
-        }
+insertionSort.init = async function init() {
+  this.inputArr = await this.input();
+  this.sortBySwap();
+}
+
+insertionSort.input = async function input() {
+  return await this.createInputArr();
+}
+
+insertionSort.sortBySwap = function sortBySwap() {
+  let key = 2;
+  for (let i = key; i < this.inputArr.length; i++) {
+    for (let j = i - 1; j >= 0; j--) {
+      if (+this.inputArr[i] < +this.inputArr[j]) {
+        const temp = this.inputArr[i];
+        this.inputArr[i] = this.inputArr[j];
+        this.inputArr[j] = temp;
+        i -= 1;
       }
-      key += 1;
     }
-    return console.log(response);
-  });
+    key += 1;
+  }
+  return console.log(this.inputArr);
+};
 
+insertionSort.init();

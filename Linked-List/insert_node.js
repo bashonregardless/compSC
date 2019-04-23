@@ -11,10 +11,14 @@ linkedList.init = function setup() {
   this.lhead = null; 
 
   // We keep the free objects in a singly linked list, which we call the free list.
+  // prev of objects in free list always equal -1, an integer
+  // (such -1) that cannot possibly represent an actual index into the arrays.
   // The head of the free list is held in the global variable free.
   this.free = 0;
 
   this.list = [{next: null}]; 
+
+  this.input();
 }
 
 linkedList.input = async function input() {
@@ -81,7 +85,7 @@ linkedList.prepend = function prepend(key) {
   // point head to index of element being inserted
   this.lhead = freePos;
   // prev of first element points to an integer
-  // (such as 0 or ]1) that cannot possibly represent an actual index into the arrays.
+  // (such -1 or null) that cannot possibly represent an actual index into the arrays.
   this.list[freePos].prev = -1;
 }
 
