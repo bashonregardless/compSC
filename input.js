@@ -19,7 +19,7 @@ module.exports = {
   createInputArr: async function createInputArr() {
     let inputArr = [];
     while (true) {
-      const resp = await this.prompt("Element? yes(integer), done(n) > ");
+      const resp = await this.prompt("Element? input(integer), done(n) > ");
       if (resp === "n") {
         break;
       } else {
@@ -36,7 +36,7 @@ module.exports = {
          * Note: ("3" ^ 0) === "3" -> false
                  ("3" ^ 0) === 3 -> true */
         if ((resp ^ 0) === parseInt(resp, 10)) {
-          inputArr.push(resp);
+          inputArr.push(+resp);
         } else {
           console.log("Response is not an integer");
         }
