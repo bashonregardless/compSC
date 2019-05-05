@@ -1,6 +1,6 @@
 'use strict';
 
-var stdIn = require('../../input');
+var stdIn = require('../../../input');
 
 var mergeSort = Object.create(stdIn);
 
@@ -9,7 +9,7 @@ mergeSort.init = async function init() {
   // To sort the entire sequence A =: A[1], A[2], .... , A[n]
   // make the initial call MERGE-SORT(A, 1, A.length)
   /* ZERO based index confusion */
-  // In CLRS: this.merge_sort(0, this.inputArr.length);
+  // In CLRS: this.merge_sort(1, this.inputArr.length);
   this.merge_sort(0, this.inputArr.length - 1);
   console.log(this.inputArr);
 }

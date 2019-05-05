@@ -1,6 +1,6 @@
 'use strict';
 
-var stdIn = require('../../input');
+var stdIn = require('../../../input');
 
 var insertionSort = Object.create(stdIn);
 

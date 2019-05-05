@@ -2,11 +2,10 @@
 
 'use strict';
 
-const stdIn = require('../input_node'),
-  LinkedList = {};
+var LinkedList = {};
 
-LinkedList.init = function setup() {
-  //  attribute lhead points to the first element (index of list array) of the list
+LinkedList.setup = function setup(i) {
+  // Attribute lhead points to the first element (index of list array) of the list
   this.lhead = null; 
 
   // We keep the free objects in a singly linked list, which we call the free list.
@@ -17,34 +16,7 @@ LinkedList.init = function setup() {
 
   this.list = [{next: null}]; 
 
-  this.input();
-}
-
-LinkedList.input = async function input() {
-  const node = {};
-  while(true) {
-    let input = await stdIn.requestProcedure();
-    if (input.procedure === "i") {
-      switch (input.node.position) {
-        case '1':
-        case 's':
-          this.prepend(input.node.value);
-          break;
-        case 'e':
-        case `${this.list.length}`:
-          this.append(input.node.value);
-          break;
-        default:
-          this.insertAt(input.node.value, input.node.position);
-      }
-    }
-
-    if (input.procedure === 'd') this.deleteNode(input.node);
-
-    if(await this.prompt("Continue? Yes / No > ") === "No")
-      break;
-  }
-  console.log(this.list);
+  return this.list;
 }
 
 LinkedList.search = function search(key) {
@@ -68,7 +40,7 @@ LinkedList.traverse = function traverse(pos) {
   return curr;
 }
 
-LinkedList.prepend = function prepend(key) {
+LinkedList.prepend = function prepend(key, head) {
   // Get free position(index in the list array)
   const freePos = this.allocateObject();
   // Initialize an emplty object at freePos
@@ -175,4 +147,4 @@ LinkedList.allocateObject = function allocateObject() {
   }
 }
 
-LinkedList.init();
+module.exports = LinkedList;
