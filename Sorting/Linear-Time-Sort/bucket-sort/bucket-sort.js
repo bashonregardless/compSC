@@ -3,26 +3,80 @@
  * independently over the interval [0, 1). */
 
 var stdIn = require('../../../input'),
-  LinkedList = require('../../../Linked-List/list-as-routine');
+  util = require('util'),
+  //LinkedList = require('../../../Linked-List/list-as-routine');
   BucketSort = {};
 
 BucketSort.setup = async function setup() {
   this.input_arr = await stdIn.createInputArr();
+  this.adj_list = [];
+}
+
+BucketSort.headNode = function headNode(head_idx) {
+  // head_node : { head: number, free: number, list: [] }
+  this.adj_list[head_idx] = { head: null, free: 0 };
+  this.adj_list[head_idx].list = [{ next: null }]
 }
 
 BucketSort.bucketSort = async function bucketSort () {
   await this.setup();
 
-  var buck_head_arr = Array.apply(null, new Array(10))
-    .map(function (i) { return LinkedList.setup(i) });
+  //var buck_head_arr = Array.apply(null, new Array(10))
+  //.map(function (i, idx) { return LinkedList.setup(idx) });
+  Array.apply(null, new Array(10))
+    .forEach(function (i, idx) { return this.headNode(idx) }.bind(this));
   /* alternatively,
    * [...Array(10).keys()].map(function (i) { return null }) */
 
   for (let i = 0; i < this.input_arr.length; i++) {
     // first parameter is the element at index i in input_arr ( key for list ). 
     // second parameter is the head of bucket.
-    LinkedList.prepend(this.input_arr[i], Math.floor(this.input_arr[i] * 10));      
+    // LinkedList.prepend(buck_head_arr, this.input_arr[i], Math.floor(this.input_arr[i] * 10));      
+    this.prepend(this.input_arr[i], Math.floor(this.input_arr[i] * 10));
   }
+  console.log(util.inspect(this.adj_list, { showHidden: false, depth: null }));
 }  
+
+BucketSort.prepend = function prepend(key, head_idx) {
+  // Get free position(index in the list array)
+  const freePos = this.allocateObject(head_idx);
+  // Initialize an emplty object at freePos
+  this.adj_list[head_idx].list[freePos] = {};
+
+  // Set key
+  this.adj_list[head_idx].list[freePos].key = key;
+  // point next of element being inserted to index where head points
+  this.adj_list[head_idx].list[freePos].next = this.adj_list[head_idx].head;
+  // point prev of element that head previously pointed to, to index of element being inserted
+  if (this.adj_list[head_idx].head !== null) {
+    this.adj_list[head_idx].list[this.adj_list[head_idx].head].prev = freePos;
+  }
+  // point head to index of element being inserted
+  this.adj_list[head_idx].head = freePos;
+  // prev of first element points to an integer
+  // (such -1 or null) that cannot possibly represent an actual index into the arrays.
+  this.adj_list[head_idx].list[freePos].prev = -1;
+}
+
+BucketSort.allocateObject = function allocateObject(head_idx) {
+  const { 
+    free, head, list
+  } = this.adj_list[head_idx];
+
+  if (this.adj_list[head_idx].list[free].next === null) {
+    const free_temp = this.adj_list[head_idx].free;
+    this.adj_list[head_idx].free++;
+
+    // sentinel object {next: null}, this is maintained at the end of the list
+    this.adj_list[head_idx].list[this.adj_list[head_idx].free] = {};
+    this.adj_list[head_idx].list[this.adj_list[head_idx].free].next = null;
+    return free_temp;
+  } else {
+    const free_temp = this.adj_list[head_idx].free;
+    this.adj_list[head_idx].free = this.adj_list[head_idx].list[free].next;
+    return free_temp;
+  }
+}
+
 
 BucketSort.bucketSort();

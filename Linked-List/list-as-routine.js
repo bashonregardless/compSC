@@ -4,7 +4,7 @@
 
 var LinkedList = {};
 
-LinkedList.setup = function setup(i) {
+LinkedList.setup = function setup(bucket_arr, i) {
   // Attribute lhead points to the first element (index of list array) of the list
   this.lhead = null; 
 
@@ -14,7 +14,7 @@ LinkedList.setup = function setup(i) {
   // The head of the free list is held in the global variable free.
   this.free = 0;
 
-  this.list = [{next: null}]; 
+  this.list = [{ next: null }]; 
 
   return this.list;
 }
@@ -40,7 +40,7 @@ LinkedList.traverse = function traverse(pos) {
   return curr;
 }
 
-LinkedList.prepend = function prepend(key, head) {
+LinkedList.prepend = function prepend(buck_head_arr, key, head) {
   // Get free position(index in the list array)
   const freePos = this.allocateObject();
   // Initialize an emplty object at freePos
@@ -66,19 +66,19 @@ LinkedList.append = function append(key) {
   if (this.list.length === 1) {
     this.prepend(key);
   } else {
-  // Get free position(index in the list array)
-  const freePos = this.allocateObject();
-  // Initialize an emplty object at freePos
-  this.list[freePos] = {};
-     // curr is the index of object in list array where procedure is to be performed.
-     // In this case, at the end of the list.
-     const curr = this.traverse(this.list.length - 1);
+    // Get free position(index in the list array)
+    const freePos = this.allocateObject();
+    // Initialize an emplty object at freePos
+    this.list[freePos] = {};
+    // curr is the index of object in list array where procedure is to be performed.
+    // In this case, at the end of the list.
+    const curr = this.traverse(this.list.length - 1);
 
-     this.list[freePos].key = key;
-     this.list[freePos].prev = curr;
-     this.list[freePos].next = null;
-     this.list[curr].next = freePos;
-   }
+    this.list[freePos].key = key;
+    this.list[freePos].prev = curr;
+    this.list[freePos].next = null;
+    this.list[curr].next = freePos;
+  }
 }
 
 LinkedList.insertAt = function insertAt(key, pos) {
