@@ -44,7 +44,7 @@ insertionSort.sortBySwap1 = function sortBySwap1() {
     let key = this.inputArr[j];
     let i = j - 1;
     // Swap other elements to the right to create the correct
-    // position and shifht the unsorted element.
+    // position and shift the unsorted element.
     // Insert A[j]  into the sorted sequence A[1..j-1].
     while (i > 0 && this.inputArr[i] > key) {
       this.inputArr[i + 1] = this.inputArr[i];

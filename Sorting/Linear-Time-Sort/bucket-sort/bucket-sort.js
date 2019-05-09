@@ -34,6 +34,13 @@ BucketSort.bucketSort = async function bucketSort () {
     // LinkedList.prepend(buck_head_arr, this.input_arr[i], Math.floor(this.input_arr[i] * 10));      
     this.prepend(this.input_arr[i], Math.floor(this.input_arr[i] * 10));
   }
+
+  for (let i = 0; i < this.input_arr.length; i++) {
+    if (this.adj_list[i].head !== null) {
+      this.sortList(i);
+    }
+  }
+
   console.log(util.inspect(this.adj_list, { showHidden: false, depth: null }));
 }  
 
@@ -78,5 +85,88 @@ BucketSort.allocateObject = function allocateObject(head_idx) {
   }
 }
 
+BucketSort.traverse = function traverse(pos) {
+  let curr = this.lhead;
+  
+  while (pos > 1 && this.list[curr].next !== null) {
+    curr = this.list[curr].next;
+    pos--;
+  }
+
+  return curr;
+}
+
+BucketSort.sortList = function sortList(head_idx) {
+  const {
+    head, free, list
+  } = this.adj_list[head_idx];
+
+  // First element has no previous node to compare to.
+  // Therefore, start at second element in the list and not at first.
+  let curr_idx = list[head].next;
+  //let pos_idx = list[curr_idx].prev;
+
+  debugger;
+  while (curr_idx !== null) {
+    // Store next for next iteration. 
+    let pos_idx = list[curr_idx].prev;
+    let next_idx = list[curr_idx].next;
+
+    if (list[pos_idx].prev === -1) {
+      /* Current position ( c_p ) will always be the node head initialyy points to. */
+
+      // Point prev of c_p to c_n
+      list[pos_idx].prev = curr_idx;
+
+      // Point next of c_n_p node to next of c_n. Similar to one below.
+      //if (list[list[curr_idx].prev].prev === -1) {
+      //  list[pos_idx].next = list[curr_idx].next;
+      //}
+
+      // Point prev of c_n_n node to prev of c_n.
+      list[list[curr_idx].next].prev = list[curr_idx].prev;
+
+      // Point next of c_n_p node to next of c_n.
+      list[list[curr_idx].prev].next = list[curr_idx].next;
+
+      // Point next of c_n to previous head, i.e, c_p.
+      list[curr_idx].next = this.adj_list[head_idx].head;
+
+      // Make c_n first node in the list.
+      list[curr_idx].prev = -1;
+
+      // Update head. Point c_p prev to curr_node.
+      this.adj_list[head_idx].head = curr_idx;
+    } else {
+
+      // Current position node: node reached while searching for key less than current idx node
+      while (list[pos_idx].key > list[curr_idx].key) {
+        pos_idx = list[pos_idx].prev;
+      }
+
+      if (pos_idx === list[curr_idx].prev) {
+        curr_idx = next_idx;
+        continue;
+      }
+
+      // Point next of c_n_p to next of c_n.
+      list[list[curr_idx].prev].next = list[curr_idx].next;
+    
+      // Point next of c_p_p to c_n.
+      list[list[pos_idx].prev].next = curr_idx;
+      
+      // Point prev of c_n to prev of c_p.
+      list[curr_idx].prev = list[pos_idx].prev;
+
+      // Point prev of c_p to c_n.
+      list[pos_idx].prev = curr_idx;
+
+      // Point next of c_n to c_p.
+      list[curr_idx].next = pos_idx;
+    }
+
+    curr_idx = next_idx;
+  }
+}
 
 BucketSort.bucketSort();
