@@ -51,56 +51,6 @@ BucketSort.bucketSort = async function bucketSort () {
   }
 }  
 
-//BucketSort.prepend = function prepend(key, head_idx) {
-//  const { [head_idx]: adjLNode } = this.adj_list;
-//
-//  // Get free position(index in the list array)
-//  const freePos = this.allocateObject(head_idx);
-//
-//  // Initialize an empty object at freePos
-//  adjLNode.list[freePos] = {};
-//
-//  // Set key
-//  adjLNode.list[freePos].key = key;
-//
-//  // point next of element being inserted to index where head points
-//  adjLNode.list[freePos].next = adjLNode.head;
-//
-//  // point prev of element that head previously pointed to, to index of element being inserted
-//  if (adjLNode.head !== null) {
-//    adjLNode.list[adjLNode.head].prev = freePos;
-//  }
-//
-//  // point head to index of element being inserted
-//  adjLNode.head = freePos;
-//
-//  // prev of first element points to an integer
-//  // (such -1 or null) that cannot possibly represent an actual index into the arrays.
-//  adjLNode.list[freePos].prev = -1;
-//}
-//
-//BucketSort.allocateObject = function allocateObject(head_idx) {
-//  const { [head_idx]: adjLNode } = this.adj_list;
-//
-//  const { 
-//    free, head, list
-//  } = adjLNode;
-//
-//  if (adjLNode.list[free].next === null) {
-//    const free_temp = adjLNode.free;
-//    adjLNode.free++;
-//
-//    // sentinel object {next: null}, this is maintained at the end of the list
-//    adjLNode.list[adjLNode.free] = {};
-//    adjLNode.list[adjLNode.free].next = null;
-//    return free_temp;
-//  } else {
-//    const free_temp = adjLNode.free;
-//    adjLNode.free = adjLNode.list[free].next;
-//    return free_temp;
-//  }
-//}
-
 BucketSort.sortList = function sortList(head_idx) {
   const { [head_idx]: adjLNode } = this.adj_list;
 
@@ -129,22 +79,22 @@ BucketSort.sortList = function sortList(head_idx) {
 
     debugger;
     if (list[pos_idx].prev === -1) {
-      /* Current position ( c_p ) will always be the node head initialyy points to. */
+      /* Current position ( c_p ) will always be the node head initially points to. */
 
       // Point prev of c_p to c_n
       list[pos_idx].prev = curr_idx;
 
       // Point prev of c_n_n ( Current node next node ) to prev of c_n.
-      list[c_n_next].prev = c_n_prev;
+      if (c_n_next !== null) list[c_n_next].prev = c_n_prev;
 
       // Point next of c_n_p ( Current node previous node ) node to next of c_n.
       list[c_n_prev].next = c_n_next;
 
       // Point next of c_n to previous head, i.e, c_p.
-      c_n_next = adjLNode.head;
+      list[curr_idx].next = adjLNode.head;
 
       // Make c_n first node in the list.
-      c_n_prev = -1;
+      list[curr_idx].prev = -1;
 
       // Update head. Point c_p prev to curr_node.
       adjLNode.head = curr_idx;
@@ -162,34 +112,20 @@ BucketSort.sortList = function sortList(head_idx) {
       list[list[pos_idx].prev].next = curr_idx;
       
       // Point prev of c_n to prev of c_p.
-      c_n_prev = list[pos_idx].prev;
+      list[curr_idx].prev = list[pos_idx].prev;
 
       // Point prev of c_p to c_n.
       list[pos_idx].prev = curr_idx;
 
+      // Point prev of c_n_n to c_n prev.
+      if (c_n_next !== null) list[c_n_next].prev = c_n_prev;
+
       // Point next of c_n to c_p.
-      c_n_next = pos_idx;
+      list[curr_idx].next = pos_idx;
     }
 
     curr_idx = next_idx;
   }
 }
-
-BucketSort.printJoinSorted = function printJoinSorted(head_idx) {
-  const { [head_idx]: adjLNode } = this.adj_list;
-
-  const {
-    head, list
-  } = adjLNode;
-
-  let curr_idx = head;
-
-  while (curr_idx !== null) {
-    let { next: c_n_next } = list[curr_idx];
-    console.log(list[curr_idx].key);
-    curr_idx = c_n_next;
-  }
-}
-
 
 BucketSort.bucketSort();

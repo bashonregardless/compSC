@@ -158,7 +158,6 @@ LinkedList.allocateObject = function allocateObject(listNode) {
 }
 
 LinkedList.print = function print(listNode) {
-  debugger;
   let { list, head, free } = listNode;
 
   let curr_idx = head;
@@ -169,4 +168,5 @@ LinkedList.print = function print(listNode) {
     curr_idx = c_n_next;
   }
 }
+
 module.exports = LinkedList;
