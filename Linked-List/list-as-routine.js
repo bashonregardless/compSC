@@ -40,24 +40,32 @@ LinkedList.traverse = function traverse(pos) {
   return curr;
 }
 
-LinkedList.prepend = function prepend(buck_head_arr, key, head) {
+LinkedList.prepend = function prepend(listNode, key) {
+  let { list, head, free } = listNode;
+
   // Get free position(index in the list array)
-  const freePos = this.allocateObject();
+  const freePos = this.allocateObject(listNode);
+
   // Initialize an emplty object at freePos
-  this.list[freePos] = {};
+  list[freePos] = {};
 
   // Set key
-  this.list[freePos].key = key;
+  list[freePos].key = key;
+
   // point next of element being inserted to index where head points
-  this.list[freePos].next = this.lhead;
+  list[freePos].next = head;
+
   // point prev of element that head previously pointed to, to index of element being inserted
-  if (this.lhead !== null) 
-    this.list[this.lhead].prev = freePos;
+  if (head !== null) {
+    list[head].prev = freePos;
+  }
+
   // point head to index of element being inserted
-  this.lhead = freePos;
+  listNode.head = freePos;
+
   // prev of first element points to an integer
   // (such -1 or null) that cannot possibly represent an actual index into the arrays.
-  this.list[freePos].prev = -1;
+  list[freePos].prev = -1;
 }
 
 /* Given an element x whose key attribute has already been set,
@@ -131,20 +139,34 @@ LinkedList.deleteNode = function deleteNode(key) {
   this.free = curr;
 }
 
-LinkedList.allocateObject = function allocateObject() {
-  if (this.list[this.free].next === null) {
-    const free = this.free;
-    this.free++;
+LinkedList.allocateObject = function allocateObject(listNode) {
+  let { list, head, free } = listNode;
+
+  if (list[free].next === null) {
+    const free_tmp = free;
+    listNode.free++;
 
     // sentinel object {next: null}, this is maintained at the end of the list
-    this.list[this.free] = {};
-    this.list[this.free].next = null;
-    return free;
+    list[listNode.free] = {};
+    list[listNode.free].next = null;
+    return free_tmp;
   } else {
-    const free = this.free;
-    this.free = this.list[free].next;
-    return free;
+    const free_tmp = free;
+    listNode.free = list[listNode.free].next;
+    return free_tmp;
   }
 }
 
+LinkedList.print = function print(listNode) {
+  debugger;
+  let { list, head, free } = listNode;
+
+  let curr_idx = head;
+
+  while (curr_idx !== null) {
+    let { next: c_n_next } = list[curr_idx];
+    console.log(list[curr_idx].key);
+    curr_idx = c_n_next;
+  }
+}
 module.exports = LinkedList;
