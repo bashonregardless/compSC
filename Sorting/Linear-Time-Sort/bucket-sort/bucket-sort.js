@@ -3,7 +3,7 @@
  * independently over the interval [0, 1). */
 
 var stdIn = require('../../../input'),
-  ListAsRoutine = require('../../../Linked-List/list-as-routine'),
+  ListAsRoutine = require('../../../Linked-List/Doubly/list-as-routine'),
   util = require('util'),
   BucketSort = Object.create(ListAsRoutine);
 
@@ -36,8 +36,10 @@ BucketSort.bucketSort = async function bucketSort () {
   }
 
   for (let i = 0; i < 10; i++) {
+    let { [i]: adjLNode } = this.adj_list;
+
     if (this.adj_list[i].head !== null) {
-      this.sortList(i);
+      this.insertSort(adjLNode);
     }
   }
 
@@ -50,82 +52,5 @@ BucketSort.bucketSort = async function bucketSort () {
     }
   }
 }  
-
-BucketSort.sortList = function sortList(head_idx) {
-  const { [head_idx]: adjLNode } = this.adj_list;
-
-  const {
-    head, free, list
-  } = adjLNode;
-
-  // First element has no previous node to compare to.
-  // Therefore, start at second element in the list and not at first.
-  let curr_idx = list[head].next;
-
-  while (curr_idx !== null) {
-    let pos_idx = curr_idx;
-
-    let { prev: c_n_prev, next: c_n_next, key: c_n_key } = list[curr_idx];
-
-    //let { prev: c_p_prev, next: c_p_next, key: c_p_key } = list[pos_idx];
-
-    // Store next index for next iteration. 
-    let next_idx = c_n_next;
-
-    // Current position node: node reached while searching for key less than current idx node
-    while (list[pos_idx].prev !== -1 && list[list[pos_idx].prev].key > list[curr_idx].key) {
-      pos_idx = list[pos_idx].prev;
-    }
-
-    debugger;
-    if (list[pos_idx].prev === -1) {
-      /* Current position ( c_p ) will always be the node head initially points to. */
-
-      // Point prev of c_p to c_n
-      list[pos_idx].prev = curr_idx;
-
-      // Point prev of c_n_n ( Current node next node ) to prev of c_n.
-      if (c_n_next !== null) list[c_n_next].prev = c_n_prev;
-
-      // Point next of c_n_p ( Current node previous node ) node to next of c_n.
-      list[c_n_prev].next = c_n_next;
-
-      // Point next of c_n to previous head, i.e, c_p.
-      list[curr_idx].next = adjLNode.head;
-
-      // Make c_n first node in the list.
-      list[curr_idx].prev = -1;
-
-      // Update head. Point c_p prev to curr_node.
-      adjLNode.head = curr_idx;
-    } else {
-      // If current node has the largest key value
-      if (pos_idx === curr_idx) {
-        curr_idx = next_idx;
-        continue;
-      }
-
-      // Point next of c_n_p ( Current node previous node ) to next of c_n.
-      list[c_n_prev].next = c_n_next;
-    
-      // Point next of c_p_p ( Current position previous node ) to c_n.
-      list[list[pos_idx].prev].next = curr_idx;
-      
-      // Point prev of c_n to prev of c_p.
-      list[curr_idx].prev = list[pos_idx].prev;
-
-      // Point prev of c_p to c_n.
-      list[pos_idx].prev = curr_idx;
-
-      // Point prev of c_n_n to c_n prev.
-      if (c_n_next !== null) list[c_n_next].prev = c_n_prev;
-
-      // Point next of c_n to c_p.
-      list[curr_idx].next = pos_idx;
-    }
-
-    curr_idx = next_idx;
-  }
-}
 
 BucketSort.bucketSort();
