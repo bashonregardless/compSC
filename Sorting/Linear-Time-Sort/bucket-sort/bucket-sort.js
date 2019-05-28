@@ -3,7 +3,7 @@
  * independently over the interval [0, 1). */
 
 var stdIn = require('../../../input'),
-  ListAsRoutine = require('../../../Linked-List/Doubly/list-as-routine'),
+  ListAsRoutine = require('../../../Linked-List/Singly/list-as-routine'),
   util = require('util'),
   BucketSort = Object.create(ListAsRoutine);
 
