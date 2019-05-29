@@ -140,32 +140,26 @@ int pop(struct node** head_ref) {
 }
 
 void insertNth(struct node** head_ref, int idx, int data) {
-  struct node* current = *head_ref;
-  struct node *new_node = malloc(sizeof(struct node));
-  struct node* prev = NULL;
-  int pos = 0;
 
   /* delegate to push, if insertion at head (index == 0) */
-  if (pos == 0 && current == NULL) {
+  if (idx == 0) {
     push(head_ref, data); 
-    return;
-  }
+  } else {
+    struct node* current = *head_ref;
+    int pos = 0;
 
-  while (current != NULL) {
-    // cache prev node
-    if (pos == idx - 1) {
-      prev = current;
+    while (pos < idx - 1) {
+      assert(current != NULL); // if this fails, index was too big
+      current = current->next;
+      pos++;
     }
 
-    if (pos == idx) {
-      new_node->next = current;
-      new_node->data = data;
-      prev->next = new_node;
-      return;
-    }
+    assert(current != NULL); // tricky: you have to check one last time
 
-    current = current->next;
-    pos++;
+    // Tricky use of push() --
+    // The pointer being pushed on is not in the stack. But actually this works
+    // fine -- push() works for any node pointer.
+    push(&(current->next), data);
   }
 }
 
@@ -205,7 +199,7 @@ int main() {
 
   printf("Popped element value is %d\nNew head set to %d\n", pop(&head), head->data);
 
-  insertNth(&head, 1, 22);
+  insertNth(&head, 0, 22);
   print(head); 
 
   return 0;
