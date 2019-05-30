@@ -50,6 +50,7 @@ void push(struct node** head_ref, int data) {
   *head_ref = new_node;
 }
 
+
 /* Given a list and an int, return the number of times that int occurs
  * in the list.
  */
@@ -67,6 +68,7 @@ int count(struct node* head, int data) {
 
   return count;
 }
+
 
 /* GetNth() function that takes a linked list and an integer index and returns the data
  * value stored in the node at that index position. GetNth() uses the C numbering convention
@@ -88,6 +90,7 @@ int getNth(struct node *head, int idx) {
   return 0;
 }
 
+
 /* DeleteList() just needs to call free() once for each node and
  * set the head pointer to NULL.
  */
@@ -106,6 +109,7 @@ void deleteList(struct node** head_ref) {
   *head_ref = NULL; // Again, deref headRef to affect the real head back
   // in the caller.
 }
+
 
 /* The opposite of Push(). Takes a non-empty list
  * and removes the front node, and returns the data
@@ -139,6 +143,7 @@ int pop(struct node** head_ref) {
   //return pop_data;
 }
 
+
 void insertNth(struct node** head_ref, int idx, int data) {
 
   /* delegate to push, if insertion at head (index == 0) */
@@ -163,6 +168,225 @@ void insertNth(struct node** head_ref, int idx, int data) {
   }
 }
 
+
+void appendNode(struct node** head_ref, int data) {
+  if (*head_ref == NULL) {
+    push(head_ref, data);
+  } else {
+    struct node* new_node = malloc(sizeof(struct node));
+    struct node* current = *head_ref;
+
+    while (current->next != NULL) {
+      current = current->next;
+    }
+
+    new_node->data = data;
+    new_node->next = current->next; // essentially set to NULL
+    current->next = new_node;
+  }
+}
+
+
+void append(struct node** list_a_ref, struct node ** list_b_ref) {
+  if (*list_a_ref == NULL) {
+    *list_a_ref = *list_b_ref;
+  } else {
+    struct node* current = *list_a_ref;
+    while (current->next != NULL) {
+      current = current->next;
+    }
+    
+    current->next = *list_b_ref;
+  }
+
+  *list_b_ref = NULL;
+}
+
+
+//void sortedInsert(struct node** head_ref, struct node* new_node) {
+//
+//  if (*head_ref == NULL || (*head_ref)->data >= new_node->data) {
+//    new_node->next = *head_ref;
+//    *head_ref = new_node;
+//  } else {
+//    struct node* current = *head_ref;
+//
+//    while (current->next != NULL && current->next->data < new_node->data) {
+//      current = current->next;
+//    }
+//
+//    new_node->next = current->next;
+//    current->next = new_node;
+//  }
+//}
+
+
+void sortedInsert(struct node** head_ref, int data) {
+
+  // Special case for the head end
+  if (*head_ref == NULL || (*head_ref)->data >= data) {
+    push(head_ref, data);
+  } else {
+    struct node* current = *head_ref;
+
+    // Locate the node before the point of insertion
+    while (current->next != NULL && current->next->data < data) {
+      current = current->next;
+    }
+
+    // The pointer being pushed on is not in the stack. But actually this works
+    // fine -- push() works for any node pointer.
+    push(&(current->next), data);
+  }
+}
+
+
+void insertSort(struct node** head_ref) {
+  struct node* result = NULL;
+  struct node* current = *head_ref;
+  struct node* next;
+
+  while (current != NULL) {
+    next = current->next;
+    sortedInsert(&result, current->data);
+    current = next;
+  }
+
+  *head_ref = result;
+}
+
+
+void frontBackSplit(struct node* source, struct node** front_ref, struct node** back_ref) {
+  struct node* fast;
+  struct node* slow;
+
+  if (source == NULL || source->next == NULL) { // length < 2 cases
+    *front_ref = source;
+    *back_ref = NULL;
+  } else {
+    slow = source;
+    fast = source->next;
+
+    // Advance 'fast' two nodes, and advance 'slow' one node
+    while (fast != NULL) {
+      fast = fast->next;
+
+      if (fast != NULL) {
+        slow = slow->next;
+        fast = fast->next;
+      }
+    }
+
+    /* for list of size 8 (even) slow stops at position 4,
+     * and for list of size 9 (odd), slow stops at position 5.
+     */
+
+    // 'slow' is before the midpoint in the list, so split it in two
+    // at that point.
+    *front_ref = source;
+    *back_ref = slow->next;
+    slow->next = NULL;
+  }
+}
+
+
+/* Remove duplicates from a sorted list. */
+void removeDuplicates(struct node* head) {
+  if (head == NULL || head->next == NULL) {
+    return; // do nothing if the list is empty or if it contains a single element
+  } else {
+    struct node* current = head;
+    struct node* nextNext;
+    while (current->next != NULL) {
+      // Compare current node with next node
+      if (current->data == current->next->data) {
+          nextNext = current->next->next;
+          free(current->next);
+          current->next = nextNext;
+      } else {
+        current = current->next; // only advance if no deletion
+      }
+    }
+  }
+}
+
+
+/* Take the node from the front of the source, and move it to
+   the front of the dest.
+   It is an error to call this with the source list empty.
+*/
+void moveNode(struct node** dest_ref, struct node** source_ref) {
+  /*
+   * moveNode using pop and push.
+   int data = pop(source_ref);  
+   push(dest_ref, data);
+  */
+
+  /* moveNode practice slide way.
+   * Modularity of n=moveNode later extended to alternatingSplit.
+   */
+  struct node* new_node = *source_ref;
+  assert(new_node != NULL);
+
+  *source_ref = new_node->next; // Advance the source pointer
+
+  new_node->next = *dest_ref; // Link the old dest off the new node
+  *dest_ref = new_node; // Move dest to point to the new node
+}
+
+
+/* Given the source list, split its nodes into two shorter lists.
+ * If we number the elements 0, 1, 2, ... then all the even elements
+ * should go in the first list, and all the odd elements in the second.
+ * The elements in the new lists may be in any order.
+ */
+/* alternating split w/o keep track of position parity */
+void alternatingSplit(struct node* source, struct node** list_a_ref, struct node** list_b_ref) {
+  struct node* current = source;
+
+  while (current != NULL) {
+    moveNode(list_a_ref, &current);
+    if (current != NULL) {
+      moveNode(list_b_ref, &current);
+    }
+  }
+}
+
+
+//void alternatingSplit(struct node** source, struct node** list_a_ref, struct node** list_b_ref) {
+//  struct node* current = *source;
+//  int data;
+//
+//  while (current != NULL) {
+//    data = pop(source);
+//    push(list_a_ref, data);
+//    current = current->next;
+//    if (current != NULL) {
+//      data = pop(source);
+//      push(list_b_ref, data);
+//      current = current->next;
+//    }
+//  }
+//}
+
+
+//void alternatingSplit(struct node* source, struct node** list_a_ref, struct node** list_b_ref) {
+//  struct node* current = source;
+//  int even_elem_flag = 1;
+//
+//  while (current != NULL) {
+//    if (even_elem_flag) {
+//      push(list_a_ref, current->data);
+//      even_elem_flag--; 
+//    } else {
+//      push(list_b_ref, current->data);
+//      even_elem_flag++; 
+//    }
+//    current = current->next;
+//  }
+//}
+
+
 void print(struct node* head) {
   struct node* current = head;
 
@@ -170,37 +394,132 @@ void print(struct node* head) {
     printf("%d -> ", current->data);
     current = current->next;
   }
+
+  printf("\n");
 }
+
 
 int main() {
   struct node* head = NULL;
 
   push(&head, 4);
   push(&head, 2);
-  push(&head, 8);
+  push(&head, 12);
+  push(&head, 5);
+  push(&head, 21);
+  push(&head, 24);
+  push(&head, 3);
 
-  print(head);
+  //print(head);
 
-  printf("key 2 occurs %d times in the list\n", count(head, 2));
+  //printf("key 2 occurs %d times in the list\n", count(head, 2));
 
-  int nth_val = getNth(head, -2);
-  if (nth_val) {
-    printf("Nth value : %d\n", nth_val);
-  } else {
-    printf("Position does not exist\n");
-  }
-
-  //deleteList(&head);
-  //if (!head) {
-  //  printf("Delete List routine successful\n");
+  //int nth_val = getNth(head, -2);
+  //if (nth_val) {
+  //  printf("Nth value : %d\n", nth_val);
   //} else {
-  //  printf("Delete List routine unsuccessful\n");
+  //  printf("Position does not exist\n");
   //}
 
-  printf("Popped element value is %d\nNew head set to %d\n", pop(&head), head->data);
+  ////deleteList(&head);
+  ////if (!head) {
+  ////  printf("Delete List routine successful\n");
+  ////} else {
+  ////  printf("Delete List routine unsuccessful\n");
+  ////}
 
-  insertNth(&head, 0, 22);
-  print(head); 
+  //printf("Popped element value is %d\nNew head set to %d\n", pop(&head), head->data);
 
+  //insertNth(&head, 0, 22);
+  //print(head); 
+
+  //struct node* node1 = malloc(sizeof(struct node));
+  //node1->data = 3;
+
+  //struct node* node2 = malloc(sizeof(struct node));
+  //node2->data = 5;
+
+  //struct node* node3 = malloc(sizeof(struct node));
+  //node3->data = 2;
+
+  //struct node* node4 = malloc(sizeof(struct node));
+  //node4->data = 4;
+
+  //sortedInsert(&head, node1);
+  //sortedInsert(&head, node2);
+  //sortedInsert(&head, node3);
+  //sortedInsert(&head, node4);
+  
+  //sortedInsert(&head, 3);
+  //sortedInsert(&head, 5);
+  //sortedInsert(&head, 2);
+  //sortedInsert(&head, 4);
+
+  insertSort(&head);
+
+  appendNode(&head, 2206);
+  appendNode(&head, 1992);
+
+  //struct node* list_b = NULL;
+  //push(&list_b, 4);
+  //push(&list_b, 2);
+  //push(&list_b, 12);
+  //push(&list_b, 5);
+  //push(&list_b, 21);
+  //push(&list_b, 24);
+  //push(&list_b, 3);
+
+  //append(&head, &list_b);
+
+  //struct node* front_list = NULL;
+  //struct node* back_list = NULL;
+
+  //print(head);
+  //frontBackSplit(head, &front_list, &back_list);
+  //printf("\nfront split : ");
+  //print(front_list);
+  //printf("\nback split : ");
+  //print(back_list);
+
+  //push(&head, 2);
+  //appendNode(&head, 2206);
+  //insertNth(&head, 5, 5);
+  //insertNth(&head, 5, 5);
+  //insertNth(&head, 5, 5);
+  //insertSort(&head);
+  //print(head);
+
+  //removeDuplicates(head);
+  //printf("\nList after duplicates have been removed : ");
+  //print(head);
+
+
+  //struct node* list_b = NULL;
+  //push(&list_b, 4);
+  //push(&list_b, 2);
+  //push(&list_b, 12);
+  //push(&list_b, 5);
+  //push(&list_b, 21);
+  //push(&list_b, 24);
+  //push(&list_b, 3);
+
+  //print(head);
+  //printf("\nDestination list before move node: ");
+  //print(list_b);
+  //moveNode(&list_b, &head);
+  //printf("\nSource list after move node: ");
+  //print(head);
+  //printf("\nList after move node: ");
+  //print(list_b);
+  
+  struct node* list_a = NULL;
+  struct node* list_b = NULL;
+
+  print(head);
+  alternatingSplit(head, &list_a, &list_b);
+  print(head);
+  print(list_a); 
+  print(list_b); 
+  
   return 0;
 }
