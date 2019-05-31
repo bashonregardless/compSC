@@ -311,20 +311,17 @@ void removeDuplicates(struct node* head) {
 }
 
 
+/* moveNode() */
+/* This is a variant on Push(). Instead of creating a new node and pushing it onto the given
+ * list, MoveNode() takes two lists, removes the front node from the second list and pushes
+ * it onto the front of the first.
+ */
+
 /* Take the node from the front of the source, and move it to
    the front of the dest.
    It is an error to call this with the source list empty.
 */
 void moveNode(struct node** dest_ref, struct node** source_ref) {
-  /*
-   * moveNode using pop and push.
-   int data = pop(source_ref);  
-   push(dest_ref, data);
-  */
-
-  /* moveNode practice slide way.
-   * Modularity of n=moveNode later extended to alternatingSplit.
-   */
   struct node* new_node = *source_ref;
   assert(new_node != NULL);
 
@@ -387,6 +384,41 @@ void alternatingSplit(struct node* source, struct node** list_a_ref, struct node
 //}
 
 
+/* Merge the nodes of the two lists into a single list taking a node
+ * alternately from each list, and return the new list.
+ */
+struct node* shuffleMerge(struct node* a, struct node* b) {
+  struct node* result = NULL;
+  struct node** last_ptr_ref = &result;
+
+  while (1) {
+    if (a == NULL) {
+      *last_ptr_ref = b;  
+      break;
+    } else if (b == NULL) {
+      *last_ptr_ref = a;
+      break;
+    } else {
+        moveNode(last_ptr_ref, &a);  
+        last_ptr_ref = &((*last_ptr_ref)->next);
+        moveNode(last_ptr_ref, &b);
+        last_ptr_ref = &((*last_ptr_ref)->next);
+    }
+  }
+
+  return (result);
+}
+
+
+/* Takes two lists sorted in increasing order, and
+ * splices their nodes together to make one big
+ * sorted list which is returned.
+ */
+struct node* sortedMerge(struct node* a, struct node* b) {
+    
+}
+
+
 void print(struct node* head) {
   struct node* current = head;
 
@@ -405,10 +437,10 @@ int main() {
   push(&head, 4);
   push(&head, 2);
   push(&head, 12);
-  push(&head, 5);
-  push(&head, 21);
-  push(&head, 24);
-  push(&head, 3);
+ // push(&head, 5);
+ // push(&head, 21);
+ // push(&head, 24);
+ // push(&head, 3);
 
   //print(head);
 
@@ -457,8 +489,8 @@ int main() {
 
   insertSort(&head);
 
-  appendNode(&head, 2206);
-  appendNode(&head, 1992);
+  //appendNode(&head, 2206);
+  //appendNode(&head, 1992);
 
   //struct node* list_b = NULL;
   //push(&list_b, 4);
@@ -512,14 +544,28 @@ int main() {
   //printf("\nList after move node: ");
   //print(list_b);
   
-  struct node* list_a = NULL;
-  struct node* list_b = NULL;
+ // struct node* list_a = NULL;
+ // struct node* list_b = NULL;
 
-  print(head);
-  alternatingSplit(head, &list_a, &list_b);
-  print(head);
-  print(list_a); 
-  print(list_b); 
+ // print(head);
+ // alternatingSplit(head, &list_a, &list_b);
+ // print(head);
+ // print(list_a); 
+ // print(list_b); 
+ 
+  struct node* list_a = NULL;
+  push(&list_a, 4);
+  push(&list_a, 2);
+  push(&list_a, 12);
+
+  struct node* list_b = NULL;
+  push(&list_b, 5);
+  push(&list_b, 21);
+  push(&list_b, 24);
+  push(&list_b, 3);
+
+  struct node* result = shuffleMerge(list_a, list_b);
+  print(result);
   
   return 0;
 }
