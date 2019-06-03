@@ -337,7 +337,6 @@ void moveNode(struct node** dest_ref, struct node** source_ref) {
  * should go in the first list, and all the odd elements in the second.
  * The elements in the new lists may be in any order.
  */
-/* alternating split w/o keep track of position parity */
 void alternatingSplit(struct node* source, struct node** list_a_ref, struct node** list_b_ref) {
   struct node* current = source;
 
@@ -348,40 +347,6 @@ void alternatingSplit(struct node* source, struct node** list_a_ref, struct node
     }
   }
 }
-
-
-//void alternatingSplit(struct node** source, struct node** list_a_ref, struct node** list_b_ref) {
-//  struct node* current = *source;
-//  int data;
-//
-//  while (current != NULL) {
-//    data = pop(source);
-//    push(list_a_ref, data);
-//    current = current->next;
-//    if (current != NULL) {
-//      data = pop(source);
-//      push(list_b_ref, data);
-//      current = current->next;
-//    }
-//  }
-//}
-
-
-//void alternatingSplit(struct node* source, struct node** list_a_ref, struct node** list_b_ref) {
-//  struct node* current = source;
-//  int even_elem_flag = 1;
-//
-//  while (current != NULL) {
-//    if (even_elem_flag) {
-//      push(list_a_ref, current->data);
-//      even_elem_flag--; 
-//    } else {
-//      push(list_b_ref, current->data);
-//      even_elem_flag++; 
-//    }
-//    current = current->next;
-//  }
-//}
 
 
 /* Merge the nodes of the two lists into a single list taking a node
@@ -415,9 +380,129 @@ struct node* shuffleMerge(struct node* a, struct node* b) {
  * sorted list which is returned.
  */
 struct node* sortedMerge(struct node* a, struct node* b) {
-    
+  struct node* result = NULL;        
+  struct node** last_ptr_ref = &result;
+
+  while (1) {
+    if (a == NULL) {
+      *last_ptr_ref = b;
+      break;
+    } else if (b == NULL) {
+      *last_ptr_ref = a;
+      break;
+    } else {
+      if (a->data <= b->data) {
+        moveNode(last_ptr_ref, &a);
+      } else {
+        moveNode(last_ptr_ref, &b);
+      }
+      last_ptr_ref = &((*last_ptr_ref)->next);
+    }
+  }
+
+  return (result);
 }
 
+
+/* Split the list into two smaller lists,
+ * recursively sort those lists, and finally merge the two sorted lists together into a single
+ * sorted list.
+ */
+void mergeSort(struct node** head_ref) {
+  struct node* head = *head_ref;
+  struct node* a;
+  struct node* b;
+
+  // Base case -- length 0 or 1
+  if ((head == NULL) || (head->next == NULL)) {
+    return;
+  }
+
+  frontBackSplit(head, &a, &b); // Split head into 'a' and 'b' sublists
+  // We could just as well use AlternatingSplit()
+  
+  // Recursively sort the sublists
+  mergeSort(&a);
+  mergeSort(&b);
+
+  *head_ref = sortedMerge(a, b); // Recursively sort the sublists
+}
+/* Note on recursion stack in production:
+ * Using recursive stack space proportional to the length of a list is not
+ * recommended. However, the recursion in this case is ok — it uses stack space which is
+ * proportional to the log of the length of the list. For a 1000 node list, the recursion will
+ * only go about 10 deep. For a 2000 node list, it will go 11 deep. If you think about it, you
+ * can see that doubling the size of the list only increases the depth by 1.
+ */
+
+
+/* Given two lists sorted in increasing order, create and return a new list representing the
+ * intersection of the two lists. The new list should be made with its own memory — the
+ * original lists should not be changed. In other words, this should be Push() list building,
+ * not MoveNode(). Ideally, each list should only be traversed once.
+ */
+/* This problem along with Union() and Difference() form a family of clever algorithms 
+ * that exploit the constraint that the lists are sorted to find common nodes efficiently.
+ */
+
+/* Compute a new sorted list that represents the intersection
+ * of the two given sorted lists.
+ */
+struct node* sortedIntersect(struct node* a, struct node* b) {
+  struct node* result = NULL;
+  struct node** last_ptr_ref = &result;
+
+  // Advance comparing the first nodes in both lists.
+  // When one or the other list runs out, we're done.
+  while (a != NULL && b != NULL) {
+    if (a->data == b->data) {
+      push(last_ptr_ref, a->data);
+      last_ptr_ref = &((*last_ptr_ref)->next);
+      a = a->next;
+      b = b->next;
+    } else if (a->data < b->data) {
+      a = a->next;
+    } else {
+      b = b->next;
+    }
+  }
+
+  return (result);
+}
+
+/* Reverse the given linked list by changing its .next pointers and
+   its head pointer. Takes a pointer (reference) to the head pointer.
+*/
+void reverse(struct node** head_ref) {
+  struct node* result = NULL;
+  struct node* current = *head_ref;
+
+  while (current != NULL) {
+   moveNode(&result, &current);
+  }
+
+  *head_ref = result;
+}
+
+void recursiveReverse(struct node** head_ref) {
+  struct node* first;
+  struct node* rest;
+
+  if (*head_ref == NULL) return; // empty list base case
+
+  first = *head_ref; 
+  rest = first->next;
+
+  if (rest == NULL) return; // empty rest case
+  
+  recursiveReverse(&rest); // Recursively reverse the smaller {2, 3} case
+  // after: rest = {3, 2}
+
+  first->next->next = first; // put the first elem on the end of the list
+  first->next = NULL;
+  
+  *head_ref = rest; // fix the head pointer
+}
 
 void print(struct node* head) {
   struct node* current = head;
@@ -434,9 +519,9 @@ void print(struct node* head) {
 int main() {
   struct node* head = NULL;
 
-  push(&head, 4);
+  push(&head, 3);
   push(&head, 2);
-  push(&head, 12);
+  push(&head, 1);
  // push(&head, 5);
  // push(&head, 21);
  // push(&head, 24);
@@ -553,19 +638,37 @@ int main() {
  // print(list_a); 
  // print(list_b); 
  
-  struct node* list_a = NULL;
-  push(&list_a, 4);
-  push(&list_a, 2);
-  push(&list_a, 12);
+ // struct node* list_a = NULL;
+ // push(&list_a, 4);
+ // push(&list_a, 2);
+ // push(&list_a, 12);
 
-  struct node* list_b = NULL;
-  push(&list_b, 5);
-  push(&list_b, 21);
-  push(&list_b, 24);
-  push(&list_b, 3);
+ // struct node* list_b = NULL;
+ // push(&list_b, 5);
+ // push(&list_b, 21);
+ // push(&list_b, 24);
+ // push(&list_b, 3);
 
-  struct node* result = shuffleMerge(list_a, list_b);
-  print(result);
+ // struct node* result = shuffleMerge(list_a, list_b);
+ // print(result);
   
+  //struct node* list_a = NULL;
+  //push(&list_a, 7);
+  //push(&list_a, 6);
+  //push(&list_a, 3);
+  //push(&list_a, 2);
+
+  //struct node* list_b = NULL;
+  ////push(&list_b, 2);
+  //push(&list_b, 8);
+  //push(&list_b, 6);
+  //push(&list_b, 4);
+  //push(&list_b, 2);
+
+  //struct node* result = sortedIntersect(list_a, list_b);
+  //print(result);
+
+  recursiveReverse(&head);
+  print(head);
   return 0;
 }

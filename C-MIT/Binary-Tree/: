@@ -1,0 +1,193 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define COUNT 10
+
+struct node {
+  int data;
+  struct node* left;
+  struct node* right;
+};
+
+
+struct node* newNode(int data) {
+  struct node* node = (struct node*) malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return (node);
+}
+
+
+void printInorder(struct node* node) {
+  if (node == NULL) {
+    return;
+  } else {
+    printInorder(node->left);
+    printf("%d ", node->data);
+    printInorder(node->right);
+  }
+}
+
+
+/* Give a binary search tree and a number, inserts a new node
+ * with the given number in the correct place in the tree.
+ * Returns the new root pointer which the caller should
+ * then use (the standard trick to avoid using reference
+ * parameters).
+ */
+struct node* recursiveInsert(struct node* node, int data) {
+  // 1. If the tree is empty, return a new, single node.
+  if (node == NULL) {
+    return (newNode(data));
+  } else {
+    // 2. Otherwise, recur down the tree.
+    if (data <= node->data) {
+      node->left = recursiveInsert(node->left, data);
+    } else {
+      node->right = recursiveInsert(node->right, data);
+    }
+    return (node);  // return the (unchanged) node pointer.
+  }
+}
+
+
+void print2D(struct node* node, int space) {
+  // Base case
+  if (node == NULL) {
+    return;
+  } else {
+    // Increase distance between levels
+    space += COUNT;
+
+    // Process right child first
+    print2D(node->right, space);
+
+    // Print current node after space count
+    printf("\n");
+    for (int i = COUNT; i < space; i++) {
+      printf(" "); 
+    }
+    printf("%d\n", node->data); 
+
+    // Process left child
+    print2D(node->left, space);
+  }
+}
+
+/* Given a non-empty binary search tree,
+ * return the minimum data value found in that tree.
+ * Note that the entire tree does not need to be searched.
+ */
+int recursiveMinValue(struct node* node) {
+  if (node->left == NULL) {
+    return node->data;
+  } else {
+    return recursiveMinValue(node->left);
+  }
+}
+
+int iterativeMinValue(struct node* node) {
+  struct node* current = node;
+
+  while (current->left != NULL) {
+    current = current->left;
+  }
+
+  return (current->data);
+}
+
+
+/* Given a binary search tree, print out
+ * its data elements in increasing sorted order.
+ */
+void printPostOrder(struct node* node) {
+  if (node == NULL) {
+    return;
+  } else {
+    // first recur on both subtrees
+    printPostOrder(node->left);
+    printPostOrder(node->right);
+
+    // then deal with the node
+    printf("%d ", node->data);
+  }
+}
+
+/* Compute the "maxDepth" of a tree -- the number of nodes along
+ * the longest path from the root node down to the farthest leaf node.
+ */
+int maxDepth(struct node* node) {
+  if (node == NULL) {
+    return (0);
+  } else {
+    // compute the depth of each subtree
+    int l_depth = maxDepth(node->left);
+    int r_depth = maxDepth(node->right);
+
+    // use the larger one
+    if (l_depth > r_depth) {
+      return (l_depth + 1);
+    } else {
+      return (r_depth + 1);
+    }
+  }
+}
+
+
+/* Given a tree and a sum, return true if there is a path from the root
+ * down to a leaf, such that adding up all the values along the path
+ * equals the given sum.
+ */
+int hasPathSum(struct node* node, int sum) {
+  // return true if we run out of tree and sum==0
+  if (node == NULL) {
+    return (sum == 0);
+  } else {
+    int sub_sum = sum - node->data;
+    return (hasPathSum(node->left, sub_sum) ||
+    hasPathSum(node->right, sub_sum));
+  }
+}
+
+
+/* Given a binary tree, print out all of its root-to-leaf
+ * paths, one per line. Uses a recursive helper to do the work.
+ */
+void printPaths(struct node* node) {
+
+}
+
+
+int main() {
+  struct node* root = NULL;
+  //root = recursiveInsert(root, 1);
+  //root = recursiveInsert(root, 2);
+  //root = recursiveInsert(root, 3);
+  //root = recursiveInsert(root, 4);
+  //root = recursiveInsert(root, 5);
+  root = recursiveInsert(root, 2);
+  root = recursiveInsert(root, 1);
+  root = recursiveInsert(root, 4);
+  root = recursiveInsert(root, 3);
+  root = recursiveInsert(root, 5);
+  root = recursiveInsert(root, 6);
+  root = recursiveInsert(root, 7);
+  root = recursiveInsert(root, 13);
+  print2D(root, 0);
+  printf("\nRoot : %d\n", root->data);
+
+  printInorder(root);
+  int max_depth = maxDepth(root);
+  printf("\nMax-Depth: %d", max_depth);
+
+  int min_value = recursiveMinValue(root);
+  printf("\nMin Value : %d", min_value);
+  int iterative_min_value = iterativeMinValue(root);
+  printf("\nMin Value : %d", iterative_min_value);
+
+  printf("\nPost order : ");  
+  printPostOrder(root);
+
+  printf("\nHas Sum Path : %d", hasPathSum(root, 3));
+}
