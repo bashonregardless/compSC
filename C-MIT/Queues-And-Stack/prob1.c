@@ -280,6 +280,15 @@ struct token_queue expr_to_infix(char * str) {
 struct token_queue infix_to_postfix(struct token_queue * pqueue_infix) {
   /* TODO: construct postfix-ordered queue from infix-ordered queue;
      all tokens from infix queue should be added to postfix queue or freed */
+  struct token_queue * postfix_queue;
+  struct s_expr_token * token = pqueue_infix->front;
+
+  while (pqueue_infix->front != NULL) {
+	//token = token->linked_token;
+	if (token->type == OPERAND) {
+	  enqueue(postfix_queue, token);
+	}
+  }
 }
 
 /* evalutes the postfix expression stored in the queue */
