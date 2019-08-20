@@ -1,0 +1,30 @@
+Wed Jun 19 11:43:57 IST 2019
+--> Extract Zip File to Specific or Different Directory (installed matchit for vim)
+  unzip matchit.zip -d ~/.vim 
+
+
+Thu Jun 20 17:49:34 IST 2019
+--> Increase watcher limit
+  echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+  sudo sysctl -p
+
+
+Fri Jun 21 12:35:45 IST 2019
+--> fzf installation
+  cd Plugins/ && git clone --depth 1 https://github.com/junegunn/fzf.git .fzf
+  cd .fzf && ./install
+  source ~/.bashrc
+
+
+Wed Jul  3 15:42:22 IST 2019
+  --> ~/react - configuring yarn for contribution to react project
+	curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+	echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+	sudo apt update
+	sudo apt remove cmdtest
+	sudo apt install yarn
+
+
+Thu Jul  4 19:30:04 IST 2019
+--> Admin: Wifi not able to connect to Inno-Corp
+   sudo service network-manager restart
