@@ -124,18 +124,21 @@ Calc.infixToPostfix = function infix_to_postfix() {
   const op_stack = [];
   const op_idx = this.op.indexOf;
   this.queue_infix.forEach(function parse_infix(token) {
-	if (token.token_type === 'LPARENS') {
-	  op_stack.push(token.token_type);
-	} else if (token.token_type === 'RPARENS') {
-	  while (op_stack[op_stack.length - 1] !== 'LPARENS') {
-		let popped_tok = op_stack.pop();
-		if (popped_tok !== 'LPARENS') {
-		  this.queue_postfix.push(popped_tok);
-		}
-	  };
-	  op_stack.pop();
-	} else {
-	  if (token.token_type === 'OPERATOR') {
+	const type = token.token_type;
+	switch (type) {
+	  case 'LPARENS':
+		op_stack.push(token.token_type);
+		break;
+	  case 'RPARENS':
+		while (op_stack[op_stack.length - 1] !== 'LPARENS') {
+		  let popped_tok = op_stack.pop();
+		  if (popped_tok !== 'LPARENS') {
+			this.queue_postfix.push(popped_tok);
+		  }
+		};
+		op_stack.pop();
+		break;
+	  case 'OPERATOR':
 		while (this.op_precendences[this.op.indexOf(op_stack[op_stack.length - 1])] >=
 		  this.op_precendences[this.op.indexOf(token.token_value.op_code)]) {
 		  if (this.op_precendences[this.op.indexOf(op_stack[op_stack.length - 1])] >
@@ -148,18 +151,15 @@ Calc.infixToPostfix = function infix_to_postfix() {
 		  }
 		}
 		op_stack.push(token);
-	  } else {
+		break;
+	  default:
 		this.queue_postfix.push(token);
-	  }
 	}
   }.bind(this));
 
   while (op_stack.length > 0) {
 	this.queue_postfix.push(op_stack.pop());
   }
-
-  console.log(this.queue_infix);
-  console.log("POSTFIX", this.queue_postfix);
 }
 
 Calc.evaluatePostfix = function evaluate_postfix() {
@@ -176,7 +176,7 @@ Calc.evaluatePostfix = function evaluate_postfix() {
 	  }
 	}
   }.bind(this));
-  
+
   if (postfix_stack.length > 0) {
 	ans = postfix_stack.pop();
 	console.log("ans: ", ans);
