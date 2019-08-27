@@ -154,6 +154,7 @@ Calc.infixToPostfix = function infix_to_postfix() {
 		break;
 	  default:
 		this.queue_postfix.push(token);
+		break;
 	}
   }.bind(this));
 
@@ -166,14 +167,30 @@ Calc.evaluatePostfix = function evaluate_postfix() {
   const postfix_stack = [];
   let ans;
   this.queue_postfix.forEach(function ev_postfix(token) {
+	const type = token.token_type;
 	if (token.token_type === 'OPERAND') {
 	  postfix_stack.push(token.token_value.operand)
 	} else {
-	  if (this.op_operands[this.op.indexOf(token.token_value.op_code)] === 2) {
-		const operand_two = postfix_stack.pop(),
-		  operand_one = postfix_stack.pop();
-		postfix_stack.push(eval(operand_one + this.op_to_sym[token.token_value.op_code] + operand_two))
+	  const op_code = token.token_value.op_code;
+	  let interim_result;
+	  switch (op_code) {
+		case 'ADD':
+		  interim_result = postfix_stack.pop() + postfix_stack.pop();
+		  break;
+		case 'SUBTRACT':
+		  interim_result = -(postfix_stack.pop() - postfix_stack.pop());
+		  break;
+		case 'MULTIPLY':
+		  interim_result = postfix_stack.pop() * postfix_stack.pop();
+		  break;
+		case 'DIVIDE':
+		  interim_result = (1 / postfix_stack.pop()) / (1 / postfix_stack.pop());
+		  break;
+		case 'NEGATE':
+		  interim_result = -postfix_stack.pop();
+		  break;
 	  }
+	  postfix_stack.push(interim_result);
 	}
   }.bind(this));
 
