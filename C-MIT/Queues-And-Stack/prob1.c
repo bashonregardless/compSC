@@ -283,7 +283,8 @@ struct token_queue infix_to_postfix(struct token_queue * pqueue_infix) {
   struct token_queue * postfix_queue;
   struct s_expr_token * token = pqueue_infix->front;
 
-  if (token != NULL) {
+  while (pqueue_infix->front != NULL) {
+	//token = token->linked_token;
 	if (token->type == OPERAND) {
 	  enqueue(postfix_queue, token);
 	}
