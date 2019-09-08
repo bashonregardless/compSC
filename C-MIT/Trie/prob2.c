@@ -105,6 +105,17 @@ int main(int argc, char * argv[]) {
 struct s_trie_node * new_node(void) {
 	/* TODO: allocate a new node on the heap, and
 	   initialize all fields to default values */
+  struct s_trie_node * pnode = (struct s_trie_node *)malloc(sizeof(struct s_trie_node));
+
+  int i;
+
+  pnode->translation = NULL;
+
+  for (i = 0; i < UCHAR_MAX + 1; i++) {
+	pnode->children[i] = NULL;
+  }
+
+  return pnode;
 }
 
 /* delete node and all its children
@@ -128,6 +139,33 @@ int add_word(const char * word, char * translation) {
 	   Be sure to store a copy of translation, since
 	   the string is reused by load_dictionary()
 	 */
+  int i = 0, len = strlen(word), inew = 0;
+  struct s_trie_node * pnode = proot;
+  unsigned char j;
+
+  for (i = 0; i < len; i++) {
+	j = word[i];
+	if ( (inew = !pnode->children[j]) )
+	  pnode->children[j] = new_node();
+	pnode = pnode->children[j];
+
+	if (pnode->translation) {
+	  /* concatenate strings */
+	  char * oldtranslation = pnode->translation;
+	  int oldlen = strlen(oldtranslation),
+		  newlen = strlen(translation);
+
+	  pnode->translation = malloc(oldlen + newlen + 2);
+	  strcpy(pnode->translation, oldtranslation);
+	  strcpy(pnode->translation + oldlen, ",");
+	  strcpy(pnode->translation + oldlen + 1, translation);
+	  free(oldtranslation);
+	} else {
+	  pnode->translation = strcpy(malloc(
+			strlen(translation) + 1), translation);
+	}
+	return inew;
+  }
 }
 
 /* delimiter for dictionary */
