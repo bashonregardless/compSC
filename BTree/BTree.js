@@ -14,7 +14,7 @@ BTree.setup = async function setup () {
   this.root = {};
   this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 10];
   //await input.createInput();
-  this.inputKeys.forEach(function insertKey(key) { insertNode(this.root, key) });
+  this.inputKeys.forEach(function insertKey(key) { insertNode(key) });
 }
 
 BTree.splitNode = function split_node (node, i) {
@@ -82,7 +82,7 @@ BTree.insertNonfull = function insert_nonfull (sp_node, key) {
 	}
 	i = i + 1;
 
-	if (sp_node.children[i].total_keys == 2 * this.DEGREE - 1) {
+	if (sp_node.children[i].total_keys === 2 * this.DEGREE - 1) {
 	  this.splitNode(sp_node, i);
 
 	  while (key < sp_node.keys[i]) {
@@ -94,7 +94,7 @@ BTree.insertNonfull = function insert_nonfull (sp_node, key) {
   }
 }
 
-BTree.insertNode = function insert_node () {
+BTree.insertNode = function insert_node (key) {
   var node = this.root;
 
   if (node.total_keys === 2 * DEGREE - 1) {
