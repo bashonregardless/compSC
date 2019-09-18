@@ -1,7 +1,8 @@
 var input = require('./input'),
   BTree = {};
 
-BTree.newNode = function new_node () {
+/* GOTCHA: when using new constructor call to New_Node, 'this' is not BTree */
+BTree.newNode = function New_Node () {
   this.leaf = true;
   this.total_keys = 0;
 
@@ -9,17 +10,18 @@ BTree.newNode = function new_node () {
   this.children = [];
 }
 
-BTree.setup = async function setup () {
+BTree.setup = function setup () {
   this.DEGREE = 3;
-  this.root = {};
+  this.root = new this.newNode();
   this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 10];
   //await input.createInput();
-  this.inputKeys.forEach(function insertKey(key) { insertNode(key) });
+  /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
+  this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
 }
 
 BTree.splitNode = function split_node (node, i) {
   /* create node z (new split node) */
-  var new_split_node = this.newNode();
+  var new_split_node = new this.newNode();
 
   /* node to be split (original split node) */
   var original_split_node = node.children[i];
@@ -30,7 +32,7 @@ BTree.splitNode = function split_node (node, i) {
 
   /* assign the largest t-1 keys of y (original split node) to z (new split node) */
   let j = 0;
-  while (j < DEGREE - 1 - 1) {
+  while (j < this.DEGREE - 1 - 1) {
 	new_split_node.keys[j] = node.children[i].keys[j + this.DEGREE];
 	j++;
   }
@@ -45,7 +47,7 @@ BTree.splitNode = function split_node (node, i) {
   }
 
   /* adjust total_keys of y */
-  original_split_node.total_keys = t - 1;
+  original_split_node.total_keys = this.DEGREE - 1;
 
 
   /* adjust children of x to accomodate new node */
@@ -57,7 +59,7 @@ BTree.splitNode = function split_node (node, i) {
   node.children[l + 1] = new_split_node;
 
   var l = 0;
-  while (key < original_split_node.keys[l]) {
+  while (node.keys[l] < original_split_node.keys[l]) {
 	node.keys[l + 1] = node.keys[l];
 	l++;
   }
@@ -68,7 +70,7 @@ BTree.splitNode = function split_node (node, i) {
 }
 
 BTree.insertNonfull = function insert_nonfull (sp_node, key) {
-  let i = sp_node->total_keys;
+  let i = sp_node.total_keys;
   if (sp_node.leaf) {
 	while (sp_node.total_keys >= 1 && key < sp_node.keys[i]) {
 	  sp_node.keys[i + 1] = sp_node.keys[i];
@@ -97,14 +99,15 @@ BTree.insertNonfull = function insert_nonfull (sp_node, key) {
 BTree.insertNode = function insert_node (key) {
   var node = this.root;
 
-  if (node.total_keys === 2 * DEGREE - 1) {
-	var sp_node = newNode();
+  if (node.total_keys === 2 * this.DEGREE - 1) {
+	var sp_node = new this.newNode();
 	sp_node.leaf = false;
-	sp_node[0] = node;
+	sp_node.total_keys = 0;
+	sp_node.children[0] = node;
 	this.splitNode(sp_node, 0);
 	this.insertNonfull(sp_node, key);
   } else {
-	this.insertNonfull(sp_node, key);
+	this.insertNonfull(this.root, key);
   }
 }
 
