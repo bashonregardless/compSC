@@ -16,7 +16,7 @@ BTree.newNode = function New_Node (DEGREE) {
 
 BTree.setup = function setup () {
   this.DEGREE = 3;
-  this.root = new this.newNode();
+  this.root = new this.newNode(this.DEGREE);
   this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22];
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
@@ -39,15 +39,28 @@ BTree.splitNode = function split_node (node, i) {
   /* GOTCHA: indexing */
   /* while (j < this.DEGREE - 1 - 1) { */
   while (j < this.DEGREE - 1) {
+	/* GOTCHA:
+	 * children idexed from 0
+	 */
 	new_split_node.keys[j] = node.children[i - 1].keys[j + this.DEGREE];
 	j++;
   }
   
-  if (node.leaf) {
+  /* GOTCHA: original_split_node and not node */
+  /* if (node.leaf) { */
+  if (!original_split_node.leaf) {
 	/* assign corresponding (corresponding to largest t-1 keys of y) children of y to z */
 	var k = 0;
-	while (k < this.DEGREE - 1) {
+	/* GOTCHA: indexing error */
+	/* while (k <= this.DEGREE - 1) { */
+	while (k <= this.DEGREE - 1) {
+	  /* GOTCHA: children indexed from 0 */
 	  new_split_node.children[k] = node.children[i - 1].children[k + this.DEGREE];
+	  /* TO-DO:
+	   * implement removal of elements from array in a better way.
+	   * current : null-ifying redundant elements
+	   */
+	  original_split_node.children[k + this.DEGREE] = null;
 	  k++;
 	}
   }
@@ -64,16 +77,16 @@ BTree.splitNode = function split_node (node, i) {
 
 
   /* adjust children of x to accomodate new node */
-  var m = node.total_keys;
+  var m = node.total_keys + 1;
   /* GOTCHA: indexing */
   /* while (m < i + 1) { */
   /* GOTCHA: When changed i from 0 to 1 in splitNode(sp_node, 1) */
   /* while (m + 1 < i + 1) { */
-  while (m + 1 < i) {
-	node.children[m + 1] = node.children[m];
-	m++;
+  while (m > i) {
+	node.children[m] = node.children[m - 1];
+	m--;
   }
-  node.children[m + 1] = new_split_node;
+  node.children[m] = new_split_node;
 
   /* adjust keys of x to accomodate the key that will be promoted */
   /* GOTCHA: taken l = 0 */
@@ -133,33 +146,10 @@ BTree.insertNonfull = function insert_nonfull (sp_node, key) {
 }
 
 BTree.insertNode = function insert_node (key) {
-  var node = new this.newNode(this.DEGREE);
-  node.leaf = this.root.leaf;
-  var j = 0;
-  while (j < this.root.total_keys) {
-	node.keys[j] = this.root.keys[j];
-	j++;
-  }
-  node.children = this.root.children;
-  node.total_keys = this.root.total_keys;
+  var node = this.root;
 
   if (node.total_keys === 2 * this.DEGREE - 1) {
-	///* GOTCHA: Did not make sp_node the new root */
-	///* var sp_node = new this.newNode(); */
-	//var sp_node = this.root;
-	//sp_node.leaf = false;
-	//var k = 0;
-	//while (k < this.root.total_keys) {
-	//  sp_node.keys[k] = 0;
-	//  k++;
-	//}
-	//sp_node.total_keys = 0;
-	//sp_node.children[0] = node;
-	///* GOTCHA: */
-	///* this.splitNode(sp_node, 0); */
-	//this.splitNode(sp_node, 1);
-	//this.insertNonfull(sp_node, key);
-
+	var sp_node = new this.newNode(this.DEGREE); 
 	this.root = sp_node;
 	sp_node.leaf = false;
 	var k = 0;
