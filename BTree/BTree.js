@@ -17,7 +17,7 @@ BTree.newNode = function New_Node (DEGREE) {
 BTree.setup = function setup () {
   this.DEGREE = 3;
   this.root = new this.newNode(this.DEGREE);
-  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22];
+  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26, 22];
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
@@ -166,6 +166,19 @@ BTree.insertNode = function insert_node (key) {
   } else {
 	this.insertNonfull(this.root, key);
 	/* GOTCHA: root not updated after insert */
+  }
+}
+
+BTree.mergeNode = function merge_node () {
+
+}
+
+BTree.deleteNode = function delete_node () {
+  var node = this.root;
+
+  /* If node is an internal node (not a leaf) */
+  if (!node.leaf) {
+	
   }
 }
 
