@@ -240,7 +240,8 @@ BTree.findSuccessor = function find_successor (node) {
 }
 
 BTree.deleteNode = function delete_node (key) {
-  var [node, i] = this.searchNode(this.root, 27.53);
+  /* uncomment to test internal node cases */
+  // var [node, i] = this.searchNode(this.root, 27.53);
 
   /* If node is an internal node (not a leaf) */
   /* TO-DO: If the node to be deleted is somewhere not at the end, then 
@@ -266,10 +267,16 @@ BTree.deleteNode = function delete_node (key) {
 	  node.keys[i- 1] = successor;
 	}
 
-	/* merge nodes */
+	/* (case 2.c) merge nodes */
 	else {
 	  /* copy key to be deleled in y */
 	  node.children[i - 1].keys[this.DEGREE - 1] = node.keys[i - 1];
+
+	  /* node x loses key */
+	  node.keys[i - 1] = 0;
+
+	  /* decrease key count of x */
+	  node.total_keys = node.total_keys - 1;
 
 	  /* copy all the keys from z to y */
 	  var j = 0;
@@ -277,6 +284,8 @@ BTree.deleteNode = function delete_node (key) {
 		node.children[i - 1].keys[j + this.DEGREE] = node.children[i].keys[j];
 		j++;
 	  }
+	  /* adjust (increment) y key count */
+	  node.children[i - 1].total_keys = 2 * this.DEGREE - 1;
 
 	  /* copy all children of z to y */
 	  var k = 0;
@@ -284,12 +293,14 @@ BTree.deleteNode = function delete_node (key) {
 		node.children[i - 1].children[k + this.DEGREE] = node.children[i].children[k];
 		k++;
 	  }
+	  /* free z */
+	  node.children[i] = null;
+
+	  this.deleteNode(27.53);
 	}
   } else {
-	/*  (case 2.b) successor key k_prime of k */
-	var succ_key = node.keys[0];
-	/* Convert to adjusted array */
-	node.keys[0] = null;
+	/* (case 3.a) immediate sibling with at least t keys */
+	if (
   }
 }
 
