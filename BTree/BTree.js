@@ -15,12 +15,12 @@ BTree.newNode = function New_Node (DEGREE) {
 }
 
 BTree.setup = function setup () {
-  this.DEGREE = 3;
+  this.DEGREE = 2;
   this.root = new this.newNode(this.DEGREE);
   /* to check for predecessor (case 2.a), uncomment 27.45, 27.46, 27.47, .
    * to check for successor (case 2.b), uncomment 27.89, .
    */
-  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
+  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
@@ -58,6 +58,52 @@ BTree.searchNode = function search_node (node, key) {
 	 */
   else return this.searchNode(node.children[i - 1], key);
 }
+
+/* Search for a key in child while in parent */
+BTree.searchNodeInParent = function search_node_in_parent (node, key, i) {
+  /* child index */
+  var j = 0;
+  if (!node.leaf) {
+	var child = node.children[j];
+	while (child) {
+
+	  /* child key index */
+	  i = 1;
+	  while (i <= child.total_keys && key > child.keys[i - 1]) {
+		i++;
+
+	  }
+
+	  if (key < child.keys[i - 1]) {
+		if (child.children[i - 1].leaf) {
+		  /* key index */
+		  var k = 1;
+		  while (k <= child.children[i - 1].total_keys && key > child.children[i - 1].keys[k - 1]) {
+			k++;
+		  }
+
+		  if (k <= child.children[i - 1].total_keys && key === child.children[i - 1].keys[k - 1]) {
+			return [child, i, k];
+		  }
+		} else {
+		  return this.searchNodeInParent(child.children[i - 1], key, i);
+		}
+	  }
+
+	  if (i <= child.total_keys && key === child.keys[i - 1]) {
+		return [node, j, i];
+	  } else {
+		j++;
+		child = node.children[j];
+		if (!node.children[j]) {
+		  return this.searchNodeInParent(node.children[j - 1], key, i);
+		}
+		continue;
+	  }
+	}
+  }
+}
+
 BTree.splitNode = function split_node (node, i) {
   /* create node z (new split node) */
   var new_split_node = new this.newNode(this.DEGREE);
@@ -130,7 +176,6 @@ BTree.splitNode = function split_node (node, i) {
    * while (original_split_node.keys[l] < node.keys[l]) {
    */
   while (l >= 1 && original_split_node.keys[this.DEGREE - 1] < node.keys[l - 1]) {
-	//node.keys[l + 1] = node.keys[l];
 	/* GOTCHA: */
 	/* node.keys[l + 1] = node.keys[l]; */
 	node.keys[l] = node.keys[l - 1];
@@ -242,6 +287,7 @@ BTree.findSuccessor = function find_successor (node) {
 BTree.deleteNode = function delete_node (key) {
   /* uncomment to test internal node cases */
   // var [node, i] = this.searchNode(this.root, 27.53);
+  var [node, i, j] = this.searchNodeInParent(this.root, 27.88, 1);
 
   /* If node is an internal node (not a leaf) */
   /* TO-DO: If the node to be deleted is somewhere not at the end, then 
@@ -300,7 +346,7 @@ BTree.deleteNode = function delete_node (key) {
 	}
   } else {
 	/* (case 3.a) immediate sibling with at least t keys */
-	if (
+	debugger;
   }
 }
 
