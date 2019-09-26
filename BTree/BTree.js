@@ -266,8 +266,8 @@ BTree.findSuccessor = function find_successor (node) {
   if (node.total_keys > this.DEGREE - 1 && !node.leaf) {
 	return this.findSuccessor(node.children[0]);
   } else {
-	var successor = node.keys[node.total_keys - 1];
-	node.keys[node.total_keys - 1] = null;
+	var successor = node.keys[0];
+	node.keys[0] = null;
 	return successor;
   }
 }
@@ -275,66 +275,74 @@ BTree.findSuccessor = function find_successor (node) {
 BTree.deleteNode = function delete_node (key) {
   /* uncomment to test internal node cases */
   // var [node, i] = this.searchNode(this.root, 27.53);
-  var [node, child_idx, child_key_idx] = this.searchNodeInParent(this.root, 27.49 , 1);
+  var [node, child_idx, child_key_idx] = this.searchNodeInParent(this.root, 27.28 , 1);
 
   /* If node is an internal node (not a leaf) */
   /* TO-DO: If the node to be deleted is somewhere not at the end, then 
 	* adjust the keys index accordingly */
-  if (!node.leaf) {
+  if (!node.children[child_idx - 1].leaf) {
 
 	/* find the predecessor of k.
 	 * Predecessor is found by recursively searching for the right most key.
 	 */
-	if (node.children[i - 1].total_keys > this.DEGREE - 1) {
+	if (node.children[child_idx - 1].children[child_key_idx - 1].total_keys > this.DEGREE - 1) {
 	  /* GOTCHA: Tried to implement findPredecessor like
-	   * var predecessor = this.findPredecessor(node, i);
+	   * var predecessor = this.findPredecessor(node.children[child_idx - 1], i);
 	   */
-	  var predecessor = this.findPredecessor(node.children[i - 1]);
-	  node.keys[i - 1] = predecessor;
+	  var predecessor = this.findPredecessor(node.children[child_idx - 1].children[child_key_idx - 1]);
+	  node.children[child_idx - 1].keys[child_key_idx - 1] = predecessor;
 	}
 	
 	/* find the successor of k.
 	 * Successor are found by recursively searching for the left most node.
 	 */
-	else if (node.children[i].total_keys > this.DEGREE - 1) {
-	  var successor = this.findSuccessor(node.children[i]);
-	  node.keys[i- 1] = successor;
+	else if (node.children[child_idx - 1].children[child_key_idx].total_keys > this.DEGREE - 1) {
+	  var successor = this.findSuccessor(node.children[child_idx - 1].children[child_key_idx]);
+	  node.children[child_idx - 1].keys[child_key_idx- 1] = successor;
 	}
 
 	/* (case 2.c) merge nodes */
 	else {
 	  /* copy key to be deleled in y */
-	  node.children[i - 1].keys[this.DEGREE - 1] = node.keys[i - 1];
+	  node.children[child_idx - 1].children[child_key_idx - 1].keys[this.DEGREE - 1] = node.children[child_idx - 1].keys[child_key_idx - 1];
 
 	  /* node x loses key */
-	  node.keys[i - 1] = 0;
+	  node.children[child_idx - 1].keys[child_key_idx - 1] = 0;
 
 	  /* decrease key count of x */
-	  node.total_keys = node.total_keys - 1;
+	  node.children[child_idx - 1].total_keys = node.children[child_idx - 1].total_keys - 1;
 
 	  /* copy all the keys from z to y */
 	  var j = 0;
 	  while (j < this.DEGREE - 1) {
-		node.children[i - 1].keys[j + this.DEGREE] = node.children[i].keys[j];
+		node.children[child_idx - 1].children[child_key_idx - 1].keys[j + this.DEGREE] = node.children[child_idx - 1].children[child_key_idx].keys[j];
 		j++;
 	  }
 	  /* adjust (increment) y key count */
-	  node.children[i - 1].total_keys = 2 * this.DEGREE - 1;
+	  node.children[child_idx - 1].children[child_key_idx - 1].total_keys = 2 * this.DEGREE - 1;
 
 	  /* copy all children of z to y */
 	  var k = 0;
 	  while (k <= this.DEGREE - 1) {
-		node.children[i - 1].children[k + this.DEGREE] = node.children[i].children[k];
+		node.children[child_idx - 1].children[child_key_idx - 1].children[k + this.DEGREE] = node.children[child_idx - 1].children[child_key_idx].children[k];
 		k++;
 	  }
 	  /* free z */
-	  node.children[i] = null;
+	  node.children[child_idx - 1].children[child_key_idx] = null;
 
 	  this.deleteNode(27.53);
 	}
   } else {
-	/* (case 3.a) immediate sibling with at least t keys */
-	debugger;
+	/* (case 3.b) immediate sibling with at least t keys */
+	if ( node.children[child_idx - 1] === this.DEGREE - 1) {
+	  if ( node.children[child_idx - 2] && node.children[child_idx - 2].total_keys > this.DEGREE - 1 ) {
+
+	  }
+
+	  else if ( node.children[child_idx] && node.children[child_idx].total_keys > this.DEGREE - 1 ) {
+
+	  }
+	}
   }
 }
 
