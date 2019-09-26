@@ -15,7 +15,7 @@ BTree.newNode = function New_Node (DEGREE) {
 }
 
 BTree.setup = function setup () {
-  this.DEGREE = 2;
+  this.DEGREE = 3;
   this.root = new this.newNode(this.DEGREE);
   /* to check for predecessor (case 2.a), uncomment 27.45, 27.46, 27.47, .
    * to check for successor (case 2.b), uncomment 27.89, .
@@ -60,48 +60,36 @@ BTree.searchNode = function search_node (node, key) {
 }
 
 /* Search for a key in child while in parent */
-BTree.searchNodeInParent = function search_node_in_parent (node, key, i) {
+BTree.searchNodeInParent = function search_node_in_parent (node, key) {
   /* child index */
-  var j = 0;
-  if (!node.leaf) {
-	var child = node.children[j];
-	while (child) {
+  var i = 1;
 
-	  /* child key index */
-	  i = 1;
-	  while (i <= child.total_keys && key > child.keys[i - 1]) {
-		i++;
-
-	  }
-
-	  if (key < child.keys[i - 1]) {
-		if (child.children[i - 1].leaf) {
-		  /* key index */
-		  var k = 1;
-		  while (k <= child.children[i - 1].total_keys && key > child.children[i - 1].keys[k - 1]) {
-			k++;
-		  }
-
-		  if (k <= child.children[i - 1].total_keys && key === child.children[i - 1].keys[k - 1]) {
-			return [child, i, k];
-		  }
-		} else {
-		  return this.searchNodeInParent(child.children[i - 1], key, i);
-		}
-	  }
-
-	  if (i <= child.total_keys && key === child.keys[i - 1]) {
-		return [node, j, i];
-	  } else {
-		j++;
-		child = node.children[j];
-		if (!node.children[j]) {
-		  return this.searchNodeInParent(node.children[j - 1], key, i);
-		}
-		continue;
-	  }
+  while (i <= node.total_keys) {
+	/* look to see if own key is matched first */
+	if ( key === node.keys[i - 1] ) {
+	  return [node, 0, i];
+	} else if (key > node.keys[i - 1]) {
+	  i++;
+	} else {
+	  break;
 	}
   }
+
+  var child = node.children[i - 1];
+  var j = 1;
+  while (j <= child.total_keys && key > child.keys[j - 1]) {
+	j++;
+  }
+
+  if ( j <= child.total_keys && key === child.keys[j - 1]) {
+	return [node, i , j];
+  }
+
+  else if (child.leaf) {
+	return;
+  }
+
+  else return this.searchNodeInParent(child, key);
 }
 
 BTree.splitNode = function split_node (node, i) {
@@ -287,7 +275,7 @@ BTree.findSuccessor = function find_successor (node) {
 BTree.deleteNode = function delete_node (key) {
   /* uncomment to test internal node cases */
   // var [node, i] = this.searchNode(this.root, 27.53);
-  var [node, i, j] = this.searchNodeInParent(this.root, 27.88, 1);
+  var [node, child_idx, child_key_idx] = this.searchNodeInParent(this.root, 27.49 , 1);
 
   /* If node is an internal node (not a leaf) */
   /* TO-DO: If the node to be deleted is somewhere not at the end, then 
