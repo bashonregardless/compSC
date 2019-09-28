@@ -20,7 +20,8 @@ BTree.setup = function setup () {
   /* to check for predecessor (case 2.a), uncomment 27.45, 27.46, 27.47, .
    * to check for successor (case 2.b), uncomment 27.89, .
    */
-  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
+  //this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
+  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26]
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
@@ -275,71 +276,103 @@ BTree.findSuccessor = function find_successor (node) {
 BTree.deleteNode = function delete_node (key) {
   /* uncomment to test internal node cases */
   // var [node, i] = this.searchNode(this.root, 27.53);
-  var [node, child_idx, child_key_idx] = this.searchNodeInParent(this.root, 27.28 , 1);
+  var [parent, child_idx, child_key_idx] = this.searchNodeInParent(this.root, 17 , 1);
+
+  var child = parent.children[child_idx - 1];
+  var child_sibling_left = parent.children[child_idx - 2]
+  var child_sibling_right = parent.children[child_idx]
+
+  var predecessor_grand_child = child.children[child_key_idx - 1];
+  var successor_grand_child = child.children[child_key_idx];
 
   /* If node is an internal node (not a leaf) */
   /* TO-DO: If the node to be deleted is somewhere not at the end, then 
 	* adjust the keys index accordingly */
-  if (!node.children[child_idx - 1].leaf) {
+  if (!child.leaf) {
 
 	/* find the predecessor of k.
 	 * Predecessor is found by recursively searching for the right most key.
 	 */
-	if (node.children[child_idx - 1].children[child_key_idx - 1].total_keys > this.DEGREE - 1) {
+	if (predecessor_grand_child.total_keys > this.DEGREE - 1) {
 	  /* GOTCHA: Tried to implement findPredecessor like
-	   * var predecessor = this.findPredecessor(node.children[child_idx - 1], i);
+	   * var predecessor = this.findPredecessor(child, i);
 	   */
-	  var predecessor = this.findPredecessor(node.children[child_idx - 1].children[child_key_idx - 1]);
-	  node.children[child_idx - 1].keys[child_key_idx - 1] = predecessor;
+	  var predecessor = this.findPredecessor(predecessor_grand_child);
+	  child.keys[child_key_idx - 1] = predecessor;
 	}
 	
 	/* find the successor of k.
 	 * Successor are found by recursively searching for the left most node.
 	 */
-	else if (node.children[child_idx - 1].children[child_key_idx].total_keys > this.DEGREE - 1) {
-	  var successor = this.findSuccessor(node.children[child_idx - 1].children[child_key_idx]);
-	  node.children[child_idx - 1].keys[child_key_idx- 1] = successor;
+	else if (successor_grand_child.total_keys > this.DEGREE - 1) {
+	  var successor = this.findSuccessor(successor_grand_child);
+	  child.keys[child_key_idx- 1] = successor;
 	}
 
 	/* (case 2.c) merge nodes */
 	else {
 	  /* copy key to be deleled in y */
-	  node.children[child_idx - 1].children[child_key_idx - 1].keys[this.DEGREE - 1] = node.children[child_idx - 1].keys[child_key_idx - 1];
+	  predecessor_grand_child.keys[this.DEGREE - 1] = child.keys[child_key_idx - 1];
 
 	  /* node x loses key */
-	  node.children[child_idx - 1].keys[child_key_idx - 1] = 0;
+	  child.keys[child_key_idx - 1] = 0;
 
 	  /* decrease key count of x */
-	  node.children[child_idx - 1].total_keys = node.children[child_idx - 1].total_keys - 1;
+	  child.total_keys = child.total_keys - 1;
 
 	  /* copy all the keys from z to y */
 	  var j = 0;
 	  while (j < this.DEGREE - 1) {
-		node.children[child_idx - 1].children[child_key_idx - 1].keys[j + this.DEGREE] = node.children[child_idx - 1].children[child_key_idx].keys[j];
+		predecessor_grand_child.keys[j + this.DEGREE] = successor_grand_child.keys[j];
 		j++;
 	  }
 	  /* adjust (increment) y key count */
-	  node.children[child_idx - 1].children[child_key_idx - 1].total_keys = 2 * this.DEGREE - 1;
+	  predecessor_grand_child.total_keys = 2 * this.DEGREE - 1;
 
 	  /* copy all children of z to y */
 	  var k = 0;
 	  while (k <= this.DEGREE - 1) {
-		node.children[child_idx - 1].children[child_key_idx - 1].children[k + this.DEGREE] = node.children[child_idx - 1].children[child_key_idx].children[k];
+		predecessor_grand_child.children[k + this.DEGREE] = successor_grand_child.children[k];
 		k++;
 	  }
 	  /* free z */
-	  node.children[child_idx - 1].children[child_key_idx] = null;
+	  successor_grand_child = null;
 
 	  this.deleteNode(27.53);
 	}
   } else {
 	/* (case 3.b) immediate sibling with at least t keys */
-	if ( node.children[child_idx - 1] === this.DEGREE - 1) {
-	  if ( node.children[child_idx - 2] && node.children[child_idx - 2].total_keys > this.DEGREE - 1 ) {
+	if ( child.total_keys === this.DEGREE - 1) {
+	  if ( child_sibling_left && child_sibling_left.total_keys > this.DEGREE - 1 ) {
+		/* reset key in x.c_suffix_i that will be deleted */
+		child.keys[child_key_idx - 1] = null;
+		
+		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
+		child.keys[child_key_idx - 1] = parent.keys[child_idx - 2];
 
+		/* move a key from x.c_suffix_i's left sibling up into x */
+		parent.keys[child_idx - 2] = child_sibling_left.keys[child_sibling_left.total_keys - 1];
+
+		/* reset key of left sibling */
+		child_sibling_left.keys[child_sibling_left.total_keys - 1] = 0;
 	  }
 
-	  else if ( node.children[child_idx] && node.children[child_idx].total_keys > this.DEGREE - 1 ) {
+	  else if ( child_sibling_right && child_sibling_right.total_keys > this.DEGREE - 1 ) {
+		/* reset key in x.c_suffix_i that will be deleted */
+		child.keys[child_key_idx - 1] = null;
+
+		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
+		child.keys[child_key_idx - 1] = parent.keys[child_idx - 1];
+
+		/* move a key from x.c_suffix_i's right sibling up into x */
+		parent.keys[child_idx - 1] = child_sibling_right.keys[0];
+
+		/* reset key of right sibling */
+		child_sibling_right.keys[child_sibling_right.total_keys - 1] = 0;
+	  }
+
+	  /* (case 3.a) merge nodes */
+	  else {
 
 	  }
 	}
