@@ -25,7 +25,8 @@ BTree.setup = function setup () {
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
-  this.deleteNode(22);
+  //this.deleteNode(22);
+  this.root = this.deleteNodeSinglePass(this.root, 22);
 }
 
 /* BTree search takes as input a pointer to root node (not if available in scope) x
@@ -270,6 +271,233 @@ BTree.findSuccessor = function find_successor (node) {
 	var successor = node.keys[0];
 	node.keys[0] = null;
 	return successor;
+  }
+}
+
+BTree.deleteNodeSinglePass = function (tree_node, key) {
+  var node = tree_node;
+
+  var child_idx = 1;
+  while (child_idx <= node.total_keys && key > node.keys[child_idx - 1]) {
+	child_idx++;
+  }
+
+  if (child_idx <= node.total_keys && key === node.keys[child_idx - 1]) {
+	
+	/* case 2.x: if the key is in node x and x is an internal node */
+
+	/* TO-DO: If the node to be deleted is somewhere not at the end, then 
+	 * adjust the keys index accordingly */
+	if (!node.leaf && node.total_keys > this.DEGREE + 1) {
+	  var child = node.children[child_idx - 1];
+	  var child_sibling_left = node.children[child_idx - 2]
+	  var child_sibling_right = node.children[child_idx]
+	  var predecessor_child = node.children[child_idx - 1];
+	  var successor_child = node.children[child_idx];
+
+	  /* case 2.a */
+	  /* find the predecessor of k.
+	   * Predecessor is found by recursively searching for the right most key.
+	   */
+	  if (predecessor_child.total_keys > this.DEGREE - 1) {
+		/* GOTCHA: Tried to implement findPredecessor like
+		 * var predecessor = this.findPredecessor(child, i);
+		 */
+		var predecessor = this.findPredecessor(predecessor_child);
+		child.keys[child_key_idx - 1] = predecessor;
+	  }
+
+	  /* case 2.b */
+	  /* find the successor of k.
+	   * Successor are found by recursively searching for the left most node.
+	   */
+	  else if (successor_child.total_keys > this.DEGREE - 1) {
+		var successor = this.findSuccessor(successor_child);
+		child.keys[child_key_idx- 1] = successor;
+	  }
+
+	  /* (case 2.c) merge nodes */
+	  else {
+		/* copy key to be deleled in y */
+		predecessor_child.keys[this.DEGREE - 1] = child.keys[child_key_idx - 1];
+
+		/* node x loses key */
+		child.keys[child_key_idx - 1] = 0;
+
+		/* decrease key count of x */
+		child.total_keys = child.total_keys - 1;
+
+		/* copy all the keys from z to y */
+		var j = 0;
+		while (j < this.DEGREE - 1) {
+		  predecessor_child.keys[j + this.DEGREE] = successor_child.keys[j];
+		  j++;
+		}
+		/* adjust (increment) y key count */
+		predecessor_child.total_keys = 2 * this.DEGREE - 1;
+
+		/* copy all children of z to y */
+		var k = 0;
+		while (k <= this.DEGREE - 1) {
+		  predecessor_child.children[k + this.DEGREE] = successor_child.children[k];
+		  k++;
+		}
+		/* free z */
+		successor_child = null;
+
+		this.deleteNode(27.53);
+	  }
+	}
+
+	else {
+	  /* case 1: Simple deletion from a leaf */
+	  /* adjust positions of all the keys in this node */
+	  var h = 0;
+	  while (h < node.total_keys - child_idx) {
+		node.keys[child_idx - 1 + h] = node.keys[child_idx + h];;
+		h++;
+	  }
+
+	  /* reset last key */
+	  node.keys[child_idx - 1 + h] = 0;
+
+	  /* decrement key count */
+	  node.total_keys = node.total_keys - 1;
+	}
+  }
+
+  else {
+	var child = node.children[child_idx - 1];
+	var child_sibling_left = node.children[child_idx - 2]
+	var child_sibling_right = node.children[child_idx]
+
+	/* case 3.x */
+	if ( child.total_keys === this.DEGREE - 1 ) {
+	  /* case 3.a */
+	  if ( child_sibling_left && child_sibling_left.total_keys > this.DEGREE - 1 ) {
+		/* reset key in x.c_suffix_i that will be deleted */
+		child.keys[child_key_idx - 1] = null;
+
+		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
+		child.keys[child_key_idx - 1] = parent.keys[child_idx - 2];
+
+		/* move a key from x.c_suffix_i's left sibling up into x */
+		parent.keys[child_idx - 2] = child_sibling_left.keys[child_sibling_left.total_keys - 1];
+
+		/* reset key of left sibling */
+		child_sibling_left.keys[child_sibling_left.total_keys - 1] = 0;
+	  }
+
+	  else if ( child_sibling_right && child_sibling_right.total_keys > this.DEGREE - 1 ) {
+		/* reset key in x.c_suffix_i that will be deleted */
+		child.keys[child_key_idx - 1] = null;
+
+		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
+		child.keys[child_key_idx - 1] = parent.keys[child_idx - 1];
+
+		/* move a key from x.c_suffix_i's right sibling up into x */
+		parent.keys[child_idx - 1] = child_sibling_right.keys[0];
+
+		/* reset key of right sibling */
+		child_sibling_right.keys[child_sibling_right.total_keys - 1] = 0;
+	  }
+
+	  /* case 3.b */
+	  else {
+		/* left sibling case */
+		if ( child_sibling_left && child_sibling_left.total_keys === this.DEGREE - 1 ) {
+		  /* copy all keys from child's left sibling to child */
+		  var i = 0;
+		  while (i < this.DEGREE - 1) {
+			/* move all child keys to right most positions to create space for incoming keys */
+			child.keys[child.total_keys + i + 1] = child.keys[i];
+			/* copy key from child's left sibling to child */
+			child.keys[i] = child_sibling_left.keys[i];
+			i++;
+		  }
+
+		  /* copy parent key to child */
+		  child.keys[child.total_keys] = node.keys[child_idx - 2];
+
+		  /* remove node key and decrease it's key count */
+		  node.keys[child_idx - 2] = 0;
+		  node.total_keys = node.total_keys - 1;
+
+		  var j = 0;
+		  while (j <= this.DEGREE - 1) {
+			/* move child's children to right most positions */
+			child.children[child.total_keys + j + 1] = child.children[j];
+			j++;
+		  }
+
+		  /* copy all child's left sibling children to child's children */
+		  var k = 0;
+		  while (k <= this.DEGREE - 1) {
+			child.children[k] = child_sibling_left.children[k];
+			k++;
+		  }
+
+		  /* increment key count of child */
+		  child.total_keys = 2 * this.DEGREE - 1;
+
+		  /* adjust position of child, replace child's left sibling with child and delete child at original pos */
+		  node.children[child_idx - 2] = node.children[child_idx - 1];
+		  node.children[child_idx - 1] = null;
+
+		  /* if node key count becomes zero, replace it with the merged node */
+		  if ( node.total_keys === 0 ) {
+			this.deleteNodeSinglePass(node.children[child_idx - 2], key);
+			return node.children[child_idx - 2];
+		  } else {
+			this.deleteNodeSinglePass(node.children[child_idx - 2], key);
+			return node;
+		  }
+		}
+
+		/* right sibling case */
+		else if ( child_sibling_right && child_sibling_right.total_keys === this.DEGREE - 1 ) {
+		  /* copy all keys from child's right sibling to child */
+		  var i = 0;
+		  while (i < this.DEGREE - 1) {
+			/* copy key from child's right sibling to child */
+			child.keys[child.total_keys + i + 1] = child_sibling_right.keys[i];
+			i++;
+		  }
+
+		  /* copy parent key to child */
+		  child.keys[child.total_keys] = node.keys[child_idx - 2];
+
+		  /* remove node key and decrease it's key count */
+		  node.keys[child_idx - 2] = 0;
+		  node.total_keys = node.total_keys - 1;
+
+		  /* copy all child's right sibling children to child's children */
+		  var k = 0;
+		  while (k <= this.DEGREE - 1) {
+			child.children[child.total_keys + k + 1] = child_sibling_right.children[k];
+			k++;
+		  }
+
+		  /* increment key count of child */
+		  child.total_keys = 2 * this.DEGREE - 1;
+
+		  /* adjust position of child, replace child's right sibling with child and delete child at original pos */
+		  node.children[child_idx] = node.children[child_idx - 1];
+		  node.children[child_idx - 1] = null;
+
+		  /* if node key count becomes zero, replace it with the merged node */
+		  if ( node.total_keys === 0 ) {
+			this.deleteNodeSinglePass(node.children[child_idx - 1], key);
+			return node.children[child_idx - 1];
+		  } else {
+			this.deleteNodeSinglePass(node.children[child_idx - 1], key);
+			return node;
+		  }
+		}
+	  }
+	} 
+
+	else return this.deleteNodeSinglePass(child, key);
   }
 }
 
