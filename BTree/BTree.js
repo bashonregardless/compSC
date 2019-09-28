@@ -20,13 +20,13 @@ BTree.setup = function setup () {
   /* to check for predecessor (case 2.a), uncomment 27.45, 27.46, 27.47, .
    * to check for successor (case 2.b), uncomment 27.89, .
    */
-  //this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
-  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26]
+  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
+  //this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26]
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
   //this.deleteNode(22);
-  this.root = this.deleteNodeSinglePass(this.root, 22);
+  this.root = this.deleteNodeSinglePass(this.root, 27.28);
 }
 
 /* BTree search takes as input a pointer to root node (not if available in scope) x
@@ -259,7 +259,11 @@ BTree.findPredecessor = function find_predecessor (node) {
 	return this.findPredecessor(node.children[node.total_keys]);
   } else {
 	var predecessor = node.keys[node.total_keys - 1];
+
 	node.keys[node.total_keys - 1] = null;
+	/* decrement total key count of node */
+	node.total_keys = node.total_keys - 1;
+
 	return predecessor;
   }
 }
@@ -270,6 +274,16 @@ BTree.findSuccessor = function find_successor (node) {
   } else {
 	var successor = node.keys[0];
 	node.keys[0] = null;
+
+	/* adjust the index of all the other keys in the node */
+	var i = 0;
+	while (i < node.total_keys) {
+	  node.keys[i] = node.keys[i + 1];
+	  i++;
+	}
+	node.keys[i] = 0;
+	node.total_keys--;
+
 	return successor;
   }
 }
@@ -288,7 +302,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 
 	/* TO-DO: If the node to be deleted is somewhere not at the end, then 
 	 * adjust the keys index accordingly */
-	if (!node.leaf && node.total_keys > this.DEGREE + 1) {
+	if (!node.leaf && node.total_keys > this.DEGREE - 1) {
 	  var child = node.children[child_idx - 1];
 	  var child_sibling_left = node.children[child_idx - 2]
 	  var child_sibling_right = node.children[child_idx]
@@ -304,7 +318,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		 * var predecessor = this.findPredecessor(child, i);
 		 */
 		var predecessor = this.findPredecessor(predecessor_child);
-		child.keys[child_key_idx - 1] = predecessor;
+		node.keys[child_idx - 1] = predecessor;
 	  }
 
 	  /* case 2.b */
@@ -313,7 +327,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 	   */
 	  else if (successor_child.total_keys > this.DEGREE - 1) {
 		var successor = this.findSuccessor(successor_child);
-		child.keys[child_key_idx- 1] = successor;
+		node.keys[child_idx- 1] = successor;
 	  }
 
 	  /* (case 2.c) merge nodes */
@@ -345,7 +359,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		/* free z */
 		successor_child = null;
 
-		this.deleteNode(27.53);
+		this.deleteNode(27.99);
 	  }
 	}
 
@@ -497,7 +511,10 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 	  }
 	} 
 
-	else return this.deleteNodeSinglePass(child, key);
+	else {
+	  this.deleteNodeSinglePass(child, key);
+	  return tree_node;
+	}
   }
 }
 
