@@ -306,8 +306,6 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 	 * adjust the keys index accordingly */
 	if (!node.leaf && node.total_keys > this.DEGREE - 1) {
 	  var child = node.children[child_idx - 1];
-	  var child_sibling_left = node.children[child_idx - 2]
-	  var child_sibling_right = node.children[child_idx]
 	  var predecessor_child = node.children[child_idx - 1];
 	  var successor_child = node.children[child_idx];
 
@@ -334,14 +332,23 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 
 	  /* (case 2.c) merge nodes */
 	  else {
-		/* copy key to be deleled in y */
-		predecessor_child.keys[this.DEGREE - 1] = child.keys[child_key_idx - 1];
+		/* copy key to be deleled from x to y */
+		predecessor_child.keys[this.DEGREE - 1] = node.keys[child_idx - 1];
 
 		/* node x loses key */
-		child.keys[child_key_idx - 1] = 0;
+		node.keys[child_idx - 1] = 0;
+	
+		/* adjust key index of all the other keys in x */
+		var o = 0;
+		while (o < node.total_keys - child_idx) {
+		  node.keys[child_idx - 1 + p] = node.keys[child_idX + p];
+		  o++;
+		}
+		/* reset last key */
+		node.keys[child_idx - 1 + o] = 0;
 
 		/* decrease key count of x */
-		child.total_keys = child.total_keys - 1;
+		node.total_keys = node.total_keys - 1;
 
 		/* copy all the keys from z to y */
 		var j = 0;
@@ -352,6 +359,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		/* adjust (increment) y key count */
 		predecessor_child.total_keys = 2 * this.DEGREE - 1;
 
+		/*********************************** VERIFICATION REQUIRED ***************************************/
 		/* copy all children of z to y */
 		var k = 0;
 		while (k <= this.DEGREE - 1) {
@@ -361,6 +369,8 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		/* free z */
 		successor_child = null;
 
+		/*********************************** VERIFICATION REQUIRED ***************************************/
+		/* recursively delete key from y */
 		this.deleteNode(27.99);
 	  }
 	}
@@ -383,6 +393,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
   }
 
   else {
+	/* Once we have exhausted all the internal node cases, we do 3.x */
 	var child = node.children[child_idx - 1];
 	var child_sibling_left = node.children[child_idx - 2]
 	var child_sibling_right = node.children[child_idx]
@@ -395,10 +406,10 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		child.keys[child_idx - 1] = null;
 
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
-		child.keys[child_key_idx - 1] = parent.keys[child_idx - 2];
+		child.keys[child_idx - 1] = node.keys[child_idx - 2];
 
 		/* move a key from x.c_suffix_i's left sibling up into x */
-		parent.keys[child_idx - 2] = child_sibling_left.keys[child_sibling_left.total_keys - 1];
+		node.keys[child_idx - 2] = child_sibling_left.keys[child_sibling_left.total_keys - 1];
 
 		/* reset key of left sibling */
 		child_sibling_left.keys[child_sibling_left.total_keys - 1] = 0;
@@ -406,13 +417,13 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 
 	  else if ( child_sibling_right && child_sibling_right.total_keys > this.DEGREE - 1 ) {
 		/* reset key in x.c_suffix_i that will be deleted */
-		child.keys[child_key_idx - 1] = null;
+		child.keys[child_idx - 1] = null;
 
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
-		child.keys[child_key_idx - 1] = parent.keys[child_idx - 1];
+		child.keys[child_key_idx - 1] = node.keys[child_idx - 1];
 
 		/* move a key from x.c_suffix_i's right sibling up into x */
-		parent.keys[child_idx - 1] = child_sibling_right.keys[0];
+		node.keys[child_idx - 1] = child_sibling_right.keys[0];
 
 		/* reset key of right sibling */
 		child_sibling_right.keys[child_sibling_right.total_keys - 1] = 0;
@@ -420,7 +431,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 
 	  /* case 3.b */
 	  else {
-		/* left sibling case */
+		/* merge with left sibling case */
 		if ( child_sibling_left && child_sibling_left.total_keys === this.DEGREE - 1 ) {
 		  /* copy all keys from child's left sibling to child */
 		  var i = 0;
@@ -435,7 +446,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		  /* copy parent key to child */
 		  child.keys[child.total_keys] = node.keys[child_idx - 2];
 
-		  /* remove node key and decrease it's key count */
+		  /* remove parent (node) key and decrease it's key count */
 		  node.keys[child_idx - 2] = 0;
 		  node.total_keys = node.total_keys - 1;
 
@@ -470,7 +481,7 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		  }
 		}
 
-		/* right sibling case */
+		/* merge with right sibling case */
 		else if ( child_sibling_right && child_sibling_right.total_keys === this.DEGREE - 1 ) {
 		  /* copy all keys from child's right sibling to child */
 		  var i = 0;
