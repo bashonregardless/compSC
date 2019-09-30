@@ -321,8 +321,8 @@ struct s_btree_node * find_predecessor (struct s_btree_node * prt) {
 }
 
 struct s_btree_node * find_successor (struct s_btree_node * prt) {
-  while (prt->total_keys > DEGREE - 1 && prt->leaf == 0 && prt->left_sibling != NULL) {
-	prt = prt->left_sibling;
+  while (prt->total_keys > DEGREE - 1 && prt->leaf == 0 && prt->left_child != NULL) {
+	prt = prt->left_child;
   }
 
   return prt;
@@ -371,10 +371,10 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  if (predecessor_child->total_keys > DEGREE - 1) {
 		struct s_btree_node * pred_key_node = find_predecessor(predecessor_child);
 
-		pred_key_node[total_keys - 1] = 0;
+		pred_key_node->keys[pred_key_node->total_keys - 1] = 0;
 		pred_key_node->total_keys--;
 
-		node->keys[child_idx] = pred_key_node[total_keys - 1];
+		node->keys[child_idx] = pred_key_node->keys[pred_key_node->total_keys - 1];
 	  }
 
 	  /* case 2.b */
@@ -385,10 +385,10 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  else if (successor_child->total_keys > DEGREE - 1) {
 		struct s_btree_node * succ_key_node = find_successor(successor_child);
 
-		succ_key_node[0] = 0;
+		succ_key_node->keys[0] = 0;
 		succ_key_node->total_keys--;
 
-		node->keys[child_idx] = succ_key_node[0];
+		node->keys[child_idx] = succ_key_node->keys[0];
 	  }
 
 	  /* case 2.c */
@@ -411,17 +411,17 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		}
 
 		/* decrease key count of x */
-		node.total_keys--;
+		node->total_keys--;
 
 		/* copy all keys from z to y */
 		int q = 0;
 		while (q < DEGREE - 1) {
-		  predecessor_child[child_idx + q] = successor_child.keys[q];
+		  predecessor_child->keys[child_idx + q] = successor_child->keys[q];
 		  q++;
 		}
 		
 		/* increment key count of y */
-		predecessor_child.total_keys = 2 * DEGREE - 1;
+		predecessor_child->total_keys = 2 * DEGREE - 1;
 
 		/************************** VERIFICATION REQUIRED **************************/
 		/* copy all children of z to y */
@@ -431,7 +431,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  pred_child = pred_child->right_sibling;
 		  r++;
 		}
-		pred_child->right_sibling = successor_child.left_child;
+		pred_child->right_sibling = successor_child->left_child;
 
 		/* free z */
 		free(successor_child);
@@ -493,7 +493,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  /* case 3.a */
 	  if (child_sibling_left != NULL && child_sibling_left->total_keys > DEGREE - 1) {
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
-		child.keys[0] = node->keys[child_idx - 1];
+		child->keys[1] = node->keys[child_idx - 1];
 
 		/* move key from sibling up into x */
 		node->keys[child_idx - 1] = child_sibling_left->keys[child_sibling_left->total_keys - 1];
@@ -504,7 +504,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 
 	  else if (child_sibling_right != NULL && child_sibling_right->total_keys > DEGREE - 1) {
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
-		child.keys[child->total_keys] = node->keys[child_idx - 1];
+		child->keys[child->total_keys] = node->keys[child_idx - 2];
 
 		/* move key from sibling up into x */
 		node->keys[child_idx - 1] = child_sibling_right->keys[0];
@@ -524,19 +524,19 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  int r = 0;
 		  while (r < DEGREE - 1) {
 			/* move keys to right most positions to create space for incoming keys */
-			child->keys[child->total_keys + i + 1] = child->keys[i];
+			child->keys[child->total_keys + r + 1] = child->keys[r];
 
 			/* copy key from child's left sibling to child */
-			child->key[i] = child_sibling_left->keys[i];
+			child->keys[r] = child_sibling_left->keys[r];
 			
-			i++;
+			r++;
 		  }
 
 		  /* copy parent key to child */
 		  child->keys[child->total_keys] = node->keys[child_idx - 2];
 
 		  /* increment key count of child */
-		  child
+		  child->total_keys = 2 * DEGREE - 1;
 
 		  /* remove parent (node) key and decrease its key count */
 		  node->keys[child_idx - 2] = 0;
@@ -551,8 +551,62 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 
 		  /* append child's children list to child_sibling_left's children list */
 		  pchild_sibling_left_children_node->right_sibling = child->left_child;
+
+
+		  /* link child left sibling's right sibling to child's right sibling, thereby breaking the
+		   * link of child left sibling with child */
+		  child_sibling_left->right_sibling = child->right_sibling;
+
+		  /* free child at original pos */
+		  /*********************** VERIFY *********************/
+		  free(child);
+
+		  if (node->total_keys == 0) {
+			btree_delete_node(child_sibling_left, key);
+			return child_sibling_left;
+		  }
+		  else {
+			btree_delete_node(child_sibling_left, key);
+			return node;
+		  }
 		}
 
+		/* merge with right sibling case */
+		if (child_sibling_right != NULL && child_sibling_right->total_keys == DEGREE - 1) {
+		  /* copy all keys from child's right sibling to child */
+		  int s = 0;
+		  while (s < DEGREE - 1) {
+			child->keys[child->total_keys + s + 1] = child_sibling_right->keys[s];
+			s++;
+		  }
+
+		  /* copy parent key to child */
+		  child->keys[DEGREE - 1] = node->keys[child_idx - 2];
+
+		  /* remove node (parent) key and decrease its key count */
+		  node->keys[child_idx - 2] = 0;
+		  node->total_keys--;
+
+		  /* link child right sibling's children to child's children */
+		  int t = 0;
+		  struct s_btree_node * pchild_children_node = child->left_child;
+		  while (t < DEGREE - 1) {
+			pchild_children_node = pchild_children_node->right_sibling;
+			t++;
+		  }
+		  pchild_children_node->right_sibling = child_sibling_right->left_child;
+
+		  free(child_sibling_right);
+
+		  /* if node (parent) key count becomes zero, replace it with merged node */
+		  if (node->total_keys == 0) {
+			btree_delete_node(child, key);
+			return child;
+		  } else {
+			btree_delete_node(child, key);
+			return node;
+		  }
+		}
 	  }
 	}
 

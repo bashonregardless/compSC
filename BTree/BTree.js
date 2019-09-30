@@ -494,11 +494,11 @@ BTree.deleteNodeSinglePass = function (tree_node, key) {
 		  /* copy parent key to child */
 		  child.keys[child.total_keys] = node.keys[child_idx - 2];
 
-		  /* remove node key and decrease it's key count */
+		  /* remove node (parent) key and decrease it's key count */
 		  node.keys[child_idx - 2] = 0;
 		  node.total_keys = node.total_keys - 1;
 
-		  /* copy all child's right sibling children to child's children */
+		  /* copy all child right sibling's children to child's children */
 		  var k = 0;
 		  while (k <= this.DEGREE - 1) {
 			child.children[child.total_keys + k + 1] = child_sibling_right.children[k];
