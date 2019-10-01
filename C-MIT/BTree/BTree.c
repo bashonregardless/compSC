@@ -94,16 +94,16 @@ int main(int argc, char * argv[])
   //btree_insert_node(proot, 4);
   btree_insert_node(proot, 20);
   btree_insert_node(proot, 22);
-  btree_insert_node(proot, 10);
-  btree_insert_node(proot, 34);
-  btree_insert_node(proot, 30);
-  btree_insert_node(proot, 18);
+  //btree_insert_node(proot, 10);
+  //btree_insert_node(proot, 34);
+  //btree_insert_node(proot, 30);
+  //btree_insert_node(proot, 18);
   btree_insert_node(proot, 45);
-  btree_insert_node(proot, 25);
+  //btree_insert_node(proot, 25);
 
-  btree_insert_node(proot, 35);
-  btree_insert_node(proot, 32);
-  btree_insert_node(proot, 29);
+  //btree_insert_node(proot, 35);
+  //btree_insert_node(proot, 32);
+  //btree_insert_node(proot, 29);
 
   btree_delete_node(proot, 45);
   return 0;
@@ -464,21 +464,24 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	 */
 	struct s_btree_node * child = node->left_child;
 	int l = 0;
-	while (l < child_idx) {
+	/* in while condition below "-1" is required since we already pointed child to 
+	 * node's left child
+	 */
+	while (l < child_idx - 1) {
 	  child = child->right_sibling;
 	  l++;
 	}
 
 	struct s_btree_node * child_sibling_left = node->left_child;
 	int m = 0;
-	while (m < child_idx - 1) {
+	while (m < child_idx - 1 - 1) {
 	  child_sibling_left = child_sibling_left->right_sibling;
 	  m++;
 	}
 
 	struct s_btree_node * child_sibling_right = node->left_child;
 	int n = 0;
-	while (n < child_idx + 1) {
+	while (n < child_idx) {
 	  child_sibling_right = child_sibling_right->right_sibling;
 	  n++;
 	}
@@ -523,7 +526,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  /* copy all keys from child's left sibling to child */
 		  int r = 0;
 		  while (r < DEGREE - 1) {
-			/* move keys to right most positions to create space for incoming keys */
+			/* move child keys to right most positions to create space for incoming keys */
 			child->keys[child->total_keys + r + 1] = child->keys[r];
 
 			/* copy key from child's left sibling to child */
@@ -542,31 +545,31 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  node->keys[child_idx - 2] = 0;
 		  node->total_keys--;
 
+		  /* prepend child_sibling_left's children list to child_sibling_left's children list */
 		  struct s_btree_node * pchild_sibling_left_children_node = child_sibling_left->left_child;
 		  int s = 0;
-		  while (s <= DEGREE - 1) {
+		  while (s < DEGREE - 1) {
 			pchild_sibling_left_children_node = pchild_sibling_left_children_node->right_sibling;
 			s++;
 		  }
-
-		  /* append child's children list to child_sibling_left's children list */
 		  pchild_sibling_left_children_node->right_sibling = child->left_child;
 
+		  child->left_child = node->left_child->left_child;
 
 		  /* link child left sibling's right sibling to child's right sibling, thereby breaking the
 		   * link of child left sibling with child */
-		  child_sibling_left->right_sibling = child->right_sibling;
+		  //child_sibling_left->right_sibling = child->right_sibling;
 
 		  /* free child at original pos */
 		  /*********************** VERIFY *********************/
-		  free(child);
+		  free(child_sibling_left);
 
 		  if (node->total_keys == 0) {
-			btree_delete_node(child_sibling_left, key);
-			return child_sibling_left;
+			btree_delete_node(child, key);
+			return child;
 		  }
 		  else {
-			btree_delete_node(child_sibling_left, key);
+			btree_delete_node(child, key);
 			return node;
 		  }
 		}
