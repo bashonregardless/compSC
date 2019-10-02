@@ -105,7 +105,8 @@ int main(int argc, char * argv[])
   //btree_insert_node(proot, 32);
   //btree_insert_node(proot, 29);
 
-  btree_delete_node(proot, 45);
+  //proot = btree_delete_node(proot, 46);
+  proot = btree_delete_node(proot, 5);
   return 0;
 }
 
@@ -348,13 +349,15 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		child = child->right_sibling;
 		i++;
 	  }
+
 	  //struct s_btree_node * predecessor_child = node->children[child_idx - 2];
 	  struct s_btree_node * predecessor_child = node->left_child;
 	  int j = 0;
-	  while (j < child_idx) {
+	  while (j < child_idx - 1) {
 		predecessor_child = predecessor_child->right_sibling;
 		j++;
 	  }
+
 	  //struct s_btree_node * successor_child = node->children[child_idx];
 	  struct s_btree_node * successor_child = node->left_child;
 	  int k = 0;
@@ -371,10 +374,12 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  if (predecessor_child->total_keys > DEGREE - 1) {
 		struct s_btree_node * pred_key_node = find_predecessor(predecessor_child);
 
+		/* First replace key in node with key in pred_key_node */
+		node->keys[child_idx - 1] = pred_key_node->keys[pred_key_node->total_keys - 1];
+
+		/* then adjust attributes of pred_key_node */
 		pred_key_node->keys[pred_key_node->total_keys - 1] = 0;
 		pred_key_node->total_keys--;
-
-		node->keys[child_idx] = pred_key_node->keys[pred_key_node->total_keys - 1];
 	  }
 
 	  /* case 2.b */
@@ -472,16 +477,22 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  l++;
 	}
 
-	struct s_btree_node * child_sibling_left = node->left_child;
+	/* ternary op is necessary as we make assignment to node->left_child w/o any check.
+	 * In this case child is the leftmost node and has no left sibling 
+	 */
+	struct s_btree_node * child_sibling_left = (child_idx > 1) ? node->left_child : NULL;
 	int m = 0;
-	while (m < child_idx - 1 - 1) {
+	while (child_sibling_left != NULL && m < child_idx - 1 - 1) {
 	  child_sibling_left = child_sibling_left->right_sibling;
 	  m++;
 	}
 
-	struct s_btree_node * child_sibling_right = node->left_child;
+	/* if condition is necessary as this is a case when child is the right most node and
+	 * has no right sibling
+	 */ 
+	struct s_btree_node * child_sibling_right = (child_idx != node->total_keys + 1) ? node->left_child : NULL;
 	int n = 0;
-	while (n < child_idx) {
+	while (child_sibling_right != NULL && n < child_idx) {
 	  child_sibling_right = child_sibling_right->right_sibling;
 	  n++;
 	}
@@ -584,10 +595,13 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  }
 
 		  /* copy parent key to child */
-		  child->keys[DEGREE - 1] = node->keys[child_idx - 2];
+		  child->keys[DEGREE - 1] = node->keys[child_idx - 1];
+
+		  /* increment key count of child */
+		  child->total_keys = 2 * DEGREE - 1;
 
 		  /* remove node (parent) key and decrease its key count */
-		  node->keys[child_idx - 2] = 0;
+		  node->keys[child_idx - 1] = 0;
 		  node->total_keys--;
 
 		  /* link child right sibling's children to child's children */
@@ -615,6 +629,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 
 	else {
 	  btree_delete_node(child, key);
+	  return prt;
 	}
   }
 }
