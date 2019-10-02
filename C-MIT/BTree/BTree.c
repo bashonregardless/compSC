@@ -106,7 +106,7 @@ int main(int argc, char * argv[])
   //btree_insert_node(proot, 29);
 
   //proot = btree_delete_node(proot, 46);
-  proot = btree_delete_node(proot, 5);
+  proot = btree_delete_node(proot, 8);
   return 0;
 }
 
@@ -343,12 +343,16 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	/* If the key is in node and node is an internal node */
 	if (node->leaf == 0) {
 	  //struct s_btree_node * child = node->children[child_idx - 1];
-	  struct s_btree_node * child = node->left_child;
-	  int i = 0;
-	  while (i < child_idx) {
-		child = child->right_sibling;
-		i++;
-	  }
+	  /*********************************** VERIFY *********************************/
+	  /* child is just irrelevant to BTree concept.
+	   * A key either has a corresponding predecessor child or successor child 
+	   */
+	  //struct s_btree_node * child = node->left_child;
+	  //int i = 0;
+	  //while (i < child_idx) {
+	  //  child = child->right_sibling;
+	  //  i++;
+	  //}
 
 	  //struct s_btree_node * predecessor_child = node->children[child_idx - 2];
 	  struct s_btree_node * predecessor_child = node->left_child;
@@ -361,13 +365,13 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  //struct s_btree_node * successor_child = node->children[child_idx];
 	  struct s_btree_node * successor_child = node->left_child;
 	  int k = 0;
-	  while (k < child_idx + 1) {
+	  while (k < child_idx) {
 		successor_child = successor_child->right_sibling;
 		k++;
 	  }
 
 	  /* case 2.a */
-	  /* find the predecessor k.
+	  /* find the predecessor key of k.
 	   * Predecessor is found by begining search at child predecessor node,
 	   * then recursively searching for the right most key.
 	   */
@@ -383,7 +387,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  }
 
 	  /* case 2.b */
-	  /* find the successor k.
+	  /* find the successor key of k.
 	   * Successor is found by begining search at child successor node,
 	   * then recursively searching for the left most key.
 	   */
@@ -409,11 +413,14 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		node->keys[child_idx - 1] = 0;
 
 		/* adjust index of all other keys in x */
-		int p = child_idx;
+		int p = 0;
 		while (p < node->total_keys - child_idx) {
 		  node->keys[child_idx - 1 + p] = node->keys[child_idx + p];
 		  p++;
 		}
+
+		/* reset last key of node */
+		node->keys[child_idx - 1 + p] = 0;
 
 		/* decrease key count of x */
 		node->total_keys--;
@@ -421,7 +428,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		/* copy all keys from z to y */
 		int q = 0;
 		while (q < DEGREE - 1) {
-		  predecessor_child->keys[child_idx + q] = successor_child->keys[q];
+		  predecessor_child->keys[child_idx + 1 + q] = successor_child->keys[q];
 		  q++;
 		}
 		
@@ -430,33 +437,38 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 
 		/************************** VERIFICATION REQUIRED **************************/
 		/* copy all children of z to y */
-		int r = 0;
 		struct s_btree_node * pred_child = predecessor_child->left_child;
-		while (r < predecessor_child->total_keys) {
-		  pred_child = pred_child->right_sibling;
-		  r++;
+		if (pred_child) {
+		  int r = 0;
+		  while (r <= DEGREE - 1) {
+			pred_child = pred_child->right_sibling;
+			r++;
+		  }
+		  pred_child->right_sibling = successor_child->left_child;
 		}
-		pred_child->right_sibling = successor_child->left_child;
 
 		/* free z */
 		free(successor_child);
 		
-		
-		/************************** VERIFICATION REQUIRED **************************/
-		/* TO-DO: recursively delete key from y */
-		/* ... */
+		/* recursively delete key from y */
+		btree_delete_node(predecessor_child, key);
 	  }
 	}
 	
 	/* case 1: simple deletion from a leaf */
 	else {
+	  node->keys[child_idx - 1] = 0;
+
 	  /* adjust index of all other keys in x */
-	  int s = child_idx;
+	  int s = 0;
 	  while (s < node->total_keys - child_idx) {
 		node->keys[child_idx - 1 + s] = node->keys[child_idx + s];
 		s++;
 	  }
 	  
+	  /* reset last key of node */
+	  node->keys[child_idx - 1 + s] = 0;
+
 	  /* decrement key count */
 	  node->total_keys--;
 	}
@@ -487,7 +499,7 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  m++;
 	}
 
-	/* if condition is necessary as this is a case when child is the right most node and
+	/* ternary condition is necessary as this is a case when child is the right most node and
 	 * has no right sibling
 	 */ 
 	struct s_btree_node * child_sibling_right = (child_idx != node->total_keys + 1) ? node->left_child : NULL;
@@ -533,6 +545,10 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	   * the new merged node to become the median key for that node. */
 	  else {
 		/* merge with left sibling case */
+
+		/* TO-Do:the condition "child_sibling_left->total_keys == DEGREE - 1", may not be necessary as
+		 * we have checked this in conditionals above.
+		 */
 		if (child_sibling_left != NULL && child_sibling_left->total_keys == DEGREE - 1) {
 		  /* copy all keys from child's left sibling to child */
 		  int r = 0;
@@ -586,6 +602,10 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		}
 
 		/* merge with right sibling case */
+
+		/* TO-Do:the condition "child_sibling_right->total_keys == DEGREE - 1", may not be necessary as
+		 * we have checked this in conditionals above.
+		 */
 		if (child_sibling_right != NULL && child_sibling_right->total_keys == DEGREE - 1) {
 		  /* copy all keys from child's right sibling to child */
 		  int s = 0;
