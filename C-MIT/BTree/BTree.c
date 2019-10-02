@@ -91,21 +91,20 @@ int main(int argc, char * argv[])
   btree_insert_node(proot, 14);
   btree_insert_node(proot, 43);
   btree_insert_node(proot, 2);
-  //btree_insert_node(proot, 4);
+  btree_insert_node(proot, 4);
   btree_insert_node(proot, 20);
   btree_insert_node(proot, 22);
-  //btree_insert_node(proot, 10);
-  //btree_insert_node(proot, 34);
-  //btree_insert_node(proot, 30);
-  //btree_insert_node(proot, 18);
+  btree_insert_node(proot, 10);
+  btree_insert_node(proot, 34);
+  btree_insert_node(proot, 30);
+  btree_insert_node(proot, 18);
   btree_insert_node(proot, 45);
-  //btree_insert_node(proot, 25);
+  btree_insert_node(proot, 25);
 
-  //btree_insert_node(proot, 35);
-  //btree_insert_node(proot, 32);
-  //btree_insert_node(proot, 29);
+  btree_insert_node(proot, 35);
+  btree_insert_node(proot, 32);
+  btree_insert_node(proot, 29);
 
-  //proot = btree_delete_node(proot, 46);
   proot = btree_delete_node(proot, 8);
   return 0;
 }
@@ -394,10 +393,20 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  else if (successor_child->total_keys > DEGREE - 1) {
 		struct s_btree_node * succ_key_node = find_successor(successor_child);
 
-		succ_key_node->keys[0] = 0;
-		succ_key_node->total_keys--;
+		node->keys[child_idx - 1] = succ_key_node->keys[0];
 
-		node->keys[child_idx] = succ_key_node->keys[0];
+		succ_key_node->keys[0] = 0;
+
+		/* adjust key idx of all other keys in succ_key_node */
+		int v = 0;
+		while (v < succ_key_node->total_keys - 1) {
+		  succ_key_node->keys[1 - 1 + v] = succ_key_node->keys[v + 1];
+		  v++;
+		}
+		/* reset last key idx of succ_key_node */
+		succ_key_node->keys[v] = 0;
+
+		succ_key_node->total_keys--;
 	  }
 
 	  /* case 2.c */
@@ -515,28 +524,97 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	 * to guarantee that we descend toa a node containing at least DEGREE keys.
 	 * Then finish by recursing on the appropriate child of x.
 	 */
+
 	if (child->total_keys == DEGREE - 1) {
 	  /* case 3.a */
+
+	  /* if x.c_suffix_i has only t - 1 keys but has left sibling with at least t keys */
 	  if (child_sibling_left != NULL && child_sibling_left->total_keys > DEGREE - 1) {
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
 		child->keys[1] = node->keys[child_idx - 1];
 
-		/* move key from sibling up into x */
+		/* increment key count of x.c_suffic_i */
+		child->total_keys++;
+
+		/* move key from left sibling up into x */
 		node->keys[child_idx - 1] = child_sibling_left->keys[child_sibling_left->total_keys - 1];
 
-		/* reset sibling key that was promoted to parent */
+		/* reset left sibling key that was promoted to parent */
 		child_sibling_left->keys[child_sibling_left->total_keys - 1] = 0;
+
+		/* decrease key count of sibling */
+		child_sibling_left->total_keys--;
+
+		/* move the appropriate child pointer from left sibling into x.c_suffix_i */
+		int w = 0;
+		struct s_btree_node * child_sibling_left_stub_node = child_sibling_left->left_child;
+		while (w < DEGREE - 2) {
+		  child_sibling_left_stub_node = child_sibling_left_stub_node->right_sibling;
+		  w++;
+		}
+
+		/* append child's left most child to child sibling left's right most child */
+		child_sibling_left_stub_node->right_sibling = child->left_child;
+
+		/* link child's left child with child sibling left's right most child */
+		child->left_child = child_sibling_left_stub_node->right_sibling;
+
+		/* break the link of moved child pointer's right sibling */
+		child_sibling_left_stub_node->right_sibling = NULL;
+
+		/* recurse on child */
+		btree_delete_node(child, key);
+		return node;
 	  }
 
+	  /* if x.c_suffix_i has only t - 1 keys but has left right with at least t keys */
 	  else if (child_sibling_right != NULL && child_sibling_right->total_keys > DEGREE - 1) {
 		/* give x.c_suffix_i an extra key by moving a key from x down into x.c_suffix_i */
-		child->keys[child->total_keys] = node->keys[child_idx - 2];
+		child->keys[child->total_keys] = node->keys[child_idx - 1];
 
-		/* move key from sibling up into x */
+		/* increment key count of x.c_suffic_i */
+		child->total_keys++;
+
+		/* move key from right sibling up into x */
 		node->keys[child_idx - 1] = child_sibling_right->keys[0];
 
-		/* reset sibling key that was promoted to parent */
-		child_sibling_left->keys[0] = 0;
+		/* reset right sibling key that was promoted to parent */
+		child_sibling_right->keys[0] = 0;
+
+		/* adjust key index of all the other keys in right sibling */
+		int t = 0;
+		while (t < child_sibling_right->total_keys - 1) {
+		  child_sibling_right->keys[1 - 1 + t] = child_sibling_right->keys[t + 1];
+		  t++;
+		}
+
+		/* reset key of last index */
+		child_sibling_right->keys[t] = 0;
+
+		/* decrease key count of sibling */
+		child_sibling_right->total_keys--;
+
+		/* move the appropriate child pointer from right sibling into x.suffix_i */
+		
+		int u = 0;
+		struct s_btree_node * child_stub_node = child->left_child;
+		while (u < DEGREE - 1) {
+		  child_stub_node = child_stub_node->right_sibling;
+		  u++;
+		}
+
+		/* append child sibling right's left most child to child's right most sibling */
+		child_stub_node->right_sibling = child_sibling_right->left_child;
+
+		/* link child sibling right's left child with it's left child's right sibling */
+		child_sibling_right->left_child = child_sibling_right->left_child->right_sibling;
+
+		/* break the link of moved child pointer's right sibling */
+		child_stub_node->right_sibling->right_sibling = NULL;
+
+		/* recurse on child */
+		btree_delete_node(child, key);
+		return node;
 	  }
 
 	  /* case 3.b */
