@@ -63,6 +63,8 @@ struct s_btree_node * find_predecessor(struct s_btree_node * prt);
 
 struct s_btree_node * find_successor(struct s_btree_node * prt);
 
+struct s_btree_node * get_child_node (struct s_btree_node * prt, int start_idx, int terminal_idx);
+
 int main(int argc, char * argv[]) 
 {
   proot = new_node();
@@ -120,6 +122,18 @@ struct s_btree_node * new_node()
   return pnode;
 }
 
+struct s_btree_node * get_child_node (struct s_btree_node * pnode, int start_idx, int terminal_idx)
+{
+  struct s_btree_node * pstud = pnode->left_child;
+
+  while (pstud->right_sibling != NULL && start_idx < terminal_idx) {
+	pstud = pstud->right_sibling;
+	start_idx++;
+  }
+  
+  return pstud;
+}
+
 struct search_result * search_node (struct s_btree_node * pnode, int key)
 {
   /* find the smallest index i such that k <= x.key_suffix_i, or else
@@ -154,17 +168,21 @@ void btree_split_child (struct s_btree_node * pnode, int i)
   /* pnew_split_node is z in CORMEN */
   struct s_btree_node * pnew_split_node = new_node();
 
-
   /* CORMEN: line 2 */
   /* CAUTION : Assigning a new node */
   /* Traverse to get the correct right-sibling. Conceptually y is x's i-th child */
-  int j = 1;
-  struct s_btree_node * pstud = pnode->left_child;
+
+  //int j = 1;
+  //struct s_btree_node * pstud = pnode->left_child;
+  ///* Get x.c_suffix_i */
+  //while (pstud->right_sibling != NULL && j < i) {
+  //  pstud = pstud->right_sibling;
+  //  j++;
+  //}
+
   /* Get x.c_suffix_i */
-  while (pstud->right_sibling != NULL && j < i) {
-	pstud = pstud->right_sibling;
-	j++;
-  }
+  struct s_btree_node * pstud = get_child_node(pnode, 1, i);
+
   /* poriginal_split_node is y in CORMEN */
   struct s_btree_node * poriginal_split_node = pstud;
 
@@ -175,7 +193,8 @@ void btree_split_child (struct s_btree_node * pnode, int i)
   pnew_split_node->total_keys = DEGREE - 1;
 
   /* CORMEN: line 5 */
-  j = 0;
+  //j = 0;
+  int j = 0;
   while (j <= DEGREE - 2) {
 	pnew_split_node->keys[j] = poriginal_split_node->keys[j + DEGREE];
 	j++;
@@ -250,13 +269,24 @@ void btree_insert_nonfull (struct s_btree_node * pnode, int key)
 
 	i = i + 1;
 
-	/* traverse to correct child node */
-	int j = i;
-	struct s_btree_node * pchild_node = pnode->left_child;
-	while (j > 1) {
-	  pchild_node = pchild_node->right_sibling;
-	  j--;
-	}
+	/* Traverse to get the correct right-sibling (child node). */
+
+	//int j = i;
+	//struct s_btree_node * pchild_node = pnode->left_child;
+	//while (j > 1) {
+	//  pchild_node = pchild_node->right_sibling;
+	//  j--;
+	//}
+
+	/********************************** VERIFY ***********************************/
+	/* Below is just an alternative representation of code above */
+	//int j = 0;
+	//struct s_btree_node * pchild_node = pnode->left_child;
+	//while (j < i - 1) {
+	//  pchild_node = pchild_node->right_sibling;
+	//  j++;
+	//}
+	struct s_btree_node * pchild_node = get_child_node(pnode, 0, i - 1);
 
 	if (pchild_node->total_keys == 2 * DEGREE - 1) {
 	  btree_split_child(pnode, i);
@@ -353,21 +383,24 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  //  i++;
 	  //}
 
-	  //struct s_btree_node * predecessor_child = node->children[child_idx - 2];
-	  struct s_btree_node * predecessor_child = node->left_child;
-	  int j = 0;
-	  while (j < child_idx - 1) {
-		predecessor_child = predecessor_child->right_sibling;
-		j++;
-	  }
+	  /* Traverse to get the correct right-sibling. */
+	  //struct s_btree_node * predecessor_child = node->left_child;
+	  //int j = 0;
+	  //while (j < child_idx - 1) {
+	  //  predecessor_child = predecessor_child->right_sibling;
+	  //  j++;
+	  //}
+	  struct s_btree_node * predecessor_child = get_child_node(node, 0, child_idx - 1);
 
+	  /* Traverse to get the correct right-sibling. */
 	  //struct s_btree_node * successor_child = node->children[child_idx];
-	  struct s_btree_node * successor_child = node->left_child;
-	  int k = 0;
-	  while (k < child_idx) {
-		successor_child = successor_child->right_sibling;
-		k++;
-	  }
+	  //struct s_btree_node * successor_child = node->left_child;
+	  //int k = 0;
+	  //while (k < child_idx) {
+	  //  successor_child = successor_child->right_sibling;
+	  //  k++;
+	  //}
+	  struct s_btree_node * successor_child = get_child_node(node, 0, child_idx);
 
 	  /* case 2.a */
 	  /* find the predecessor key of k.
@@ -445,14 +478,16 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		predecessor_child->total_keys = 2 * DEGREE - 1;
 
 		/************************** VERIFICATION REQUIRED **************************/
+		/* Traverse to get the correct right-sibling. */
 		/* copy all children of z to y */
-		struct s_btree_node * pred_child = predecessor_child->left_child;
-		if (pred_child) {
-		  int r = 0;
-		  while (r <= DEGREE - 1) {
-			pred_child = pred_child->right_sibling;
-			r++;
-		  }
+		if (predecessor_child->left_child != NULL) {
+		  //struct s_btree_node * pred_child = predecessor_child->left_child;
+		  //int r = 0;
+		  //while (r <= DEGREE - 1) {
+		  //  pred_child = pred_child->right_sibling;
+		  //  r++;
+		  //}
+		  struct s_btree_node * pred_child = get_child_node(predecessor_child, 0, DEGREE);
 		  pred_child->right_sibling = successor_child->left_child;
 		}
 
@@ -488,34 +523,49 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	/* Once we have exhausted all the internal node cases, we do 3.x 
 	 * These cases start to arise when key is not present in the internal node.
 	 */
-	struct s_btree_node * child = node->left_child;
-	int l = 0;
+
+	/* Traverse to get the correct right-sibling. */
 	/* in while condition below "-1" is required since we already pointed child to 
 	 * node's left child
 	 */
-	while (l < child_idx - 1) {
-	  child = child->right_sibling;
-	  l++;
-	}
+	//struct s_btree_node * child = node->left_child;
+	//int l = 0;
+	//while (l < child_idx - 1) {
+	//  child = child->right_sibling;
+	//  l++;
+	//}
+	struct s_btree_node * child = get_child_node(node, 0, child_idx - 1);
 
+	/* Traverse to get the correct right-sibling. */
 	/* ternary op is necessary as we make assignment to node->left_child w/o any check.
 	 * In this case child is the leftmost node and has no left sibling 
 	 */
-	struct s_btree_node * child_sibling_left = (child_idx > 1) ? node->left_child : NULL;
-	int m = 0;
-	while (child_sibling_left != NULL && m < child_idx - 1 - 1) {
-	  child_sibling_left = child_sibling_left->right_sibling;
-	  m++;
+	struct s_btree_node * child_sibling_left = NULL;
+	if (child_idx > 1) {
+	  //struct s_btree_node * child_sibling_left = (child_idx > 1) ? node->left_child : NULL;
+	  //struct s_btree_node * child_sibling_left = node->left_child;
+	  //int m = 0;
+	  //while (child_sibling_left != NULL && m < child_idx - 1 - 1) {
+	  //  child_sibling_left = child_sibling_left->right_sibling;
+	  //  m++;
+	  //}
+	  child_sibling_left = get_child_node(node, 0, child_idx - 1 - 1);
 	}
 
+	/* Traverse to get the correct right-sibling. */
 	/* ternary condition is necessary as this is a case when child is the right most node and
 	 * has no right sibling
 	 */ 
-	struct s_btree_node * child_sibling_right = (child_idx != node->total_keys + 1) ? node->left_child : NULL;
-	int n = 0;
-	while (child_sibling_right != NULL && n < child_idx) {
-	  child_sibling_right = child_sibling_right->right_sibling;
-	  n++;
+	struct s_btree_node * child_sibling_right = NULL;
+	if (child_idx != node->total_keys + 1) {
+	  //struct s_btree_node * child_sibling_right = (child_idx != node->total_keys + 1) ? node->left_child : NULL;
+	  //struct s_btree_node * child_sibling_right = node->left_child;
+	  //int n = 0;
+	  //while (child_sibling_right != NULL && n < child_idx) {
+	  //  child_sibling_right = child_sibling_right->right_sibling;
+	  //  n++;
+	  //}
+	  child_sibling_right = get_child_node(node, 0, child_idx);
 	}
 
 	/* If the key k is not present in internal node x, determine the root x.c_suffix_i
@@ -545,13 +595,15 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		/* decrease key count of sibling */
 		child_sibling_left->total_keys--;
 
+		/* Traverse to get the correct right-sibling. */
 		/* move the appropriate child pointer from left sibling into x.c_suffix_i */
-		int w = 0;
-		struct s_btree_node * child_sibling_left_stub_node = child_sibling_left->left_child;
-		while (w < DEGREE - 2) {
-		  child_sibling_left_stub_node = child_sibling_left_stub_node->right_sibling;
-		  w++;
-		}
+		//int w = 0;
+		//struct s_btree_node * child_sibling_left_stub_node = child_sibling_left->left_child;
+		//while (w < DEGREE - 2) {
+		//  child_sibling_left_stub_node = child_sibling_left_stub_node->right_sibling;
+		//  w++;
+		//}
+		struct s_btree_node * child_sibling_left_stub_node = get_child_node(child_sibling_left, 0, DEGREE - 2);
 
 		/* append child's left most child to child sibling left's right most child */
 		child_sibling_left_stub_node->right_sibling = child->left_child;
@@ -596,12 +648,14 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 
 		/* move the appropriate child pointer from right sibling into x.suffix_i */
 		
-		int u = 0;
-		struct s_btree_node * child_stub_node = child->left_child;
-		while (u < DEGREE - 1) {
-		  child_stub_node = child_stub_node->right_sibling;
-		  u++;
-		}
+		/* Traverse to get the correct right-sibling. */
+		//int u = 0;
+		//struct s_btree_node * child_stub_node = child->left_child;
+		//while (u < DEGREE - 1) {
+		//  child_stub_node = child_stub_node->right_sibling;
+		//  u++;
+		//}
+		struct s_btree_node * child_stub_node = get_child_node(child, 0, DEGREE - 1);
 
 		/* append child sibling right's left most child to child's right most sibling */
 		child_stub_node->right_sibling = child_sibling_right->left_child;
@@ -650,13 +704,16 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  node->keys[child_idx - 2] = 0;
 		  node->total_keys--;
 
+		  /* Traverse to get the correct right-sibling. */
 		  /* prepend child_sibling_left's children list to child_sibling_left's children list */
-		  struct s_btree_node * pchild_sibling_left_children_node = child_sibling_left->left_child;
-		  int s = 0;
-		  while (s < DEGREE - 1) {
-			pchild_sibling_left_children_node = pchild_sibling_left_children_node->right_sibling;
-			s++;
-		  }
+		  //struct s_btree_node * pchild_sibling_left_children_node = child_sibling_left->left_child;
+		  //int s = 0;
+		  //while (s < DEGREE - 1) {
+		  //  pchild_sibling_left_children_node = pchild_sibling_left_children_node->right_sibling;
+		  //  s++;
+		  //}
+		  struct s_btree_node * pchild_sibling_left_children_node = get_child_node(child_sibling_left, 0, DEGREE - 1);
+
 		  pchild_sibling_left_children_node->right_sibling = child->left_child;
 
 		  child->left_child = node->left_child->left_child;
@@ -702,13 +759,16 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		  node->keys[child_idx - 1] = 0;
 		  node->total_keys--;
 
+		  /* Traverse to get the correct right-sibling. */
 		  /* link child right sibling's children to child's children */
-		  int t = 0;
-		  struct s_btree_node * pchild_children_node = child->left_child;
-		  while (t < DEGREE - 1) {
-			pchild_children_node = pchild_children_node->right_sibling;
-			t++;
-		  }
+		  //int t = 0;
+		  //struct s_btree_node * pchild_children_node = child->left_child;
+		  //while (t < DEGREE - 1) {
+		  //  pchild_children_node = pchild_children_node->right_sibling;
+		  //  t++;
+		  //}
+		  struct s_btree_node * pchild_children_node = get_child_node(child, 0, DEGREE - 1);
+
 		  pchild_children_node->right_sibling = child_sibling_right->left_child;
 
 		  free(child_sibling_right);
