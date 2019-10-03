@@ -63,7 +63,9 @@ struct s_btree_node * find_predecessor(struct s_btree_node * prt);
 
 struct s_btree_node * find_successor(struct s_btree_node * prt);
 
-struct s_btree_node * get_child_node (struct s_btree_node * prt, int start_idx, int terminal_idx);
+struct s_btree_node * get_child_node (struct s_btree_node * node, int start_idx, int terminal_idx);
+
+void adjust_key_idx (struct s_btree_node * node, int idx);
 
 int main(int argc, char * argv[]) 
 {
@@ -132,6 +134,18 @@ struct s_btree_node * get_child_node (struct s_btree_node * pnode, int start_idx
   }
   
   return pstud;
+}
+
+void adjust_key_idx (struct s_btree_node * pnode, int idx)
+{
+  int v = 0;
+  while (v < pnode->total_keys - 1) {
+	pnode->keys[idx - 1 + v] = pnode->keys[idx + v];
+	v++;
+  }
+
+  /* reset last key idx of succ_key_node */
+  pnode->keys[v] = 0;
 }
 
 struct search_result * search_node (struct s_btree_node * pnode, int key)
@@ -393,13 +407,14 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		succ_key_node->keys[0] = 0;
 
 		/* adjust key idx of all other keys in succ_key_node */
-		int v = 0;
-		while (v < succ_key_node->total_keys - 1) {
-		  succ_key_node->keys[1 - 1 + v] = succ_key_node->keys[v + 1];
-		  v++;
-		}
-		/* reset last key idx of succ_key_node */
-		succ_key_node->keys[v] = 0;
+		//int v = 0;
+		//while (v < succ_key_node->total_keys - 1) {
+		//  succ_key_node->keys[1 - 1 + v] = succ_key_node->keys[v + 1];
+		//  v++;
+		//}
+		///* reset last key idx of succ_key_node */
+		//succ_key_node->keys[v] = 0;
+		adjust_key_idx(succ_key_node, 1);
 
 		succ_key_node->total_keys--;
 	  }
@@ -417,14 +432,15 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		node->keys[child_idx - 1] = 0;
 
 		/* adjust index of all other keys in x */
-		int p = 0;
-		while (p < node->total_keys - child_idx) {
-		  node->keys[child_idx - 1 + p] = node->keys[child_idx + p];
-		  p++;
-		}
+		//int p = 0;
+		//while (p < node->total_keys - child_idx) {
+		//  node->keys[child_idx - 1 + p] = node->keys[child_idx + p];
+		//  p++;
+		//}
 
-		/* reset last key of node */
-		node->keys[child_idx - 1 + p] = 0;
+		///* reset last key of node */
+		//node->keys[child_idx - 1 + p] = 0;
+		adjust_key_idx(node, child_idx);
 
 		/* decrease key count of x */
 		node->total_keys--;
@@ -460,14 +476,15 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	  node->keys[child_idx - 1] = 0;
 
 	  /* adjust index of all other keys in x */
-	  int s = 0;
-	  while (s < node->total_keys - child_idx) {
-		node->keys[child_idx - 1 + s] = node->keys[child_idx + s];
-		s++;
-	  }
-	  
-	  /* reset last key of node */
-	  node->keys[child_idx - 1 + s] = 0;
+	  //int s = 0;
+	  //while (s < node->total_keys - child_idx) {
+	  //  node->keys[child_idx - 1 + s] = node->keys[child_idx + s];
+	  //  s++;
+	  //}
+	  //
+	  ///* reset last key of node */
+	  //node->keys[child_idx - 1 + s] = 0;
+	  adjust_key_idx(node, child_idx);
 
 	  /* decrement key count */
 	  node->total_keys--;
@@ -563,14 +580,15 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 		child_sibling_right->keys[0] = 0;
 
 		/* adjust key index of all the other keys in right sibling */
-		int t = 0;
-		while (t < child_sibling_right->total_keys - 1) {
-		  child_sibling_right->keys[1 - 1 + t] = child_sibling_right->keys[t + 1];
-		  t++;
-		}
+		//int t = 0;
+		//while (t < child_sibling_right->total_keys - 1) {
+		//  child_sibling_right->keys[1 - 1 + t] = child_sibling_right->keys[t + 1];
+		//  t++;
+		//}
 
-		/* reset key of last index */
-		child_sibling_right->keys[t] = 0;
+		///* reset key of last index */
+		//child_sibling_right->keys[t] = 0;
+		adjust_key_idx(child_sibling_right, 1);
 
 		/* decrease key count of sibling */
 		child_sibling_right->total_keys--;
