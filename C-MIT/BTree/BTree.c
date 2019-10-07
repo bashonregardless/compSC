@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
   btree_insert_node(proot, 32);
   btree_insert_node(proot, 29);
 
-  proot = btree_delete_node(proot, 8);
+  proot = btree_delete_node(proot, 9);
   return 0;
 }
 
@@ -198,7 +198,6 @@ void btree_split_child (struct s_btree_node * pnode, int i)
   pnew_split_node->total_keys = DEGREE - 1;
 
   /* CORMEN: line 5 */
-  //j = 0;
   int j = 0;
   while (j <= DEGREE - 2) {
 	pnew_split_node->keys[j] = poriginal_split_node->keys[j + DEGREE];
@@ -242,10 +241,6 @@ void btree_split_child (struct s_btree_node * pnode, int i)
 	pnode->keys[k] = pnode->keys[k - 1];
 	k = k - 1;
   }
-  //while (k > i) {
-  //  pnode->keys[k] = pnode->keys[k - 1];
-  //  k--;
-  //}
   pnode->keys[k] = poriginal_split_node->keys[DEGREE - 1];
 
   /* After key 'key[DEGREE - 1]' from poriginal_split_node has been promoted to parent,
@@ -360,18 +355,6 @@ struct s_btree_node * btree_delete_node (struct s_btree_node * prt, int key) {
 	/* case 2.x */
 	/* If the key is in node and node is an internal node */
 	if (node->leaf == 0) {
-	  //struct s_btree_node * child = node->children[child_idx - 1];
-	  /*********************************** VERIFY *********************************/
-	  /* child is just irrelevant to BTree concept.
-	   * A key either has a corresponding predecessor child or successor child 
-	   */
-	  //struct s_btree_node * child = node->left_child;
-	  //int i = 0;
-	  //while (i < child_idx) {
-	  //  child = child->right_sibling;
-	  //  i++;
-	  //}
-
 	  /* Traverse to get the correct right-sibling. */
 	  struct s_btree_node * predecessor_child = get_child_node(node, 0, child_idx - 1);
 
