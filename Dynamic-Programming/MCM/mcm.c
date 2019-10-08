@@ -16,6 +16,11 @@
 /* define input sequence to matrix_chain_order function */
 const int INPUT_SEQUENCE[] = {4, 10, 3, 12, 20};
 
+/* DEFINE m[i, j]:
+ * Let m[i, j] be the minimum number of scalar multiplications needed to compute
+ * matrix A_suffix_i..j; for the full problem, the lowest cost way to compute A_suffix_1..n
+ * would thus be m[1, n].
+ */
 /* The function computes the rows from bottom to top and from left to right within
  * each row.
  * It computes each entry m[i, j] using products p_suffix_i-1 * p_suffix_k * p_suffix_j
@@ -33,6 +38,8 @@ const int INPUT_SEQUENCE[] = {4, 10, 3, 12, 20};
 void matrix_chain_order (int ct_rows, int ct_cols, int cost_table[ct_rows][ct_cols], int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols]);
 
 void print_optimal_parens (int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols], int i, int j);
+
+void pretty_print_array (int rows, int cols, int md_array[rows][cols]);
 
 int main () 
 {
@@ -63,7 +70,8 @@ int main ()
 
   matrix_chain_order(sequence_len, sequence_len, cost_table, sequence_len, sequence_len - 1, k_idx_table);
 
-  print_optimal_parens(sequence_len, sequence_len - 1, k_idx_table, 0, sequence_len - 1);
+  //print_optimal_parens(sequence_len, sequence_len - 1, k_idx_table, 0, sequence_len - 1);
+  pretty_print_array(5, 5, cost_table);
 
   return 0;
 }
@@ -80,8 +88,6 @@ void matrix_chain_order(int ct_rows, int ct_cols, int cost_table[ct_rows][ct_col
 {
   int sequence_len = array_length(INPUT_SEQUENCE);
 
-  /* l is the chain length */
-  int chain_len = sequence_len - 1;
   /* use recurrence,
    *
    * min[i, j] = 0 , if  i = j
@@ -92,20 +98,22 @@ void matrix_chain_order(int ct_rows, int ct_cols, int cost_table[ct_rows][ct_col
    * The second time through the loop, it computes m[i, i + 2] for i = 1, 2, ...., n - 2
    * (the minimum costs for chains of length l = 3), and so forth.
    */
-  int i = 1, j = 0, k = 0, cost = INT_MAX;
-  for (chain_len = 2; chain_len < sequence_len; chain_len++) {
-	for (;i < sequence_len - chain_len + 1; i++) {
+  int chain_len = 0, i = 1, j = 0, k = 0, cost = INT_MAX;
+  for (chain_len = 2; chain_len <= sequence_len; chain_len++) {
+	for (i = 1; i <= sequence_len - chain_len + 1; i++) {
 	  j = i + chain_len - 1;
 	  
-	  for (k = i; k < j - 1; k++) {
+	  for (k = i; k <= j - 1; k++) {
 		/* at each step, the m[i, j] cost computed depends only on table entries m[i, k] and m[k + 1, j]
 		 * already computed
 		 */
-		cost = cost_table[i][k] + cost_table[k + 1][j] + INPUT_SEQUENCE[i - 1] * INPUT_SEQUENCE[k] * INPUT_SEQUENCE[j];
+		printf("Printed cost_table[%d][%d] : %d\n", i, k, cost_table[i][k]);
+		printf("Printed cost_table[%d][%d] : %d\n", (k+1), j, cost_table[k+1][j]);
+		cost = cost_table[i - 1][k - 1] + cost_table[k + 1 - 1][j - 1] + INPUT_SEQUENCE[i - 1] * INPUT_SEQUENCE[k] * INPUT_SEQUENCE[j];
 
-		if (cost < *cost_table[i, j]) {
-		  *cost_table[i, j] = cost;
-		  *k_idx_table[i, j] = k;
+		if (cost < cost_table[i - 1][j - 1]) {
+		  cost_table[i - 1][j - 1] = cost;
+		  k_idx_table[i - 1][j - 1] = k;
 		}
 	  }
 	}
@@ -122,5 +130,15 @@ void print_optimal_parens (int kit_rows, int kit_cols, int k_idx_table[kit_rows]
 	print_optimal_parens(kit_rows, kit_cols, k_idx_table, i, *k_idx_table[i, j]);
 	print_optimal_parens(kit_rows, kit_cols, k_idx_table, *k_idx_table[i, j] + 1, j);
 	printf(")");
+  }
+}
+
+void pretty_print_array (int rows, int cols, int md_array[rows][cols]) {
+  int i = 0, j = 0;
+  for (i = 0; i < rows; i++) {
+	for (j = 0; j < cols; j++) {
+	  printf("%12d", md_array[i][j]);
+	}
+	printf("\n");
   }
 }
