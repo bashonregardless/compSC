@@ -1,6 +1,7 @@
 /* MATRIX-CHAIN-MULTIPLICATION - CLRS 3rd Edition, Chapter 15 */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 
 
@@ -25,14 +26,45 @@ const int INPUT_SEQUENCE[] = {4, 10, 3, 12, 20};
  * Its input is a sequence p = <p_suffix_0, p_suffix_1, ...., p_suffix_n>, where
  * p.length = n + 1.
  *
- * THe procedure uses an auxiliary table m[1 ..n, 1 ..n] for storing the m[i, j] costs,
+ * The procedure uses an auxiliary table m[1 ..n, 1 ..n] for storing the m[i, j] costs,
  * and another auxiliary table s[1 ..n - 1, 2 ..] that records which index of k achieved
  * the optimal cost in computing m[i, j].
  */
-void matrix_chain_order ();
+void matrix_chain_order (int ct_rows, int ct_cols, int cost_table[ct_rows][ct_cols], int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols]);
 
-int main () {
-  matrix_chain_order();
+void print_optimal_parens (int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols], int i, int j);
+
+int main () 
+{
+  int sequence_len = array_length(INPUT_SEQUENCE);
+
+  /* initialize table (2-D array), m[1 ..n, 1..n] */
+  int m = 0, n = 0;
+  int cost_table[sequence_len][sequence_len];
+  for (m = 0; m < sequence_len; m++) {
+	for (n = 0; n < sequence_len; n++) {
+	  /* m[i, i] = 0, for i = 1, 2, ...., n (the minimum costs for chains of length 1) */
+	  if (n == m) {
+		cost_table[m][n] = 0;
+	  } else {
+		cost_table[m][n] = INT_MAX;
+	  }
+	}
+  }
+
+  /* initialize table (2-D array), s[1 ..n - 1, 2..n] */
+  int o = 0, p = 0;
+  int k_idx_table[sequence_len - 1][sequence_len - 1];
+  for (o = 0; o < sequence_len - 1; o++) {
+	for (p = 0; p < sequence_len - 1; p++) {
+	  k_idx_table[o][p] = -1;
+	}
+  }
+
+  matrix_chain_order(sequence_len, sequence_len, cost_table, sequence_len, sequence_len - 1, k_idx_table);
+
+  print_optimal_parens(sequence_len, sequence_len - 1, k_idx_table, 0, sequence_len - 1);
+
   return 0;
 }
 
@@ -44,15 +76,51 @@ int main () {
 /* Therefore, This cannot be done inside matrix_chain_order(int INPUT_SEQUENCE[]) {}. 
  * int sequence_len = sizeof(* INPUT_SEQUENCE) / sizeof(INPUT_SEQUENCE[0]);
  */
-void matrix_chain_order() {
+void matrix_chain_order(int ct_rows, int ct_cols, int cost_table[ct_rows][ct_cols], int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols]) 
+{
   int sequence_len = array_length(INPUT_SEQUENCE);
 
-  /* initialize table (2-D array), m[1 ..n, 1..n] */
-  int m = 0, n = 0;
-  int cost_table[sequence_len][sequence_len];
-  for (m = 0; m < sequence_len; m++) {
-	for (n = 0; n < sequence_len; n++) {
-	  cost_table[m][n] = INT_MIN;
+  /* l is the chain length */
+  int chain_len = sequence_len - 1;
+  /* use recurrence,
+   *
+   * min[i, j] = 0 , if  i = j
+   * min[i, j] = min {m[i, k] + m[k + 1, j] + p_suffix_i-1 * p_suffix_k * p_suffix_j , if i < j
+   *
+   * to compute m[i, i + 1] for i = 1, 2, ...., n - 1 (the minimum costs of chains of length l = 2)
+   * during the first execution of the for loop.
+   * The second time through the loop, it computes m[i, i + 2] for i = 1, 2, ...., n - 2
+   * (the minimum costs for chains of length l = 3), and so forth.
+   */
+  int i = 1, j = 0, k = 0, cost = INT_MAX;
+  for (chain_len = 2; chain_len < sequence_len; chain_len++) {
+	for (;i < sequence_len - chain_len + 1; i++) {
+	  j = i + chain_len - 1;
+	  
+	  for (k = i; k < j - 1; k++) {
+		/* at each step, the m[i, j] cost computed depends only on table entries m[i, k] and m[k + 1, j]
+		 * already computed
+		 */
+		cost = cost_table[i][k] + cost_table[k + 1][j] + INPUT_SEQUENCE[i - 1] * INPUT_SEQUENCE[k] * INPUT_SEQUENCE[j];
+
+		if (cost < *cost_table[i, j]) {
+		  *cost_table[i, j] = cost;
+		  *k_idx_table[i, j] = k;
+		}
+	  }
 	}
+  }
+}
+
+void print_optimal_parens (int kit_rows, int kit_cols, int k_idx_table[kit_rows][kit_cols], int i, int j)
+{
+  if (i == j) {
+	printf("A<%d>", i);
+  }
+  else {
+	printf ("(");
+	print_optimal_parens(kit_rows, kit_cols, k_idx_table, i, *k_idx_table[i, j]);
+	print_optimal_parens(kit_rows, kit_cols, k_idx_table, *k_idx_table[i, j] + 1, j);
+	printf(")");
   }
 }
