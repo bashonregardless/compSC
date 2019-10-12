@@ -213,11 +213,21 @@ BST.print2D = function print_2d(node, space) {
     this.print2D(node.right, space);
 
     // Print current node after space count
-	console.log("\n");
-	console.log(" ".repeat(space - this.COUNT), node.key); 
+	console.log(`${" ".repeat(space - (this.COUNT + 1))}${node.key}\n`); 
 
     // Process left child
     this.print2D(node.left, space);
+  }
+}
+
+BST.deleteNode = function delete_node (node, key) {
+  if ( node.left === null && node.right === null) {
+	free(node);
+  }
+	/* the two cases of replacing by either successor (cormen content) or predecessor (cormen exercise),
+	*/
+  else if (node.right != null) {
+	
   }
 }
 
