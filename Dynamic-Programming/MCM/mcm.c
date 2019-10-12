@@ -15,6 +15,7 @@
 
 /* define input sequence to matrix_chain_order function */
 const int INPUT_SEQUENCE[] = {4, 10, 3, 12, 20};
+//const int INPUT_SEQUENCE[] = {30, 35, 15, 5, 10, 20, 25};
 
 /* DEFINE m[i, j]:
  * Let m[i, j] be the minimum number of scalar multiplications needed to compute
@@ -71,7 +72,7 @@ int main ()
   matrix_chain_order(sequence_len, sequence_len, cost_table, sequence_len, sequence_len - 1, k_idx_table);
 
   //print_optimal_parens(sequence_len, sequence_len - 1, k_idx_table, 0, sequence_len - 1);
-  pretty_print_array(5, 5, cost_table);
+  pretty_print_array(sequence_len, sequence_len, cost_table);
 
   return 0;
 }
@@ -99,8 +100,8 @@ void matrix_chain_order(int ct_rows, int ct_cols, int cost_table[ct_rows][ct_col
    * (the minimum costs for chains of length l = 3), and so forth.
    */
   int chain_len = 0, i = 1, j = 0, k = 0, cost = INT_MAX;
-  for (chain_len = 2; chain_len <= sequence_len; chain_len++) {
-	for (i = 1; i <= sequence_len - chain_len + 1; i++) {
+  for (chain_len = 2; chain_len < sequence_len; chain_len++) {
+	for (i = 1; i < sequence_len - chain_len + 1; i++) {
 	  j = i + chain_len - 1;
 	  
 	  for (k = i; k <= j - 1; k++) {
@@ -109,11 +110,11 @@ void matrix_chain_order(int ct_rows, int ct_cols, int cost_table[ct_rows][ct_col
 		 */
 		printf("Printed cost_table[%d][%d] : %d\n", i, k, cost_table[i][k]);
 		printf("Printed cost_table[%d][%d] : %d\n", (k+1), j, cost_table[k+1][j]);
-		cost = cost_table[i - 1][k - 1] + cost_table[k + 1 - 1][j - 1] + INPUT_SEQUENCE[i - 1] * INPUT_SEQUENCE[k] * INPUT_SEQUENCE[j];
+		cost = cost_table[i][k] + cost_table[k + 1][j] + INPUT_SEQUENCE[i - 1] * INPUT_SEQUENCE[k] * INPUT_SEQUENCE[j];
 
-		if (cost < cost_table[i - 1][j - 1]) {
-		  cost_table[i - 1][j - 1] = cost;
-		  k_idx_table[i - 1][j - 1] = k;
+		if (cost < cost_table[i][j]) {
+		  cost_table[i][j] = cost;
+		  k_idx_table[i][j] = k;
 		}
 	  }
 	}
