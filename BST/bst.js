@@ -1,3 +1,7 @@
+String.prototype.repeat = function(length) {
+  return Array(length + 1).join(this);
+};
+
 /* BST property:
  * Let x be a node in BST. If y is node in the left subtree of x, then y.key <= x.key.
  * If y is node in the right subtree of x, then y.key >= x.key.
@@ -5,10 +9,22 @@
 
 var BST = {};
 
-BST.newNode = function new_node (data) {
-  var key = data;
-  var left = null;
-  var right null;
+BST.setup = function setup () {
+  this.root = null;
+  this.COUNT = 10;
+
+  var input_arr = [12, 5, 18, 2, 9, 15, 19, 13, 17];
+  input_arr.forEach(function insert (each) {
+	this.root = this.treeInsert(this.root, new this.newNode(each));
+  }.bind(this));
+  this.print2D(this.root, 0);
+}
+
+BST.newNode = function New_Node (data) {
+  this.key = data;
+  this.left = null;
+  this.right = null;
+  this.parent = null
 }
 
 /* This algorithm is so named because it prints the key of the root of a subtree
@@ -135,8 +151,8 @@ BST.treePredecessor = function tree_predecessor (node) {
   /* If the left subtree of node x is nonempty, then the predecessor of x is
    * just the rightmost node in its left subtree.
    */
-  if (node->left) {
-	return tree_maximum(node->left);
+  if (node.left) {
+	return tree_maximum(node.left);
   }
 
   /* If the left subtree of node is empty and x has a successor y, then y is the
@@ -175,11 +191,34 @@ BST.treeInsert = function tree_insert (node, node_tobe_inserted) {
 
   node_tobe_inserted.parent = parent;
 
-  if (node_tobe_inserted === null) { /* tree was empty */
-	node = node_tobe_inserted;
-  } else if (node_tobe_inserted.key < node.key) {
+  if (parent === null) { /* tree was empty */
+	return node_tobe_inserted;
+  } else if (node_tobe_inserted.key < parent.key) {
 	parent.left = node_tobe_inserted;
   } else {
 	parent.right = node_tobe_inserted;
   }
+  return this.root;
 }
+
+BST.print2D = function print_2d(node, space) {
+  // Base case
+  if (node === null) {
+    return;
+  } else {
+    // Increase distance between levels
+    space += this.COUNT;
+
+    // Process right child first
+    this.print2D(node.right, space);
+
+    // Print current node after space count
+	console.log("\n");
+	console.log(" ".repeat(space - this.COUNT), node.key); 
+
+    // Process left child
+    this.print2D(node.left, space);
+  }
+}
+
+BST.setup();
