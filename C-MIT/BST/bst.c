@@ -89,7 +89,7 @@ int main ()
 
   print2D(proot, 0);
 
-  struct node * node_tobe_deleted = recursive_tree_search(proot, 2);
+  struct node * node_tobe_deleted = recursive_tree_search(proot, 18);
   tree_delete(proot, node_tobe_deleted);
   print2D(proot, 0);
 }
@@ -311,7 +311,7 @@ void tree_delete (struct node * node, struct node * node_tobe_deleted) {
   }
 
   else {
-	struct node * node_tobe_deleted_successor = tree_minimum(node_tobe_deleted);
+	struct node * node_tobe_deleted_successor = tree_minimum(node_tobe_deleted->right);
 
 	/* (case d) node z has two children (left child l and right child r), and its
 	 * successor y != r  lies within the subtree rooted at r. 
