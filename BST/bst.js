@@ -18,7 +18,7 @@ BST.setup = function setup () {
 	this.root = this.treeInsert(this.root, new this.newNode(each));
   }.bind(this));
   this.print2D(this.root, 0);
-  var node_tobe_deleted = this.recursiveTreeSearch(this.root, 18);
+  var node_tobe_deleted = this.recursiveTreeSearch(this.root, 12);
   this.treeDelete(this.root, node_tobe_deleted);
   this.print2D(this.root, 0);
 }
@@ -95,7 +95,7 @@ BST.iterativeTreeSearch = function iterative_tree_search (node, key) {
 
 BST.treeMinimum = function tree_minimum (node) {
   while (node && node.left !== null) {
-	this.treeMinimum(node.left);
+	return this.treeMinimum(node.left);
   }
 
   return node;
@@ -107,7 +107,7 @@ BST.treeMinimum = function tree_minimum (node) {
 
 BST.treeMaximum = function tree_maximum (node) {
   while (node && node.right !== null) {
-	this.treeMaximum(node.right);
+	return this.treeMaximum(node.right);
   }
 
   return node;
@@ -223,19 +223,6 @@ BST.print2D = function print_2d(node, space) {
   }
 }
 
-BST.deleteNode = function delete_node (node, key) {
-  if ( node.left === null && node.right === null) {
-	free(node);
-  }
-	/* the two cases of replacing by either successor (cormen content) or predecessor (cormen exercise),
-	*/
-  else if (node.right != null) {
-	var max = this.treeMaximum(node.right);
-
-	node.key = max.key;
-  }
-}
-
 /* In order to move subtrees around within the binary tree, we define a subroutine,
  * TRANSPLANT, which replaces one subtree as a child of its parent with another subtree.
  * When TRANSPLANT replaces the subtree rooted at node u with the subtree rooted at
@@ -243,14 +230,24 @@ BST.deleteNode = function delete_node (node, key) {
  * its appropriate child.
  */
 BST.transplant = function transplant (node, node_tobe_replaced, node_replacing) {
-  if (node_tobe_replaced === null) {
+  /* handle the case in which u is the root of tree */
+  if (node_tobe_replaced.parent === null) {
 	this.root = node_replacing;
-  } else if (node_tobe_replaced === node_tobe_replaced.parent.left) {
+  }
+
+  /* update u.p.left if u is a left child */
+  else if (node_tobe_replaced === node_tobe_replaced.parent.left) {
 	node_tobe_replaced.parent.left = node_replacing;
-  } else {
+  } 
+
+  /* update u.p.right if u is a right child */
+  else {
 	node_tobe_replaced.parent.right = node_replacing;
   }
 
+  /* we allow v to be NIL.
+   * Update v.p if v is non-NIL
+   */
   if (node_replacing !== null) {
 	node_replacing.parent = node_tobe_replaced.parent;
   }

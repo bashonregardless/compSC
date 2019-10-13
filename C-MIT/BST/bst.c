@@ -89,7 +89,7 @@ int main ()
 
   print2D(proot, 0);
 
-  struct node * node_tobe_deleted = recursive_tree_search(proot, 18);
+  struct node * node_tobe_deleted = recursive_tree_search(proot, 12);
   tree_delete(proot, node_tobe_deleted);
   print2D(proot, 0);
 }
@@ -163,7 +163,10 @@ struct node * iterative_tree_search (struct node * node, int key) {
 struct node * tree_minimum (struct node * node)
 {
   while (node->left != NULL) {
-	tree_minimum(node->left);
+	/* GOTCHA: if no return keyword, then
+	 * due to while loop an infinite call to last node and its parent occurs.
+	 */
+	return tree_minimum(node->left);
   }
 
   return node;
@@ -173,7 +176,7 @@ struct node * tree_minimum (struct node * node)
 struct node * tree_maximum (struct node * node) 
 {
   while (node->right != NULL) {
-	tree_maximum(node->right);
+	return tree_maximum(node->right);
   }
 
   return node;
@@ -281,14 +284,31 @@ void print2D(struct node* node, int space) {
 }
 
 void transplant (struct node * tree_root, struct node * node_tobe_replaced, struct node * node_replacing) {
-  if (tree_root == NULL) {
-	tree_root = node_replacing;
-  } else if (node_tobe_replaced == node_tobe_replaced->parent->left) {
+  /* handle the case in which u is the root of tree */
+  if (node_tobe_replaced->parent == NULL) {
+	/********************** MAJOR SOURCE OF CONFUSION WITH POINTERS AND HOW A FUNCTION TREATS ARGUMENTS **********************
+	 * WHETHER THE FUCTION MAKES A LOCAL COPY OR USES JUST THE REFERENCE.
+	 * IF MAKES A LOCAL COPY, THEN HOW TO CHANGE THE ORIGINAL CONTENT IN MEMORY.
+	 */ 
+	/********* node_tobe_replaced = node_replacing; ***** does not work,
+	 * it does not replace the root, as confuse myself to believe it will.
+	 * it produces a result that has to be investigated *************/
+	proot = node_replacing;
+  }
+
+  /* update u.p.left if u is a left child */
+  else if (node_tobe_replaced == node_tobe_replaced->parent->left) {
 	node_tobe_replaced->parent->left = node_replacing;
-  } else {
+  }
+
+  /* update u.p.right if u is a right child */
+  else {
 	node_tobe_replaced->parent->right = node_replacing;
   }
 
+  /* we allow v to be NIL.
+   * Update v.p if v is non-NIL
+   */
   if (node_replacing != NULL) {
 	node_replacing->parent = node_tobe_replaced->parent;
   }
@@ -333,6 +353,7 @@ void tree_delete (struct node * node, struct node * node_tobe_deleted) {
 	node_tobe_deleted_successor->left = node_tobe_deleted->left;
 	node_tobe_deleted->left->parent = node_tobe_deleted_successor;
 
-	free(node_tobe_deleted);
+	/********* A CONCEPT TO BE CONQUERED **********/
+	//free(node_tobe_deleted_successor);
   }
 }
