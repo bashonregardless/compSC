@@ -18,6 +18,9 @@ BST.setup = function setup () {
 	this.root = this.treeInsert(this.root, new this.newNode(each));
   }.bind(this));
   this.print2D(this.root, 0);
+  var node_tobe_deleted = this.recursiveTreeSearch(this.root, 2);
+  this.treeDelete(this.root, node_tobe_deleted);
+  this.print2D(this.root, 0);
 }
 
 BST.newNode = function New_Node (data) {
@@ -67,9 +70,9 @@ BST.recursiveTreeSearch = function recursive_tree_search (node, key) {
   }
 
   if (key < stub.key) {
-	this.recursiveTreeSearch(stub.left);
+	this.recursiveTreeSearch(stub.left, key);
   } else {
-	this.recursiveTreeSearch(stub.right);
+	this.recursiveTreeSearch(stub.right, key);
   }
 }
 
@@ -91,7 +94,7 @@ BST.iterativeTreeSearch = function iterative_tree_search (node, key) {
  */
 
 BST.treeMinimum = function tree_minimum (node) {
-  while (node.left != NULL) {
+  while (node && node.left !== null) {
 	this.treeMinimum(node.left);
   }
 
@@ -103,7 +106,7 @@ BST.treeMinimum = function tree_minimum (node) {
  */
 
 BST.treeMaximum = function tree_maximum (node) {
-  while (node.right != NULL) {
+  while (node && node.right !== null) {
 	this.treeMaximum(node.right);
   }
 
@@ -227,7 +230,73 @@ BST.deleteNode = function delete_node (node, key) {
 	/* the two cases of replacing by either successor (cormen content) or predecessor (cormen exercise),
 	*/
   else if (node.right != null) {
-	
+	var max = this.treeMaximum(node.right);
+
+	node.key = max.key;
+  }
+}
+
+/* In order to move subtrees around within the binary tree, we define a subroutine,
+ * TRANSPLANT, which replaces one subtree as a child of its parent with another subtree.
+ * When TRANSPLANT replaces the subtree rooted at node u with the subtree rooted at
+ * node v, node u's parent becomes node v's parent, and u's parent ends up having v as
+ * its appropriate child.
+ */
+BST.transplant = function transplant (node, node_tobe_replaced, node_replacing) {
+  if (node_tobe_replaced) {
+	if (node_tobe_replaced === null) {
+	  this.root = node_replacing;
+	} else if (node_tobe_replaced === node_tobe_replaced.parent.left) {
+	  node_tobe_replaced.parent.left = node_replacing;
+	} else {
+	  node_tobe_replaced.parent.right = node_replacing;
+	}
+
+	if (node_replacing && node_replacing !== null) {
+	  node_replacing.parent = node_tobe_replaced.parent;
+	}
+  }
+}
+
+BST.treeDelete = function tree_delete (node, node_tobe_deleted) {
+  if (node_tobe_deleted) {
+	/* (case a) node z has no left child.
+	 * We replace z by its right child r, which may or may not be nil 
+	 */
+	if (node_tobe_deleted.left === null) {
+	  this.transplant(this.root, node_tobe_deleted, node_tobe_deleted.right);
+	} 
+
+	/* (case b) node z has a left child l but no right child.
+	 * We repalce z by l.
+	 */
+	else if (node_tobe_deleted.right === null) {
+	  this.transplant(this.root, node_tobe_deleted, node_tobe_deleted.left);
+	}
+
+	else {
+	  var node_tobe_deleted_successor = this.treeMinimum(node_tobe_deleted);
+
+	  /* (case d) node z has two children (left child l and right child r), and its
+	   * successor y != r  lies within the subtree rooted at r. 
+	   * We replace y by its own right child x, and we set y to be r's parent.
+	   * Then, we set y to be q's child and the parent of l.
+	   */
+	  if (node_tobe_deleted_successor.parent !== node_tobe_deleted) {
+		this.transplant(this.root, node_tobe_deleted_successor, node_tobe_deleted_successor.right);
+		node_tobe_deleted_successor.right = node_tobe_deleted.right;
+		node_tobe_deleted.right.parent = node_tobe_deleted_successor;
+	  }
+
+	  /* (case c, d) node z has two children; its left child is node l, its right child
+	   * is its successor y, and y's right child is node x.
+	   * We repalce z by y, updating y's left child to become l, but leaving x as y's
+	   * right child.
+	   */
+	  this.transplant(this.root, node_tobe_deleted, node_tobe_deleted_successor);
+	  node_tobe_deleted_successor.left = node_tobe_deleted.left;
+	  node_tobe_deleted.left.parent = node_tobe_deleted_successor;
+	}
   }
 }
 
