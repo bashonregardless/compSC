@@ -177,7 +177,7 @@ BST.treePredecessor = function tree_predecessor (node) {
  * The procedure maintains a trailing pointer y as parent of x.
  */
 BST.treeInsert = function tree_insert (node, node_tobe_inserted) {
-  /* define trailing pointer */
+  /* define trailing pointer y (parent) as the parent of x (node) */
   var parent = null;
   
   while (node !== null) {
