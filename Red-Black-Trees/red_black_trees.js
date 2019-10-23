@@ -153,7 +153,7 @@ RBT.rbTransplant = function rb_transplant (node_tobe_replaced, node_replacing) {
   node_replacing.parent = node_tobe_replaced.parent;
 }
 
-RBT.rbDelete = function rb_delete () {
+RBT.rbDelete = function rb_delete (node_tobe_deleted) {
   /* keep track of a node y that might cause violations of red-balck properties. */
   
   /* additional lines */
@@ -201,10 +201,127 @@ RBT.rbDelete = function rb_delete () {
 	var violator_node_original_color = violator_node.color;
 	var node_replacing_violator_node = violator_node.right;
 
-	/* when y's original parent is z, however, we do not want x.p to point to y's original
-	 * parent, since we are removing that node from the tree.
+	/* (ALSO ABOVE - when y's original parent is z, however, we do not want x.p to point to
+	 * y's original parent, since we are removing that node from the tree.
 	 * Because node y will move up to take z's position in the tree, setting x.p to y will
 	 * cause x.p to point to the original position of y's parent, even if x = T.NIL.
 	 */
+	/* additional lines */
+	if (violator_node === node_tobe_deleted) {
+	  node_replacing_violator_node.parent = violator_node;
+	}
+
+	else {
+	  this.rbTransplant(violator_node, violator_node.right);
+	  violator_node.right = node_tobe_deleted.right;
+	  node_tobe_deleted.right.parent = violator_node;
+	}
+	this.rbTransplant(node_tobe_deleted, violator_node);
+	violator_node.left = node_tobe_deleted.left;
+	node_tobe_deleted.left.parent = violator_node;
+
+	/* additional line */
+	violator_node.color = node_tobe_deleted.color;
   }
+
+  /* additional lines */
+  if (violator_node.color === 'black') {
+	this.rbFixup(node_replacing_violator_node);
+  }
+
+  /* If y was red, the red-black properties still hold for the following reasons: 
+   *
+   * 1. No black-heights in the tree have changed.
+   *
+   * 2. No red nodes have been made adjacent. Beacause y takes z's place in the 
+   * tree, along with z's color, we cannot have two adjacent red nodes at y's new
+   * position in the tree.
+   * In addition, if y was not z's right child, then y's original right child x 
+   * replaces y in the tree. If y is red, then x must be black, and so replacing y
+   * by x cannot cause two red nodes to become adjacent.
+   *
+   * 3. Since y could not have been the root if it was red, the root remains black.
+   */
+}
+
+  /*  Transformation in each of the cases preserves property 5.
+   *  
+   *  Property 5: For each node, all simple paths from the node to descendent leaves 
+   *  contain the same number of black nodes.
+   *
+   *  The key idea is that in each case, the teansformation applied preserves the 
+   *  number of black nodes (including x's extra black) from (and including) the root
+   *  of the subtree shown to each of the subtrees - alpha, beta, gamma, kappa etc.
+   */
+RBT.rbFixup = function rb_fixup (x) {
+  /* The goal of the whilw loop is to move extra black uo the tree until:
+   * 1. x points to a red-and-black node, in which case we color x (singly) black
+   * in last line.
+   * 2. x points to the  root, in which case we simply remove the extra black; or
+   * 3. having performed suitable rotations and recloloring, we simply exit the loop.
+   */
+  while (x !== this.root && x.color === 'black') {
+	/* We maintain a parent pointer to w ( the sibling node of x ). Since node x is doubly black,
+	 * node w cannot be Tnil, because then the number of blacks nodes on simple path from x.p to x 
+	 * would be less than the number of black nodes on simple path from x.p to w.
+	 */
+	var w = x.parent.right;
+
+	/* (case 1): x's sibling w is red */
+	if (w.color === 'red') {
+	  /* switch the colors of w and x.p and then */
+	  x.parent.color = 'red';
+	  w.color = 'black';
+
+	  /* perform a left rotation on x.p without violating any of red black properties */
+	  this.leftRotate(x.parent);
+
+	  /* the new sibling of x, which is one of w's children prior to the rotation, is now 
+	   * black
+	   */
+	  w = x.parent.right;
+	}
+	/* thus, we have cconverted case 1 into case 2, 3 or 4 */
+
+	/* case 2, 3 and 4 occur when node w is balck; they are distinguished by the color of
+	 * w's children.
+	 */
+
+	/* (case 2): node w is black, both its children are black too */
+	else if (w.right.color === 'black' && w.right.color === 'black') {
+	  x.color = 'red';
+	  x = x.p;
+	}
+
+	/* case 2 and case 3 are distinguished by the color of children nodes */
+	else {
+	  /* (case 3): x's sibling w is black, w's left child is red and w's right child is black */
+	  if (w.right.color === 'black') {
+		/* switch the colors of w and its left child w.left and then */
+		w.left.color = 'black';
+		w.color = 'red';
+
+		/* perform a right rotation without violating any of the red black properties */
+		this.rightRotate(w);
+		w = x.parent.right;
+
+		/* the new sibling w of x is now a black node with ared child, and thus
+		 * we have transformed case 3 into case 4
+		 */
+	  }
+	  /* (case 4): x's sibling w is black, and w's right child is red */
+	  /* By performing some color changes and performing a left rotation on x.p, we can remove
+	   * the extra black on x, making it singly black, without violating any of the red black 
+	   * properties. Setting x to be the root causes while loop to terminate when it tests the 
+	   * loop condition again.
+	   */
+	  w.color = x.parent.color;
+	  x.parent.color = 'black';
+	  w.right.color = 'black';
+	  this.rightRotate(x.parent);
+	  this.root = x;
+	}
+  }
+  
+  x.color = 'black';
 }
