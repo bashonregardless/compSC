@@ -58,17 +58,18 @@ RBT.rightRotate = function right_rotate () {
   node.parent = y;
 }
 
-RBT.rbInsert = function rb_insert (node, node_tobe_inserted) {
+RBT.rbInsert = function rb_insert (root, node_tobe_inserted) {
   /* define trailing pointer y (parent) as the parent of x (node) */
   var parent = null;
+  var stub_node = root;
 
-  if (node !== null) {
-	parent = node;
+  if (stub_node !== null) {
+	parent = stub_node;
 
-	if (node_tobe_inserted.key < node.key) {
-	  node = node.left;
+	if (node_tobe_inserted.key < stub_node.key) {
+	  stub_node = stub_node.left;
 	} else {
-	  node = node.right;
+	  stub_node = stub_node.right;
 	}
   }
 

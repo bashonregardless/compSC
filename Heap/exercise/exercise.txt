@@ -1,0 +1,16 @@
+Ex 6.1-1)
+  A) case: binary heap 
+	 min elements - 2^h - 1
+	 max elements - 2^(h-1)
+  B) case: n-ary heap
+	 min elements - n^h - 1
+	 max elements - n^(h - 1)
+
+
+Ex 6.1-2)
+  TO-DO
+
+
+Ex 6.1-3)
+  
+
