@@ -253,7 +253,7 @@ BST.transplant = function transplant (node, node_tobe_replaced, node_replacing) 
   }
 }
 
-BST.treeDelete = function tree_delete (node, node_tobe_deleted) {
+BST.treeDelete = function tree_delete (tree_root, node_tobe_deleted) {
   /* (case a) node z has no left child.
    * We replace z by its right child r, which may or may not be nil 
    */

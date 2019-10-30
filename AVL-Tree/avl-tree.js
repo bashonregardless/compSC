@@ -20,11 +20,38 @@ AVL.setup = function avl_setup () {
   node_arr.forEach(function avl_insert (each) {
 	let node_tobe_inserted = new this.newNode(this, each);
 	this.root = this.treeInsert(this.root, node_tobe_inserted);
+
+	/* if there is no balancing done in update_H, it returns undefined.
+	 * Otherwise it may return a modified root.
+	 *
+	 * Set this.root to the root at the time of procedure call, if
+	 * procedure returns undefined.
+	 */
 	this.root = this.updateH(node_tobe_inserted) || this.root;
   }.bind(this));
   
   this.print2D(this.root, 0);
+
+  let node_tobe_deleted = this.recursiveTreeSearch(this.root, 4);
+  let node_replacing = this.treeDelete(this.root, node_tobe_deleted);
+  this.root = this.updateH(node_replacing) || this.root;
+  this.print2D(this.root, 0);
 }
+
+AVL.recursiveTreeSearch = function recursive_tree_search (node, key) {
+  var stub = node;
+
+  if (stub === null || key === stub.key) {
+	return stub;
+  }
+
+  if (key < stub.key) {
+	return this.recursiveTreeSearch(stub.left, key);
+  } else {
+	return this.recursiveTreeSearch(stub.right, key);
+  }
+}
+
 
 AVL.treeInsert = function tree_insert (root, node_tobe_inserted) {
   /* define trailing pointer y (parent) as the parent of x (node) */
@@ -82,8 +109,6 @@ AVL.updateH = function update_H (node) {
 		this.rightRotate(this.root, node.right);
 		return this.leftRotate(this.root, node);
 	  }
-
-	  this.updateHeight(node.right);
 	}
 
 	/* (case) x is left heavy */
@@ -104,13 +129,70 @@ AVL.updateH = function update_H (node) {
 		this.leftRotate(this.root, node.left);
 		return this.rightRotate(this.root, node);
 	  }
-
-	  this.updateHeight(node.left);
 	}
 
 	else {
 	  return this.updateH(node.parent);
 	}
+  }
+}
+
+AVL.transplant = function transplant (tree_root, node_tobe_replaced, node_replacing) {
+  if (!node_tobe_replaced.parent) {
+	tree_root = node_tobe_replaced;
+  } else if (node_tobe_replaced === node_tobe_replaced.parent.left) {
+	node_tobe_replaced.parent.left = node_replacing;
+  } else {
+	node_tobe_replaced.parent.right = node_replacing;
+  }
+
+  if (node_replacing) {
+	node_replacing.parent = node_tobe_replaced.parent;
+  }
+
+  return node_replacing;
+}
+
+AVL.treeMinimum = function tree_minimum (node) {
+  while (node && node.left.height !== -1) {
+	return this.treeMinimum(node.left);
+  }
+
+  return node;
+}
+
+AVL.treeSuccessor = function tree_successor (node) {
+  if (node.right.height !== -1) {
+	return this.treeMinimum(node.right);
+  } 
+
+  var parent = node.parent;
+  if (parent !== null && node === parent.right) {
+	node = node.parent;
+	parent = parent.parent;
+  }
+
+  return parent;
+}
+
+AVL.treeDelete = function tree_delete (tree_root, node_tobe_deleted) {
+  if (!node_tobe_deleted.left) {	
+	return this.transplant(this.root, node_tobe_deleted, node_tobe_deleted.right);
+  }
+  if (!node_tobe_deleted.right) {
+	return this.transplant(this.root, node_tobe_deleted, node_tobe_deleted.left);
+  }
+  else {
+	let node_tobe_deleted_successor = this.treeMinimum(node_tobe_deleted.right);
+	if (node_tobe_deleted_successor.parent !== node_tobe_deleted) {
+	  this.transplant(tree_root, node_tobe_deleted_successor, node_tobe_deleted_successor.right);
+	  node_tobe_deleted_successor.right = node_tobe_deleted.right;
+	  node_tobe_deleted_successor.right.parent = node_tobe_deleted_successor;
+	}
+	let node_replacing = this.transplant(tree_root, node_tobe_deleted, node_tobe_deleted_successor);
+	node_tobe_deleted_successor.left = node_tobe_deleted.left;
+	node_tobe_deleted_successor.left.parent = node_tobe_deleted_successor; 
+	return node_replacing;
   }
 }
 
