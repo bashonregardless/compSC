@@ -227,7 +227,7 @@ RBT.rbDelete = function rb_delete (node_tobe_deleted) {
 
   /* additional lines */
   if (violator_node.color === 'black') {
-	this.rbFixup(node_replacing_violator_node);
+	this.rbDeleteFixup(node_replacing_violator_node);
   }
 
   /* If y was red, the red-black properties still hold for the following reasons: 
@@ -254,7 +254,7 @@ RBT.rbDelete = function rb_delete (node_tobe_deleted) {
    *  number of black nodes (including x's extra black) from (and including) the root
    *  of the subtree shown to each of the subtrees - alpha, beta, gamma, kappa etc.
    */
-RBT.rbFixup = function rb_fixup (x) {
+RBT.rbDeleteFixup = function rb_delete_fixup (x) {
   /* The goal of the whilw loop is to move extra black uo the tree until:
    * 1. x points to a red-and-black node, in which case we color x (singly) black
    * in last line.
