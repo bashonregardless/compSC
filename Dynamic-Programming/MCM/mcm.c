@@ -77,7 +77,7 @@ int main ()
   return 0;
 }
 
-/* To know the size of an array passed to the function. */ 
+/* To know the size of an array passed to the function: */ 
 /* When you pass an array to a function, it decays into a pointer to the first element,
  * at which point knowledge of its size is lost. You need to work it out before decay 
  * and pass that information with the array.
