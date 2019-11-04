@@ -1,3 +1,5 @@
+#include "max-heap-hdr.h"
+
 /* The (binary) heap data structure is an array object that we can view as
  * as a nearly complete binary tree.
  * Each node of the tree corresponds to an element of the array.
@@ -23,68 +25,6 @@
  * and the subtree rooted at a node contains values no larger than
  * that contained at the node itself.
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-
-/* #define arr {4, 1, 3, 2, 16, 9, 10, 14, 8, 7}; */
-
-#define arr_length(arr) (sizeof(arr) == 0 ? 0 : sizeof(arr) / sizeof((arr)[0]));
-
-#define swap(arr, x, y) do { typeof(arr[x]) temp = arr[x]; arr[x] = arr[y]; arr[y] = temp; } while (0);
-
-#define parent(i) (floor(i));
-
-/* On most computers, the left procedure can compute 2i in one instruction
- * by simply shifting the binary representation of i left by one bit position.
- */
-#define left(i) ((i << 1) + 1);
-
-/* Like left procedure, the right can quickly compute (2*i + 1) by shifting the
- * binary representation of i left by one bit postion and then adding 1 as the 
- * lower-order bit.
- */
-#define right(i) ((i << 1) + 2);
-
-
-/* function declaration */ 
-
-void max_heapify (int arr[], int i, int arr_len);
-
-/* produce a max heap from an unsorted array */
-/* O(n) */
-void build_max_heap (int arr[], int arr_len);
-
-/* sorts an array in place */
-/* O(n lg n) */
-void heapsort (int arr[], int arr_len);
-
-
-/* procedures that allow heap to implement a priority queue */
-
-void max_heap_insert ();
-
-int heap_extract_max ();
-
-void heap_increase_key ();
-
-void heap_maximum ();
-
-
-int main ()
-{
-  int arr[] = {4, 1, 3, 2, 16, 9, 10, 14, 8, 7}; 
-  int arr_len = arr_length(arr);
-
-  build_max_heap(arr, arr_len);
-
-  for (int i = 0; i < arr_len; i++) {
-	printf("%d ", arr[i]);
-  }
-
-  return 0;
-}
 
 
 /* In order to maintain max-heap property, we call the procedure MAX_HEAPIFY.
