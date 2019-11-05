@@ -6,7 +6,7 @@
 
 #define swap(arr, x, y) do { typeof(arr[x]) temp = arr[x]; arr[x] = arr[y]; arr[y] = temp; } while (0);
 
-#define parent(i) (floor(i));
+#define parent(i) floor(i)
 
 /* On most computers, the left procedure can compute 2i in one instruction
  * by simply shifting the binary representation of i left by one bit position.

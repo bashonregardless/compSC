@@ -1,13 +1,5 @@
-/* procedures that allow heap to implement a priority queue */
-
-int heap_maximum (int arr[]);
-
-int heap_extract_max (int arr[], int arr_len);
-
-void heap_increase_key (int arr[], int i, int key);
-
-void max_heap_insert (int arr[], int arr_len, int key);
-
+#include "max-heap-hdr.h"
+#include "max-priority-queue-hdr.h"
 
 int heap_maximum (int arr[]) 
 {
@@ -50,8 +42,9 @@ void heap_increase_key (int arr[], int i, int key)
   }
 
   arr[i] = key;
-  while (i > 0 && arr[parent(i)]) {
-	swap(arr, i, parent(i));
+  int k = parent(i);
+  while (i > 0 && arr[k] < arr[i]) {
+	swap(arr, i, k);
 	i = parent(i);
   }
 }
@@ -65,6 +58,6 @@ void heap_increase_key (int arr[], int i, int key)
 void max_heap_insert (int arr[], int arr_len, int key)
 {
   //A.heap_size = A.heap_size + 1;
-  arr[arr_len] = ;
-  heap_increase_key(arr, /*A.heap_size,*/key);
+  //arr[arr_len] = ;
+  heap_increase_key(arr, /*A.heap_size,*/ arr_len, key);
 }
