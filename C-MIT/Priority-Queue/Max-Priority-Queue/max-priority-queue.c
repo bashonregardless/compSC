@@ -37,14 +37,14 @@ int heap_extract_max (int arr[], int arr_len)
  */
 void heap_increase_key (int arr[], int i, int key)
 {
-  if (key < arr[i]) {
+  if (key < arr[i - 1]) {
 	exit(EXIT_FAILURE);
   }
 
-  arr[i] = key;
+  arr[i - 1] = key;
   int k = parent(i);
-  while (i > 0 && arr[k] < arr[i]) {
-	swap(arr, i, k);
+  while (i > 0 && arr[k] < arr[i - 1]) {
+	swap(arr, i - 1, k);
 	i = parent(i);
   }
 }
