@@ -4,9 +4,13 @@
 
 const LinkedList = Object.create(require('../../input_node'));
 
-LinkedList.init = function setup() {
-  //  attribute lhead points to the first element (index of list array) of the list
+LinkedList.setup = function setup() {
+  this.list = [{next: null, prev: null}];
+  // attribute lhead points to the first element (index of list array) of the list
   this.lhead = null; 
+
+  // attribute last points to the last element in the list.
+  this.last = null;
 
   // We keep the free objects in a singly linked list, which we call the free list.
   // prev of objects in free list always equal -1, an integer
@@ -14,7 +18,7 @@ LinkedList.init = function setup() {
   // The head of the free list is held in the global variable free.
   this.free = 0;
 
-  this.list = [{next: null}]; 
+  //this.list = [this.allocateObject()]; 
 
   this.input();
 }
@@ -71,7 +75,7 @@ LinkedList.prepend = function prepend(key) {
   // Get free position(index in the list array)
   const freePos = this.allocateObject();
   // Initialize an emplty object at freePos
-  this.list[freePos] = {};
+  //this.list[freePos] = {};
 
   // Set key
   this.list[freePos].key = key;
@@ -84,7 +88,16 @@ LinkedList.prepend = function prepend(key) {
   this.lhead = freePos;
   // prev of first element points to an integer
   // (such -1 or null) that cannot possibly represent an actual index into the arrays.
-  this.list[freePos].prev = -1;
+  //this.list[freePos].prev = -1;
+
+  if (this.list[freePos].next === null) {
+	this.list[freePos].next = this.list[freePos];
+	this.last = this.list[freePos];
+  }
+
+  if (this.list[freePos].prev === null) {
+	this.list[freePos].prev = this.list[freePos];
+  }
 }
 
 /* Given an element x whose key attribute has already been set,
@@ -166,6 +179,7 @@ LinkedList.allocateObject = function allocateObject() {
     // sentinel object {next: null}, this is maintained at the end of the list
     this.list[this.free] = {};
     this.list[this.free].next = null;
+    this.list[this.free].prev = null;
     return free;
   } else {
     const free = this.free;
