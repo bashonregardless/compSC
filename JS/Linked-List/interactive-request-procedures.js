@@ -25,9 +25,12 @@ InteractiveRequestProcedures.requestProcedure = async function requestProcedure(
 	  procedure,
 	  node: await this.inputRemoveKey(),
 	}
-  } else {
-	console.log(`Invalid Input ${procedure}: Please select again\n`);
-	await this.requestProcedure();
+  } 
+  /* If the 'return' keyword is not used, this block of 
+   * code will not supply a return value from the function. */ 
+  else {
+	console.log(`Invalid input '${procedure}': Please select again\n`);
+	return await this.requestProcedure();
   }
 }
 

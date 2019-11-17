@@ -46,35 +46,52 @@ LinkedList.setup = function setup() {
 }
 
 LinkedList.input = async function input() {
-  const node = {};
   while(true) {
-    let input = await this.requestProcedure();
-    if (input.procedure === "i") {
-      switch (input.node.position) {
-        case '1':
-        case 's':
-          this.prepend(input.node.value);
-          break;
-        case 'e':
-        case `${this.next.length}`:
-          this.append(input.node.value);
-          break;
-        default:
-		  if (input.node.position > this.listLength) {
-			console.log(`Invalid input: Position ${input.node.position} exceeds list length\nTry Again\n`);
-			await this.requestProcedure();
-		  }
-          this.insertAt(input.node.value, input.node.position);
-      }
-    }
+	try {
+	  let input = await this.requestProcedure();
+	  let { position, value } = input.node;
 
-    if (input.procedure === 'd') this.deleteNode(input.node);
+	  if (input.procedure === "i") {
+		switch (position) {
+		  case '1':
+		  case 's':
+			this.prepend(value);
+			break;
+		  case 'e':
+		  case `${this.listLength + 1}`:
+			this.append(value);
+			break;
+		  default:
+			/* Check to see if position is an integer */
+			if ( !((position ^ 0) === parseInt(position, 10) )) {
+			  console.log(`Invalid input: Position ${position} is not an integer`);
+			  continue;
+			}
 
-	const resp = await this.prompt("Continue? y / n > ");
-	if (resp === "n")
-      break;
+			/* Check to see if position exceeds list length */
+			if (position - 1 > this.listLength) {
+			  console.log(`Invalid input: Position ${position} exceeds list length ${this.listLength}\nTry Again\n`);
+			  continue;
+			}
+
+			this.insertAt(value, position);
+		}
+	  }
+
+	  if (input.procedure === 'd') this.freeNode(input.node);
+
+	  const resp = await this.prompt("Continue? y / n > ");
+	  if (resp === "n")
+		break;
+	  console.log("\n");
+	}
+	catch (err) {
+	  console.log(err);
+	}
   }
-  console.log(this.list);
+
+  this.printList(this.lhead);
+  process.exit(0);
 }
 
 LinkedList.newNode = function new_node (val, freeIdx) {
@@ -86,7 +103,7 @@ LinkedList.newNode = function new_node (val, freeIdx) {
 LinkedList.findByKey = function find_by_key (val) {
   let idx = this.lhead;
   let pos = 0;
-  while (val === this.key[idx]) {
+  while (val !== this.key[idx]) {
 	/* Desired position of insertion is not found in two cases:
 	 * (case): the 'next' collides with 'free'.
 	 * (case): entire list is traversed unsuccessfully.
@@ -99,14 +116,20 @@ LinkedList.findByKey = function find_by_key (val) {
   return idx;
 }
 
+/* returns the position previous to position of interest */
 LinkedList.traverse = function traverse (pos) {
   let idx = this.lhead;
-  while (pos === 0) {
+
+  /* Suppose the positon of insertion is 3,
+   * In first iteration itself the position previous to position of interest. i.e 2
+   * is reached.
+   */
+  while (pos > 2) {
 	/* Desired position of insertion is not found in two cases:
 	 * (case): the 'next' collides with 'free'.
 	 * (case): entire list is traversed unsuccessfully.
 	 */
-	if (this.next[idx] === this.free || pos - this.last > 0)
+	if (this.next[idx] === this.free)
 	  return "Position does not exist";
 	idx = this.next[idx];
 	pos--;
@@ -116,23 +139,27 @@ LinkedList.traverse = function traverse (pos) {
 
 LinkedList.prepend = function prepend (val) {
   const freeIdx = this.allocateObject();
-  const node = this.newNode(val, freeIdx);
+  this.newNode(val, freeIdx);
 
   /* In case the list is empty */
   if (this.lhead === -1) {
 	/* store array index of first node in lhead */
 	this.lhead = freeIdx;
+
 	this.next[freeIdx] = freeIdx;
 	this.prev[freeIdx] = freeIdx;
+
 	this.last = freeIdx;
   }
 
   else {
 	this.next[freeIdx] = this.lhead;
 	this.prev[freeIdx] = this.prev[this.lhead];
+
 	this.prev[this.lhead] = freeIdx;
-	this.lhead = freeIdx;
 	this.next[this.last] = freeIdx;
+
+	this.lhead = freeIdx;
   }
 
   this.listLength++;
@@ -143,11 +170,14 @@ LinkedList.append = function append (val) {
 	this.prepend(val);
   } else {
 	const freeIdx = this.allocateObject();
-	const node = this.newNode(val, freeIdx);
+	this.newNode(val, freeIdx);
+
 	this.next[freeIdx] = this.next[this.last]; // Basically the first node
 	this.prev[freeIdx] = this.last;
+
 	this.next[this.last] = freeIdx;
 	this.prev[this.lhead] = freeIdx;
+
 	this.last = freeIdx;
 	this.listLength++;
   }
@@ -160,12 +190,14 @@ LinkedList.insertAt = function insert_at (val, pos) {
 	return curr;
 
   const freeIdx = this.allocateObject();
-  const node = this.newNode(val, freeIdx);
-  this.next[freeIdx] = this.next[curr];
-  this.prev[this.next[curr]] = freeIdx;
+  this.newNode(val, freeIdx);
 
+  this.next[freeIdx] = this.next[curr];
   this.prev[freeIdx] = curr;
+
+  this.prev[this.next[curr]] = freeIdx;
   this.next[curr] = freeIdx;
+
   this.listLength++;
 }
 
@@ -175,10 +207,27 @@ LinkedList.freeNode = function free_node (val) {
 
   if (typeof delIdx === "string")
 	return delIdx;
-  
-  this.next[this.free] = delIdx;
-  this.free = delIdx;
+
+  this.next[this.prev[delIdx]] = this.next[delIdx];
+  this.prev[this.next[delIdx]] = this.prev[delIdx];
+
+  if (delIdx == this.lhead) {
+	this.lhead = this.next[this.lhead];
+  }
+
+  if (delIdx === this.last) {
+	this.last = this.prev[delIdx];
+  }
+
   this.listLength--;
+  if (this.listLength === 0) {
+	this.lhead = -1;
+	this.last = -1;
+  }
+
+  if (this.free !== -1)
+	this.next[this.free] = delIdx;
+  this.free = delIdx;
 }
 
 /* returns array index of free node */
@@ -198,6 +247,16 @@ LinkedList.allocateObject = function allocate_object () {
 	this.free = this.next[this.free];
 	return free;
   }
+}
+
+LinkedList.printList = function print_list (head) {
+  let stubIdx = head;
+
+  for (; stubIdx !== this.last;) {
+	process.stdout.write(`key: ${this.key[stubIdx]} -> `);
+	stubIdx = this.next[stubIdx];
+  }
+  console.log(`key: ${this.key[this.last]}`);
 }
 
 module.exports = LinkedList;
