@@ -78,7 +78,13 @@ LinkedList.input = async function input() {
 		}
 	  }
 
-	  if (input.procedure === 'd') this.freeNode(input.node);
+	  if (input.procedure === 'd') {
+		if (this.listLength === 0) {
+		  console.log(`Cannot delete from an empty list\nTry again`);
+		  continue;
+		}
+		this.freeNode(input.node);
+	  }
 
 	  const resp = await this.prompt("Continue? y / n > ");
 	  if (resp === "n")
@@ -108,7 +114,7 @@ LinkedList.findByKey = function find_by_key (val) {
 	 * (case): the 'next' collides with 'free'.
 	 * (case): entire list is traversed unsuccessfully.
 	 */
-	if (this.next[idx] === this.free || pos > this.last)
+	if (this.next[idx] === this.free)
 	  return "Key does not exist";
 	idx = this.next[idx];
 	pos++;
@@ -138,7 +144,7 @@ LinkedList.traverse = function traverse (pos) {
 }
 
 LinkedList.prepend = function prepend (val) {
-  const freeIdx = this.allocateObject();
+  const freeIdx = this.getFreeIdx();
   this.newNode(val, freeIdx);
 
   /* In case the list is empty */
@@ -169,7 +175,7 @@ LinkedList.append = function append (val) {
   if (this.lhead === -1) {
 	this.prepend(val);
   } else {
-	const freeIdx = this.allocateObject();
+	const freeIdx = this.getFreeIdx();
 	this.newNode(val, freeIdx);
 
 	this.next[freeIdx] = this.next[this.last]; // Basically the first node
@@ -189,7 +195,7 @@ LinkedList.insertAt = function insert_at (val, pos) {
   if (typeof curr === "string")
 	return curr;
 
-  const freeIdx = this.allocateObject();
+  const freeIdx = this.getFreeIdx();
   this.newNode(val, freeIdx);
 
   this.next[freeIdx] = this.next[curr];
@@ -208,6 +214,7 @@ LinkedList.freeNode = function free_node (val) {
   if (typeof delIdx === "string")
 	return delIdx;
 
+  this.key[delIdx] = '';
   this.next[this.prev[delIdx]] = this.next[delIdx];
   this.prev[this.next[delIdx]] = this.prev[delIdx];
 
@@ -225,13 +232,15 @@ LinkedList.freeNode = function free_node (val) {
 	this.last = -1;
   }
 
-  if (this.free !== -1)
-	this.next[this.free] = delIdx;
+  /* freeList PUSH opreation */
+  this.next[delIdx] = this.free;
+  this.prev[delIdx] = -1;
   this.free = delIdx;
 }
 
+/* similar operation is allocate-object in CLRS */
 /* returns array index of free node */
-LinkedList.allocateObject = function allocate_object () {
+LinkedList.getFreeIdx = function get_free_idx () {
   /* If free is not available:
    * A node is added to free list by reclaiming nodes from prior allocated nodes to list.
    *
@@ -244,6 +253,7 @@ LinkedList.allocateObject = function allocate_object () {
 	return this.next.length;
   } else {
 	const free = this.free;
+	/* freeList POP operation */
 	this.free = this.next[this.free];
 	return free;
   }
