@@ -38,7 +38,7 @@ LinkedList.setup = function setup() {
 
   this.key = [];
   this.next = [];
-  this.prev = [];
+  //this.prev = [];
 
   this.listLength = 0;
 
@@ -103,10 +103,9 @@ LinkedList.input = async function input() {
 LinkedList.newNode = function new_node (val, freeIdx) {
   this.key[freeIdx] = val;
   this.next[freeIdx] = -1;
-  this.prev[freeIdx] = -1;
+  //this.prev[freeIdx] = -1;
 }
 
-/* returns idx of key found, "message" otherwise */
 LinkedList.findByKey = function find_by_key (val) {
   let idx = this.lhead;
   let pos = 0;
@@ -131,12 +130,12 @@ LinkedList.traverse = function traverse (pos) {
    * In first iteration itself the position previous to position of interest. i.e 2
    * is reached.
    */
-  while (pos > 2) {
+  while (pos > 0) {
 	/* Desired position of insertion is not found in two cases:
 	 * (case): the 'next' collides with 'free'.
 	 * (case): entire list is traversed unsuccessfully.
 	 */
-	if (this.next[idx] === this.free || pos > this.listLength)
+	if (pos > this.listLength)
 	  return "Position does not exist";
 	idx = this.next[idx];
 	pos--;
@@ -153,18 +152,19 @@ LinkedList.prepend = function prepend (val) {
 	/* store array index of first node in lhead */
 	this.lhead = freeIdx;
 
-	this.next[freeIdx] = freeIdx;
-	this.prev[freeIdx] = freeIdx;
+	//this.next[freeIdx] = freeIdx;
+	//this.prev[freeIdx] = freeIdx;
 
-	this.last = freeIdx;
+	//this.last = freeIdx;
   }
 
   else {
 	this.next[freeIdx] = this.lhead;
-	this.prev[freeIdx] = this.prev[this.lhead];
+	//this.next[freeIdx] = this.lhead;
+	//this.prev[freeIdx] = this.prev[this.lhead];
 
-	this.prev[this.lhead] = freeIdx;
-	this.next[this.last] = freeIdx;
+	//this.prev[this.lhead] = freeIdx;
+	//this.next[this.last] = freeIdx;
 
 	this.lhead = freeIdx;
   }
@@ -179,60 +179,88 @@ LinkedList.append = function append (val) {
 	const freeIdx = this.getFreeIdx();
 	this.newNode(val, freeIdx);
 
-	this.next[freeIdx] = this.next[this.last]; // Basically the first node
-	this.prev[freeIdx] = this.last;
+	/* get the position previous to position of interest */
+	const curr = this.traverse(this.listLength - 1);
 
-	this.next[this.last] = freeIdx;
-	this.prev[this.lhead] = freeIdx;
+	this.next[curr] = freeIdx;
+	//this.next[freeIdx] = this.next[this.last]; // Basically the first node
+	//this.prev[freeIdx] = this.last;
 
-	this.last = freeIdx;
+	//this.next[this.last] = freeIdx;
+	//this.prev[this.lhead] = freeIdx;
+
+	//this.last = freeIdx;
 	this.listLength++;
   }
 }
 
 LinkedList.insertAt = function insert_at (val, pos) {
-  const curr = this.traverse(pos);
+  /* get the position previous to position of interest */
+  const curr = this.traverse(+pos - 1);
 
   const freeIdx = this.getFreeIdx();
   this.newNode(val, freeIdx);
 
   this.next[freeIdx] = this.next[curr];
-  this.prev[freeIdx] = curr;
+  //this.prev[freeIdx] = curr;
 
-  this.prev[this.next[curr]] = freeIdx;
+  //this.prev[this.next[curr]] = freeIdx;
   this.next[curr] = freeIdx;
 
   this.listLength++;
 }
 
+/* returns idx prev to idx of interest, "message" otherwise */
+LinkedList.getPrevIdx = function get_prev_idx (val) {
+  let idx = this.lhead;
+  let pos = 0;
+
+  if (val == this.key[this.lhead])
+	return idx;
+
+  while (val != this.key[this.next[idx]]) {
+	if (this.next[idx] === this.free || pos > this.listLength)
+	  return "Key does not exist";
+	idx = this.next[idx];
+	pos++;
+  }
+
+  return idx;
+}
+
 LinkedList.freeNode = function free_node (val) {
+  // Get prev idx of key to be deleted.
+  const curr = this.getPrevIdx(val);
   // Get index of node to be deleted in list
-  const delIdx = this.findByKey(val);
+  // const delIdx = this.findByKey(val);
 
   if (typeof delIdx === "string")
 	return delIdx;
 
   this.key[delIdx] = '';
-  this.next[this.prev[delIdx]] = this.next[delIdx];
-  this.prev[this.next[delIdx]] = this.prev[delIdx];
+  
+  if (this.next[this.next[curr]])
+	this.next[curr] = this.next[this.next[curr]];
+  //this.next[this.prev[delIdx]] = this.next[delIdx];
+  //this.prev[this.next[delIdx]] = this.prev[delIdx];
 
   if (delIdx == this.lhead) {
 	this.lhead = this.next[this.lhead];
   }
 
   if (delIdx === this.last) {
-	this.last = this.prev[delIdx];
+	//this.last = this.prev[delIdx];
   }
 
   this.listLength--;
   if (this.listLength === 0) {
 	this.lhead = -1;
-	this.last = -1;
+	//this.last = -1;
   }
 
   /* freeList PUSH opreation */
   this.next[delIdx] = this.free;
-  this.prev[delIdx] = -1;
+  //this.prev[delIdx] = -1;
   this.free = delIdx;
 }
 
@@ -259,12 +287,15 @@ LinkedList.getFreeIdx = function get_free_idx () {
 
 LinkedList.printList = function print_list (head) {
   let stubIdx = head;
+  let pos = this.listLength;
 
-  for (; stubIdx !== this.last;) {
+  for (; pos > 0;) {
 	process.stdout.write(`key: ${this.key[stubIdx]} -> `);
 	stubIdx = this.next[stubIdx];
+	pos--;
   }
-  console.log(`key: ${this.key[this.last]}`);
+  //console.log(`key: ${this.key[this.last]}`);
 }
 
-module.exports = LinkedList;
+//module.exports = LinkedList;
+LinkedList.setup();
