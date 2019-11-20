@@ -180,7 +180,20 @@ nnoremap [A :first<CR>
 let g:indentLine_char = '|'
 
 " Enable fzf
-set rtp+=~/Plugins/.fzf
+set rtp+=~/.fzf
 
 " Set this variable to 1 to fix files when you save them.
 let g:ale_fix_on_save = 1
+
+" map <Esc>
+nnoremap fj <esc>
+vnoremap fj <esc>
+onoremap fj <esc>
+cnoremap fj <esc>
+inoremap fj <esc>
+
+" Search and replace word under cursor
+nnoremap <Leader>s :%s/\v<<C-r><C-w>>/
+" Alternatively, you could use this mapping so that the final /g is already
+" entered:
+" :nnoremap <Leader>s :%s/\v<<C-r><C-w>>/g<Left><Left>
