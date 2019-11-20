@@ -218,6 +218,7 @@ LinkedList.getPrevIdx = function get_prev_idx (val) {
   if (val == this.key[this.lhead])
 	return idx;
 
+  /* if idx is not equal to lhead, then 'this.key[this.next[idx]]' will always exist */
   while (val != this.key[this.next[idx]]) {
 	if (this.next[idx] === this.free || pos > this.listLength)
 	  return "Key does not exist";
@@ -234,34 +235,34 @@ LinkedList.freeNode = function free_node (val) {
   // Get index of node to be deleted in list
   // const delIdx = this.findByKey(val);
 
-  if (typeof delIdx === "string")
-	return delIdx;
+  if (typeof curr === "string")
+	return curr;
 
-  this.key[delIdx] = '';
-  
-  if (this.next[this.next[curr]])
-	this.next[curr] = this.next[this.next[curr]];
-  //this.next[this.prev[delIdx]] = this.next[delIdx];
-  //this.prev[this.next[delIdx]] = this.prev[delIdx];
-
-  if (delIdx == this.lhead) {
+  if (val == this.key[this.lhead]) {
+	this.key[this.lhead] = '';
 	this.lhead = this.next[this.lhead];
-  }
+	/* freeList PUSH opreation */
+	this.next[this.lhead] = this.free;
+  } else {
+	/* 'this.next[curr]' will be an actual node not pointing to -1, because of how we getPrevIdx 
+	 * Therefore, the check 'this.next[curr] != -1' is unnecessary 
+	 */
+	// this assumption implies that there always is a node after node previous to node that will be deleted (FUCK! that node is the node that will be deleted itself. Its like father telling his son, I'm your father even though the son already knows it. WTF!)
+	if (this.next[this.next[curr]] != -1)
+	  /* freeList PUSH opreation */
+	  this.next[this.next[curr]] = this.free;
+	
+	this.key[this.next[curr]] = '';
+	this.next[curr] = this.next[this.next[curr]];
 
-  if (delIdx === this.last) {
-	//this.last = this.prev[delIdx];
+	//this.next[this.prev[delIdx]] = this.next[delIdx];
+	//this.prev[this.next[delIdx]] = this.prev[delIdx];
   }
 
   this.listLength--;
-  if (this.listLength === 0) {
-	this.lhead = -1;
-	//this.last = -1;
-  }
 
-  /* freeList PUSH opreation */
-  this.next[delIdx] = this.free;
   //this.prev[delIdx] = -1;
-  this.free = delIdx;
+  this.free = curr;
 }
 
 /* similar operation is allocate-object in CLRS */
