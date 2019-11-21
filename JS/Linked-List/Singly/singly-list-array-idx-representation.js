@@ -239,11 +239,18 @@ LinkedList.freeNode = function free_node (val) {
 	return curr;
 
   if (val == this.key[this.lhead]) {
-	this.key[this.lhead] = '';
-	this.lhead = this.next[this.lhead];
 	/* freeList PUSH opreation */
 	this.next[this.lhead] = this.free;
+	/* PUSH to free list */
+	this.free = this.lhead;
+
+	this.key[this.lhead] = '';
+	this.lhead = this.next[this.lhead];
   } else {
+	this.next[this.next[curr]] = this.free;
+	/* PUSH to free list */
+	this.free = this.next[curr];
+
 	/* 'this.next[curr]' will be an actual node not pointing to -1, because of how we getPrevIdx 
 	 * Therefore, the check 'this.next[curr] != -1' is unnecessary 
 	 */
@@ -262,7 +269,6 @@ LinkedList.freeNode = function free_node (val) {
   this.listLength--;
 
   //this.prev[delIdx] = -1;
-  this.free = curr;
 }
 
 /* similar operation is allocate-object in CLRS */
