@@ -130,7 +130,7 @@ LinkedList.traverse = function traverse (pos) {
    * In first iteration itself the position previous to position of interest. i.e 2
    * is reached.
    */
-  while (pos > 0) {
+  while (pos > 1) {
 	/* Desired position of insertion is not found in two cases:
 	 * (case): the 'next' collides with 'free'.
 	 * (case): entire list is traversed unsuccessfully.
@@ -180,7 +180,7 @@ LinkedList.append = function append (val) {
 	this.newNode(val, freeIdx);
 
 	/* get the position previous to position of interest */
-	const curr = this.traverse(this.listLength - 1);
+	const curr = this.traverse(this.listLength);
 
 	this.next[curr] = freeIdx;
 	//this.next[freeIdx] = this.next[this.last]; // Basically the first node
@@ -239,29 +239,34 @@ LinkedList.freeNode = function free_node (val) {
 	return curr;
 
   if (val == this.key[this.lhead]) {
+	/* store idx of node of interest (node to be deleted) */
+	const idxOfInterest = this.next[this.lhead];
+
 	/* freeList PUSH opreation */
 	this.next[this.lhead] = this.free;
 	/* PUSH to free list */
 	this.free = this.lhead;
 
 	this.key[this.lhead] = '';
-	this.lhead = this.next[this.lhead];
+	this.lhead = idxOfInterest;
   } else {
-	this.next[this.next[curr]] = this.free;
-	/* PUSH to free list */
-	this.free = this.next[curr];
+	/* store idx of node of interest (node to be deleted) */
+	const idxOfInterest = this.next[curr];
 
 	/* 'this.next[curr]' will be an actual node not pointing to -1, because of how we getPrevIdx 
 	 * Therefore, the check 'this.next[curr] != -1' is unnecessary 
 	 */
 	// this assumption implies that there always is a node after node previous to node that will be deleted (FUCK! that node is the node that will be deleted itself. Its like father telling his son, I'm your father even though the son already knows it. WTF!)
-	if (this.next[this.next[curr]] != -1)
-	  /* freeList PUSH opreation */
-	  this.next[this.next[curr]] = this.free;
+	//if (this.next[this.next[curr]] != -1)
+	//  /* freeList PUSH opreation */
+	//  this.next[this.next[curr]] = this.free;
 	
 	this.key[this.next[curr]] = '';
 	this.next[curr] = this.next[this.next[curr]];
 
+	this.next[idxOfInterest] = this.free;
+	/* PUSH to free list */
+	this.free = idxOfInterest;
 	//this.next[this.prev[delIdx]] = this.next[delIdx];
 	//this.prev[this.next[delIdx]] = this.prev[delIdx];
   }
