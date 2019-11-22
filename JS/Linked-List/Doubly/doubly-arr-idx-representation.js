@@ -172,6 +172,7 @@ LinkedList.append = function append (val) {
 	/* get the position previous to position of interest */
 	const curr = this.traverse(this.listLength);
 
+	this.prev[freeIdx] = curr;
 	this.next[curr] = freeIdx;
 	this.listLength++;
   }
@@ -184,7 +185,8 @@ LinkedList.insertAt = function insert_at (val, pos) {
   const freeIdx = this.getFreeIdx();
   this.newNode(val, freeIdx);
 
-  this.prev[this.next[curr]] = curr;
+  this.prev[this.next[curr]] = freeIdx;
+  this.prev[freeIdx] = curr;
   this.next[freeIdx] = this.next[curr];
   this.next[curr] = freeIdx;
 
@@ -218,7 +220,7 @@ LinkedList.freeNode = function free_node (val) {
 	return curr;
 
   if (val == this.key[this.lhead]) {
-	/* store idx of node of interest (node to be deleted) */
+	/* store idx of node that head node points to */
 	const idxOfInterest = this.next[this.lhead];
 
 	/* freeList PUSH opreation */
@@ -226,8 +228,12 @@ LinkedList.freeNode = function free_node (val) {
 	/* PUSH to free list */
 	this.free = this.lhead;
 
+	/* handle deletion of first and only node */
+	if (idxOfInterest != -1) {
+	  this.prev[idxOfInterest] = -1;
+	}
+	this.prev[this.lhead] = "";
 	this.key[this.lhead] = '';
-	this.prev[this.next[idxOfInterest]] = -1;
 	this.lhead = idxOfInterest;
   } else {
 	/* store idx of node of interest (node to be deleted) */
@@ -236,13 +242,19 @@ LinkedList.freeNode = function free_node (val) {
 	/* 'this.next[curr]' will be an actual node not pointing to -1, because of how we getPrevIdx 
 	 * Therefore, the check 'this.next[curr] != -1' is unnecessary 
 	 */
-	this.key[this.next[curr]] = '';
-	this.prev[this.next[this.next[curr]]] = curr;
-	this.next[curr] = this.next[this.next[curr]];
+	this.key[idxOfInterest] = '';
+	
+	/* handle deteltion of last element */
+	if (this.next[idxOfInterest] != -1) {
+	  this.prev[this.next[idxOfInterest]] = curr;
+	}
+
+	this.next[curr] = this.next[idxOfInterest];
 
 	this.next[idxOfInterest] = this.free;
 	/* PUSH to free list */
 	this.free = idxOfInterest;
+	this.prev[idxOfInterest] = "";
   }
 
   this.listLength--;
