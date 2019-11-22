@@ -38,7 +38,7 @@ LinkedList.setup = function setup() {
 
   this.key = [];
   this.next = [];
-  //this.prev = [];
+  this.prev = [];
 
   this.listLength = 0;
 
@@ -103,6 +103,7 @@ LinkedList.input = async function input() {
 LinkedList.newNode = function new_node (val, freeIdx) {
   this.key[freeIdx] = val;
   this.next[freeIdx] = -1;
+  this.prev[freeIdx] = -1;
 }
 
 LinkedList.findByKey = function find_by_key (val) {
@@ -153,6 +154,7 @@ LinkedList.prepend = function prepend (val) {
   }
 
   else {
+	this.prev[this.lhead] = freeIdx;
 	this.next[freeIdx] = this.lhead;
 	this.lhead = freeIdx;
   }
@@ -182,6 +184,7 @@ LinkedList.insertAt = function insert_at (val, pos) {
   const freeIdx = this.getFreeIdx();
   this.newNode(val, freeIdx);
 
+  this.prev[this.next[curr]] = curr;
   this.next[freeIdx] = this.next[curr];
   this.next[curr] = freeIdx;
 
@@ -224,6 +227,7 @@ LinkedList.freeNode = function free_node (val) {
 	this.free = this.lhead;
 
 	this.key[this.lhead] = '';
+	this.prev[this.next[idxOfInterest]] = -1;
 	this.lhead = idxOfInterest;
   } else {
 	/* store idx of node of interest (node to be deleted) */
@@ -233,6 +237,7 @@ LinkedList.freeNode = function free_node (val) {
 	 * Therefore, the check 'this.next[curr] != -1' is unnecessary 
 	 */
 	this.key[this.next[curr]] = '';
+	this.prev[this.next[this.next[curr]]] = curr;
 	this.next[curr] = this.next[this.next[curr]];
 
 	this.next[idxOfInterest] = this.free;
