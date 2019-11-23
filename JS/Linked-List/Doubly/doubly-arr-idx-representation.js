@@ -165,23 +165,29 @@ LinkedList.freeNode = function free_node (val) {
   if (typeof curr === "string")
 	return curr;
 
+  /* When node to be deleted is the head node itself */
   if (val == this.key[this.lhead]) {
-	/* store idx of node that head node points to */
-	const idxOfInterest = this.next[this.lhead];
+	/* idxOfInterest (node to be deleted) is the head node */
+	const idxOfInterest = this.lhead;
 
-	/* freeList PUSH opreation */
-	this.next[this.lhead] = this.free;
-	/* PUSH to free list */
-	this.free = this.lhead;
+	this.key[idxOfInterest] = '';
 
 	/* handle deletion of first and only node */
-	if (idxOfInterest != -1) {
-	  this.prev[idxOfInterest] = -1;
+	if (this.next[idxOfInterest] != -1) {
+	  this.prev[this.next[idxOfInterest]] = -1;
 	}
-	this.prev[this.lhead] = "";
-	this.key[this.lhead] = '';
-	this.lhead = idxOfInterest;
-  } else {
+	this.prev[idxOfInterest] = "";
+
+	this.lhead = this.next[idxOfInterest];
+	
+	/* store current next in next of new free */
+	this.next[idxOfInterest] = this.free;
+	/* PUSH to free list */
+	this.free = idxOfInterest;
+  }
+  
+  /* When node to be deleted is some other node than the head node */
+  else {
 	/* store idx of node of interest (node to be deleted) */
 	const idxOfInterest = this.next[curr];
 
@@ -190,17 +196,18 @@ LinkedList.freeNode = function free_node (val) {
 	 */
 	this.key[idxOfInterest] = '';
 	
-	/* handle deteltion of last element */
+	/* handle deletion of last element */
 	if (this.next[idxOfInterest] != -1) {
 	  this.prev[this.next[idxOfInterest]] = curr;
 	}
+	this.prev[idxOfInterest] = "";
 
 	this.next[curr] = this.next[idxOfInterest];
 
+	/* store current next in next of new free */
 	this.next[idxOfInterest] = this.free;
 	/* PUSH to free list */
 	this.free = idxOfInterest;
-	this.prev[idxOfInterest] = "";
   }
 
   this.listLength--;
@@ -238,4 +245,8 @@ LinkedList.printList = function print_list (head) {
   }
 }
 
-LinkedList.setup();
+/* Uncomment below line to work with this file independently */
+//LinkedList.setup();
+
+/* Uncomment below line for this file to be used as routine */
+module.exports = LinkedList;
