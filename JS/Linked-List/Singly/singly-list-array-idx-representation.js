@@ -12,6 +12,7 @@
 
 'use strict';
 
+const operation_selector = require('../operation-selector');
 const LinkedList = Object.create(require('../interactive-request-procedures'));
 
 LinkedList.setup = function setup() {
@@ -38,66 +39,10 @@ LinkedList.setup = function setup() {
 
   this.key = [];
   this.next = [];
-  //this.prev = [];
 
   this.listLength = 0;
 
-  this.input();
-}
-
-LinkedList.input = async function input() {
-  while(true) {
-	try {
-	  let input = await this.requestProcedure();
-	  let { position, value } = input.node;
-
-	  if (input.procedure === "i") {
-		switch (position) {
-		  case '1':
-		  case 's':
-			this.prepend(value);
-			break;
-		  case 'e':
-		  case `${this.listLength + 1}`:
-			this.append(value);
-			break;
-		  default:
-			/* Check to see if position is an integer */
-			if ( !((position ^ 0) === parseInt(position, 10) )) {
-			  console.log(`Invalid input: Position ${position} is not an integer`);
-			  continue;
-			}
-
-			/* Check to see if position exceeds list length */
-			if (position - 1 > this.listLength) {
-			  console.log(`Invalid input: Position ${position} exceeds list length ${this.listLength}\nTry Again\n`);
-			  continue;
-			}
-
-			this.insertAt(value, position);
-		}
-	  }
-
-	  if (input.procedure === 'd') {
-		if (this.listLength === 0) {
-		  console.log(`Cannot delete from an empty list\nTry again`);
-		  continue;
-		}
-		this.freeNode(input.node);
-	  }
-
-	  const resp = await this.prompt("Continue? y / n > ");
-	  if (resp === "n")
-		break;
-	  console.log("\n");
-	}
-	catch (err) {
-	  console.log(err);
-	}
-  }
-
-  this.printList(this.lhead);
-  process.exit(0);
+  operation_selector(this);
 }
 
 LinkedList.newNode = function new_node (val, freeIdx) {
