@@ -42,7 +42,7 @@ LinkedList.setup = function setup() {
 
   this.listLength = 0;
 
-  operation_selector(this);
+  //operation_selector(this);
 }
 
 LinkedList.newNode = function new_node (val, freeIdx) {
@@ -95,6 +95,7 @@ LinkedList.prepend = function prepend (val) {
   if (this.lhead === -1) {
 	/* store array index of first node in lhead */
 	this.lhead = freeIdx;
+	this.last = freeIdx;
   }
 
   else {
@@ -117,6 +118,7 @@ LinkedList.append = function append (val) {
 
 	this.next[curr] = freeIdx;
 	this.listLength++;
+	this.last = freeIdx;
   }
 }
 
@@ -167,6 +169,7 @@ LinkedList.freeNode = function free_node (val) {
 	this.next[this.lhead] = this.free;
 	/* PUSH to free list */
 	this.free = this.lhead;
+	this.last = this.lhead;
 
 	this.key[this.lhead] = '';
 	this.lhead = idxOfInterest;
@@ -183,6 +186,7 @@ LinkedList.freeNode = function free_node (val) {
 	this.next[idxOfInterest] = this.free;
 	/* PUSH to free list */
 	this.free = idxOfInterest;
+	this.last = curr;
   }
 
   this.listLength--;
@@ -203,6 +207,7 @@ LinkedList.getFreeIdx = function get_free_idx () {
 	return this.next.length;
   } else {
 	const free = this.free;
+	this.last = free;
 	/* freeList POP operation */
 	this.free = this.next[this.free];
 	return free;
@@ -220,4 +225,5 @@ LinkedList.printList = function print_list (head) {
   }
 }
 
-LinkedList.setup();
+//LinkedList.setup();
+module.exports = LinkedList;

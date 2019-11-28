@@ -21,14 +21,14 @@ BTree.setup = function setup () {
    * to check for successor (case 2.b), uncomment 27.89, .
    */
   //this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 27.1, 27.66, 27.12, 27.15, 27.84, 27.44, /*27.45, 27.46, 27.47,*/ 27.53, 27.56, 27.88, /*27.89,*/ 27.23, 27.49, 27.31, 27.32, 27.33, 27.34, 27.35, 27.36, 27.37, 27.38, 27.41, 27.42, 27.43, 27.45, 27.46, 27.47, 27.52, 27.49, 27.62, 27.27, 27.25, 27.28, 27.99, 27.06, 27.39, 27.77, 27.61, 27.48, 27.93, 27.96, 27.2, 27.5, 27.3, 27.6, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26];
-  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22, 25, 26]
+  this.inputKeys = [8, 1, 11, 5, 13, 7, 28, 37, 16, 12, 3, 15, 17, 27, 6, 9, 14, 43, 2, 4, 20, 22]
   //await input.createInput();
   /* GOTCHA: If forEach callback is not bound with the scope of BTree, it references (verify) global object */
   this.inputKeys.forEach(function insertKey(key) { this.insertNode(key) }.bind(this));
   /* 27.99 : to verify 2a;
    * 27.28: to verify 2b;
    */
-  this.root = this.deleteNodeSinglePass(this.root, 22);
+  //this.root = this.deleteNodeSinglePass(this.root, 22);
 }
 
 /* BTree search takes as input a pointer to root node (not if available in scope) x
@@ -57,9 +57,9 @@ BTree.searchNode = function search_node (node, key) {
   }
 
   /* recurse to search appropriate subtree of x */
-	/* if return keyword is not used, 
-	 * TypeError: this.searchNode is not a function or its return value is not iterable
-	 */
+  /* if return keyword is not used, 
+   * TypeError: this.searchNode is not a function or its return value is not iterable
+   */
   else return this.searchNode(node.children[i - 1], key);
 }
 

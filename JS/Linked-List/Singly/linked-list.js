@@ -22,6 +22,7 @@ LinkedList.init = function setup() {
   this.list = [{next: null}]; 
 
   this.input();
+
 }
 
 LinkedList.input = async function input() {

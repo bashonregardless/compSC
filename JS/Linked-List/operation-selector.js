@@ -1,4 +1,7 @@
+const EventEmitter = require('events');
+
 module.exports = async function operationSelector (list) {
+
   while(true) {
 	try {
 	  let input = await list.requestProcedure();
@@ -30,6 +33,7 @@ module.exports = async function operationSelector (list) {
 			}
 
 			list.insertAt(value, position);
+			myEmitter.emit('insert');
 		}
 	  }
 
@@ -39,6 +43,7 @@ module.exports = async function operationSelector (list) {
 		  continue;
 		}
 		list.freeNode(input.node);
+		myEmitter.emit('delete');
 	  }
 
 	  const resp = await list.prompt("Continue? y / n > ");

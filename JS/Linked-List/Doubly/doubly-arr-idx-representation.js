@@ -43,7 +43,7 @@ LinkedList.setup = function setup() {
 
   this.listLength = 0;
 
-  operation_selector(this);
+  //operation_selector(this);
 }
 
 LinkedList.newNode = function new_node (val, freeIdx) {
@@ -97,6 +97,7 @@ LinkedList.prepend = function prepend (val) {
   if (this.lhead === -1) {
 	/* store array index of first node in lhead */
 	this.lhead = freeIdx;
+	this.last = freeIdx;
   }
 
   else {
@@ -121,6 +122,7 @@ LinkedList.append = function append (val) {
 	this.prev[freeIdx] = curr;
 	this.next[curr] = freeIdx;
 	this.listLength++;
+	this.last = freeIdx;
   }
 }
 
@@ -136,6 +138,7 @@ LinkedList.insertAt = function insert_at (val, pos) {
   this.next[freeIdx] = this.next[curr];
   this.next[curr] = freeIdx;
 
+  this.last = freeIdx;
   this.listLength++;
 }
 
@@ -210,6 +213,29 @@ LinkedList.freeNode = function free_node (val) {
 	this.free = idxOfInterest;
   }
 
+  this.listLength--;
+}
+
+LinkedList.freeAtIdx = function free_at_idx (idx) {
+  if (this.prev[idx] === -1) {
+	this.prev[this.next[idx]] = -1;
+	this.lhead = this.next[idx];
+
+	this.next[this.free] = this.free;
+	this.free = idx;
+  }
+
+  else {
+	if (this.next[idx] !== -1) {
+	  this.prev[this.next[idx]] = this.prev[idx];
+	}
+	this.next[this.prev[idx]] = this.next[idx];
+
+	this.next[this.free] = this.free;
+	this.free = idx;
+  }
+
+  this.last = this.prev[idx];
   this.listLength--;
 }
 
