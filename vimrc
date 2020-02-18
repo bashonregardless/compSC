@@ -160,7 +160,7 @@ nmap <silent> <leader>pw :call DoWindowSwap()<CR>
 "open child block after matching braces
 inoremap <leader>o <esc>i<C-j><esc>ko
 
-"open a new at the top of file
+"open a new line at the top of file entering insert mode
 nnoremap <leader>to <esc>ggi<C-j><esc>ki
 
 " Explode split to full size
@@ -197,3 +197,35 @@ nnoremap <Leader>s :%s/\v<<C-r><C-w>>/
 " Alternatively, you could use this mapping so that the final /g is already
 " entered:
 " :nnoremap <Leader>s :%s/\v<<C-r><C-w>>/g<Left><Left>
+
+nnoremap <leader>f :FZF<CR>
+
+" temporarily swich to cwd for path prompt relative to it
+function! SwitchCwd()
+  " on first execution of function from a window
+  if exists("w:appCwd")==0
+	echo "inside first if"
+	" store the app directory in w:appCwd
+	let w:appCwd=getcwd()
+	let w:tmpCwd=expand("%:p:h")
+	" when this mapping is run first time from a buffer, switch to cwd
+	lcd %:p:h
+  elseif w:tmpCwd==expand("%:p:h")
+	" on subsequent executions
+	let w:tmpCwd=w:appCwd
+	execute 'lcd' w:appCwd
+  else
+	let w:tmpCwd=expand("%:p:h")
+	lcd %:p:h
+  endif
+endfunction
+"Path prompt mapping
+"inoremap <silent> <expr> <leader>c SwitchCwd()
+
+nnoremap <leader>cd :call SwitchCwd()<CR>
+
+" comment selection with /*...*/
+
+" search and replace visually highlighted text
+vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+
