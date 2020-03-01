@@ -18,6 +18,12 @@ String.prototype.repeat = function(length) {
   return Array(length + 1).join(this);
 };
 
+function err(msg, lineNumber) {
+  const err = new Error();
+  err.message = `\n\n**** ERROR *****\n${msg} ${lineNumber}\n\n**********\n\n`;
+  throw err;
+}
+
 function formatJson () {
   //const jsonString = `{"data":{"name":"\\nharsh"}}`
   const jsonString = process.argv[2];
@@ -25,10 +31,11 @@ function formatJson () {
   // token tracking info
   let prevToken = "";
   let stringLiteral = false;
-  
-  // indent % 2 gives line number
+
   let indent = 0;
   let lineNumber = 0;
+
+  let bracketStack = [];
 
   jsonString.split('').forEach(function parseStr (token) {
 	if (stringLiteral) {
@@ -40,37 +47,45 @@ function formatJson () {
 		case '[':
 		case '{':
 		case ']':
-		case '}':
-		  try {
-			if (token === '[' || token === '{') {
-			  lineNumber += 1;
-			  if (prevToken === '{' || prevToken === '[') {
-				// If indent becomes negative, throw parantheses balance error: Invalid JSON
-				process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-				indent = indent + 2;
-			  }
-			  else {
-				indent = indent + 2;
-				process.stdout.write(`${token}`);
-			  }
-			  break;
+		case '}': {
+		  if (token === '[' || token === '{') {
+			lineNumber += 1;
+			bracketStack.push(token);
+			if (prevToken === '{' || prevToken === '[') {
+			  // If indent becomes negative, throw parantheses balance error: Invalid JSON
+			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
+			  indent = indent + 2;
 			}
-
-			if (token === ']' || token === '}') {
-			  lineNumber += 1;
-			  indent = indent - 2;
-
-			  if (prevToken === '{' || prevToken === '[') {
-				process.stdout.write(`${token}`);
-			  } else
-				process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-			  break;
+			else {
+			  indent = indent + 2;
+			  process.stdout.write(`${token}`);
 			}
+			break;
 		  }
-		  catch (err) {
-			console.log(`\n\n**** ERROR *****\nLast matched line : ${lineNumber}\nLook for error till last matching collection type\n\n**********\n\n`);
-			throw new Error('Check JSON');
+
+		  if (token === ']' && bracketStack.pop() === '[' ) {
+			indent-=2;
+			if (prevToken === '[') {
+			  process.stdout.write(`${token}`);
+			} else
+			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
 		  }
+		  else {
+			err(`Bracket mismatch at line\nLast matched line :`, lineNumber)
+		  }
+
+		  if (token === '}' && bracketStack.pop() === '{' ) {
+			indent-=2;
+			if (prevToken === '{') {
+			  process.stdout.write(`${token}`);
+			} else
+			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
+		  }
+		  else {
+			err(`Bracket mismatch at line\nLast matched line :`, lineNumber)
+		  }
+		  break;
+		}
 
 		case ',':
 		  if (!(prevToken === '}' || prevToken === ']')) {
@@ -102,9 +117,7 @@ function formatJson () {
   process.stdout.write("\n");
 
   if (indent > 0) {
-	// print in reverrse order till last collection type ( '{' || '[') token
-	console.log(`\n\n**** ERROR *****\nLast matched line : ${lineNumber}\nLook for error till last matching collection type\n\n**********\n\n`);
-	throw new Error('Check JSON');
+	errExist(`Last matched line :`, lineNumber);
   }
   process.exit();
 }
