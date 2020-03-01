@@ -18,14 +18,31 @@ String.prototype.repeat = function(length) {
   return Array(length + 1).join(this);
 };
 
-function err(msg, lineNumber) {
+function errExit(msg, lineNumber) {
   const err = new Error();
   err.message = `\n\n**** ERROR *****\n${msg} ${lineNumber}\n\n**********\n\n`;
   throw err;
 }
 
 function formatJson () {
-  //const jsonString = `{"data":{"name":"\\nharsh"}}`
+  function closeCaseBracket(token, prevToken, collectionType) {
+	if (bracketStack.pop() === collectionType) {
+	  (prevToken === collectionType) ?
+		process.stdout.write(`${token}`)
+		:
+		process.stdout.write(`\n${" ".repeat(indent)}${token}`);
+	}
+	else
+	  errExit(`Bracket mismatch at line\nLast matched line :`, lineNumber)
+  }
+
+  function openCaseBracket(token, prevToken) {
+	(prevToken === '{' || prevToken === '[') ?
+	  process.stdout.write(`\n${" ".repeat(indent)}${token}`)
+	  :
+	  process.stdout.write(`${token}`);
+  }
+
   const jsonString = process.argv[2];
 
   // token tracking info
@@ -45,47 +62,28 @@ function formatJson () {
 	} else {
 	  switch (token) {
 		case '[':
-		case '{':
-		case ']':
-		case '}': {
-		  if (token === '[' || token === '{') {
-			lineNumber += 1;
-			bracketStack.push(token);
-			if (prevToken === '{' || prevToken === '[') {
-			  // If indent becomes negative, throw parantheses balance error: Invalid JSON
-			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-			  indent = indent + 2;
-			}
-			else {
-			  indent = indent + 2;
-			  process.stdout.write(`${token}`);
-			}
-			break;
-		  }
-
-		  if (token === ']' && bracketStack.pop() === '[' ) {
-			indent-=2;
-			if (prevToken === '[') {
-			  process.stdout.write(`${token}`);
-			} else
-			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-		  }
-		  else {
-			err(`Bracket mismatch at line\nLast matched line :`, lineNumber)
-		  }
-
-		  if (token === '}' && bracketStack.pop() === '{' ) {
-			indent-=2;
-			if (prevToken === '{') {
-			  process.stdout.write(`${token}`);
-			} else
-			  process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-		  }
-		  else {
-			err(`Bracket mismatch at line\nLast matched line :`, lineNumber)
-		  }
+		  lineNumber += 1;
+		  bracketStack.push(token);
+		  openCaseBracket(token, prevToken);
+		  indent += 2;
 		  break;
-		}
+
+		case '{':
+		  lineNumber += 1;
+		  bracketStack.push(token);
+		  indent += 2;
+		  openCaseBracket(token, prevToken);
+		  break;
+
+		case '}':
+		  indent-=2;
+		  closeCaseBracket(token, prevToken, '{');
+		  break;
+
+		case ']':
+		  indent-=2;
+		  closeCaseBracket(token, prevToken, '[')
+		  break;
 
 		case ',':
 		  if (!(prevToken === '}' || prevToken === ']')) {
@@ -104,11 +102,7 @@ function formatJson () {
 			stringLiteral = true;
 
 		default:
-		  if (prevToken === '{' || prevToken === '[')
-			process.stdout.write(`\n${" ".repeat(indent)}${token}`);
-		  else
-			process.stdout.write(`${token}`);
-		  break
+		  openCaseBracket(token, prevToken);
 	  }
 	}
 	prevToken = token;
@@ -117,7 +111,7 @@ function formatJson () {
   process.stdout.write("\n");
 
   if (indent > 0) {
-	errExist(`Last matched line :`, lineNumber);
+	errExit(`Last matched line :`, lineNumber);
   }
   process.exit();
 }
