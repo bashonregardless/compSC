@@ -25,6 +25,8 @@ function errExit(msg, lineNumber) {
 }
 
 function formatJson () {
+  const jsonString = process.argv[2];
+
   function closeCaseBracket(token, prevToken, collectionType) {
 	if (bracketStack.pop() === collectionType) {
 	  (prevToken === collectionType) ?
@@ -43,16 +45,14 @@ function formatJson () {
 	  process.stdout.write(`${token}`);
   }
 
-  const jsonString = process.argv[2];
 
-  // token tracking info
-  let prevToken = "";
-  let stringLiteral = false;
+  let prevToken = "",
+	stringLiteral = false,
 
-  let indent = 0;
-  let lineNumber = 0;
+	indent = 0,
+	lineNumber = 0,
 
-  let bracketStack = [];
+	bracketStack = [];
 
   jsonString.split('').forEach(function parseStr (token) {
 	if (stringLiteral) {
@@ -86,9 +86,8 @@ function formatJson () {
 		  break;
 
 		case ',':
-		  if (!(prevToken === '}' || prevToken === ']')) {
+		  if (!(prevToken === '}' || prevToken === ']'))
 			lineNumber += 1;
-		  }
 
 		  process.stdout.write(`${token}\n${" ".repeat(indent)}`);
 		  break;
@@ -98,7 +97,7 @@ function formatJson () {
 		  break;
 
 		case '"':
-		  if ( !stringLiteral && prevToken === ':')
+		  if (prevToken === ':')
 			stringLiteral = true;
 
 		default:
