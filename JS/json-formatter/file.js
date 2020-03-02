@@ -38,8 +38,8 @@ function formatJson () {
 	  errExit(`Bracket mismatch at line\nLast matched line :`, lineNumber)
   }
 
-  function openCaseBracket(token, prevToken) {
-	(prevToken === '{' || prevToken === '[') ?
+  function openCaseBracket(token, prevToken, collectionType) {
+	(prevToken === collectionType) ?
 	  process.stdout.write(`\n${" ".repeat(indent)}${token}`)
 	  :
 	  process.stdout.write(`${token}`);
@@ -62,33 +62,37 @@ function formatJson () {
 	} else {
 	  switch (token) {
 		case '[':
-		  lineNumber += 1;
 		  bracketStack.push(token);
-		  openCaseBracket(token, prevToken);
+		  openCaseBracket(token, prevToken, ']');
+		  if (prevToken === ']')
+			lineNumber += 1;
 		  indent += 2;
 		  break;
 
 		case '{':
-		  lineNumber += 1;
 		  bracketStack.push(token);
 		  indent += 2;
-		  openCaseBracket(token, prevToken);
+		  openCaseBracket(token, prevToken, '}');
+		  if (prevToken === '}')
+			lineNumber += 1;
 		  break;
 
 		case '}':
 		  indent-=2;
 		  closeCaseBracket(token, prevToken, '{');
+		  if (prevToken !== '{')
+			lineNumber += 1;
 		  break;
 
 		case ']':
 		  indent-=2;
 		  closeCaseBracket(token, prevToken, '[')
+		  if (prevToken !== ']')
+			lineNumber += 1;
 		  break;
 
 		case ',':
-		  if (!(prevToken === '}' || prevToken === ']'))
-			lineNumber += 1;
-
+		  lineNumber += 1;
 		  process.stdout.write(`${token}\n${" ".repeat(indent)}`);
 		  break;
 
