@@ -39,7 +39,8 @@ function formatJson () {
   }
 
   function openCaseBracket(token, prevToken, collectionType) {
-	(prevToken === collectionType) ?
+	//(prevToken === collectionType) ?
+	(prevToken === '{' || prevToken === '[') ?
 	  process.stdout.write(`\n${" ".repeat(indent)}${token}`)
 	  :
 	  process.stdout.write(`${token}`);
@@ -63,7 +64,7 @@ function formatJson () {
 	  switch (token) {
 		case '[':
 		  bracketStack.push(token);
-		  openCaseBracket(token, prevToken, ']');
+		  openCaseBracket(token, prevToken);
 		  if (prevToken === ']')
 			lineNumber += 1;
 		  indent += 2;
@@ -72,7 +73,7 @@ function formatJson () {
 		case '{':
 		  bracketStack.push(token);
 		  indent += 2;
-		  openCaseBracket(token, prevToken, '}');
+		  openCaseBracket(token, prevToken);
 		  if (prevToken === '}')
 			lineNumber += 1;
 		  break;
