@@ -1,6 +1,10 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
+set hlsearch
+hi Search ctermbg=Black
+hi Search ctermfg=Red
+
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -59,10 +63,16 @@ filetype plugin on
 
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
+
+"set cursorline
+set cursorline
+"autocmd BufRead,BufEnter,WinEnter * setlocal cursorline
+"autocmd BufEnter,WinLeave * setlocal nocursorline
+
 set tabstop=4
 syntax on
 " bind K to grep word under cursor
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+"nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 set t_Co=256
 syntax enable
 "let g:solarized_termtrans = 1
@@ -71,22 +81,22 @@ set background=dark
 "colorscheme solarized
 set backspace=indent,eol,start
 function! DelTagOfFile(file)
-	let fullpath = a:file
-	let cwd = getcwd()
-	let tagfilename = cwd . "/tags"
-	let f = substitute(fullpath, cwd . "/", "", "")
-	let f = escape(f, './')
-	let cmd = 'sed -i "/' . f . '/d" "' . tagfilename . '"'
-	let resp = system(cmd)
+  let fullpath = a:file
+  let cwd = getcwd()
+  let tagfilename = cwd . "/tags"
+  let f = substitute(fullpath, cwd . "/", "", "")
+  let f = escape(f, './')
+  let cmd = 'sed -i "/' . f . '/d" "' . tagfilename . '"'
+  let resp = system(cmd)
 endfunction
 
 function! UpdateTags()
-	let f = expand("%:p")
-	let cwd = getcwd()
-	let tagfilename = cwd . "/tags"
-	let cmd = 'ctags -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
-	call DelTagOfFile(f)
-	let resp = system(cmd)
+  let f = expand("%:p")
+  let cwd = getcwd()
+  let tagfilename = cwd . "/tags"
+  let cmd = 'ctags -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
+  call DelTagOfFile(f)
+  let resp = system(cmd)
 endfunction
 autocmd BufWritePost *.cpp,*.h,*.c call UpdateTags()
 "set ctrl + t in Insert mode to shifhtwidth=2
@@ -94,10 +104,10 @@ autocmd BufWritePost *.cpp,*.h,*.c call UpdateTags()
 "Emmet plugin (Expand CSS selector into HTML or JSX) support code
 let g:user_emmet_leader_key='<Tab>'
 let g:user_emmet_settings = {
-			\  'javascript.jsx' : {
-			\      'extends' : 'jsx',
-			\  },
-			\}
+	  \  'javascript.jsx' : {
+	  \      'extends' : 'jsx',
+	  \  },
+	  \}
 "Syntax checking ale -- make more elegant to use
 let g:ale_sign_error = '●' " Less aggressive than the default '>>'
 let g:ale_sign_warning = '.'
@@ -121,41 +131,12 @@ set splitright
 nnoremap ,h :split<CR>
 nnoremap ,v :vs<CR>
 "Resize split
-nnoremap ,< :vertical resize +24<CR>
-nnoremap ,> :vertical resize -24<CR>
-
 nnoremap ,<< :vertical resize +12<CR>
 nnoremap ,>> :vertical resize -12<CR>
 
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
-
-"You Complete Me
-let g:ycm_autoclose_preview_window_after_completion=1
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-function! MarkWindowSwap()
-	let g:markedWinNum = winnr()
-endfunction
-
-function! DoWindowSwap()
-	"Mark destination
-	let curNum = winnr()
-	let curBuf = bufnr( "%" )
-	exe g:markedWinNum . "wincmd w"
-	"Switch to source and shuffle dest->source
-	let markedBuf = bufnr( "%" )
-	"Hide and open so that we aren't prompted and keep history
-	exe 'hide buf' curBuf
-	"Switch to dest and shuffle source->dest
-	exe curNum . "wincmd w"
-	"Hide and open so that we aren't prompted and keep history
-	exe 'hide buf' markedBuf
-endfunction
-
-nmap <silent> <leader>mw :call MarkWindowSwap()<CR>
-nmap <silent> <leader>pw :call DoWindowSwap()<CR>
 
 "open child block after matching braces
 inoremap <leader>o <esc>i<C-j><esc>ko
@@ -204,14 +185,15 @@ nnoremap <leader>f :FZF<CR>
 function! SwitchCwd()
   " on first execution of function from a window
   if exists("w:appCwd")==0
-	echo "inside first if"
 	" store the app directory in w:appCwd
+	echo "Switched to current directory"
 	let w:appCwd=getcwd()
 	let w:tmpCwd=expand("%:p:h")
 	" when this mapping is run first time from a buffer, switch to cwd
 	lcd %:p:h
   elseif w:tmpCwd==expand("%:p:h")
 	" on subsequent executions
+	echo "Switched to base directory"
 	let w:tmpCwd=w:appCwd
 	execute 'lcd' w:appCwd
   else
@@ -219,13 +201,79 @@ function! SwitchCwd()
 	lcd %:p:h
   endif
 endfunction
-"Path prompt mapping
-"inoremap <silent> <expr> <leader>c SwitchCwd()
-
 nnoremap <leader>cd :call SwitchCwd()<CR>
+"Path prompt mapping
+inoremap <leader>c <C-X><C-F>
 
 " comment selection with /*...*/
 
 " search and replace visually highlighted text
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
+
+" autocomplete tag
+"  Using single quotes tells Vim that you want the string exactly as-is, with
+"  no escape sequences. The one exception is that two single quotes in a row
+"  will produce one single quote.
+
+" inoremap <expr> <C-V> AutoCompleteTag()
+func! AutoCompleteTag()
+  let l:match = search('<[^/].\{-}>', 'bn', line("."))
+  let l:pat="<\zs\/.\{-}\ze>"
+  if l:match > 0
+	let l:lastMatch=MatchStrLast(getline(l:match), '<\zs.\{-}\ze>')
+	if l:lastMatch!~"\/.*"
+	  return '</'.l:lastMatch.'>'
+	else
+	  return ''
+	endif
+  else
+	return ''
+  endif
+endfunc
+
+" use the {count} parameter for matchstr() to increment your way through the
+" string 
+function! MatchStrLast(expr, pat, ...)
+  let start = a:0 ? a:1 : 0
+  let lst = ''
+  let cnt = 1
+  let found = match(a:expr, a:pat, start, cnt)
+  while found != -1
+	let lst=matchstr(a:expr, a:pat, start, cnt)
+	"call add(lst, matchstr(a:expr, a:pat, start, cnt))
+	let cnt += 1
+	let found = match(a:expr, a:pat, start, cnt)
+  endwhile
+  return lst
+endfunction
+
+
+" autocomplete tag
+"  Using single quotes tells Vim that you want the string exactly as-is, with
+"  no escape sequences. The one exception is that two single quotes in a row
+"  will produce one single quote.
+inoremap <expr> <C-B> AutoCompleteAlpabeticTag()
+func! AutoCompleteAlpabeticTag()
+  let l:match = search('<\zs\a\+', 'bn', line("."))
+  let l:pat="<\zs\/.\{-}\ze>"
+  if l:match > 0
+	let l:lastMatch=MatchStrLast(getline(l:match), '<\zs\a\+')
+	if l:lastMatch =~ "\a\+"
+	  return '> </'.l:lastMatch.'>'
+	else
+	  return ''
+	endif
+  else
+	return ''
+  endif
+endfunc
+nnoremap <leader><space> :noh<cr>
+
+inoremap <leader>q <C-N><C-P>
+
+" indent file
+nnoremap <leader>ai gg=G<C-O>
+
+" delete all trailing whitespace from each line, then replace three or more consecutive line endings with two line endings (a single blank line)
+nnoremap <leader>df :%s/\s\+$//e<cr> :%s/\n\{3,}/\r\r/e<cr>
