@@ -1,14 +1,22 @@
 parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
+
 export PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+
 #PS1='\e[0;35m[\u@\h \W]\$ \e[m '
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
+
 alias ls='ls -GFh'
+
 alias del_swp="find . -name "*.swp" -print -exec rm -i '{}' \;"
+
 export PATH="/usr/local/opt/node@8/bin:$PATH"
+
 function grall {
   grep -rnw --color=always "$1" $PWD
 }
 export -f grall
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
