@@ -216,7 +216,7 @@ vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 "  no escape sequences. The one exception is that two single quotes in a row
 "  will produce one single quote.
 
-" inoremap <expr> <C-V> AutoCompleteTag()
+inoremap <expr> <C-V> AutoCompleteTag()
 func! AutoCompleteTag()
   let l:match = search('<[^/].\{-}>', 'bn', line("."))
   let l:pat="<\zs\/.\{-}\ze>"
@@ -253,7 +253,7 @@ endfunction
 "  Using single quotes tells Vim that you want the string exactly as-is, with
 "  no escape sequences. The one exception is that two single quotes in a row
 "  will produce one single quote.
-inoremap <expr> <C-B> AutoCompleteAlpabeticTag()
+"inoremap <expr> <C-B> AutoCompleteAlpabeticTag()
 func! AutoCompleteAlpabeticTag()
   let l:match = search('<\zs\a\+', 'bn', line("."))
   let l:pat="<\zs\/.\{-}\ze>"
