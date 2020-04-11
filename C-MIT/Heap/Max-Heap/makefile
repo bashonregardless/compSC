@@ -1,3 +1,5 @@
+# ** Phony Targets **
+#
 # A phony target is one that is not really the name of a file:
 # rather it is just a name for a recipe to be executed when you
 # make an explicit request. There are two reasons to use a phony
@@ -123,10 +125,84 @@
 # 		rm *.diff
 .PHONY: all
 
+# ** Syntax of Conditionals **
+#
+# The syntax of a simple conditional with no 'else' is as follows:
+#
+# `conditional-directive
+# text-if-true
+# endif
+# `
+#
+# The 'text-if-true' may be any lines of text, to be considered as
+# part of the makefile if the condition is true. If the condition is
+# false, no text is used instead.
+#
+# The syntax of a complex conditional is as follows:
+#
+# `conditional-directive-one
+# text-if-one-is-true
+# else conditional-directive-two
+# text-if-two-is-true
+# else
+# text-if-one-and-two-are-false
+# endif
+# `
+#
+# Extra spaces are allowed and ignored at the beginning of the conditional
+# directive line, but a tab is not allowed. (If the line begins with
+# a tab, it will be considered part of a recipe for a rule).
+#
+# To test an empty value use
+# `ifeq ($(foo),)`
+#
+# Often you want to test if a variable has a non-empty value. When the
+# value results from complex expansions of variables and functions,
+# expansions you would consider empty may actually contain whitespace
+# characters and thus are not seen as empty. However, you can use the
+# 'strip' function to avoid interpreting whitespace as a non-empty
+# value. For example:
+#
+# `ifeq ($(strip $(foo)),)
+# text-if-empty
+# endif
+# `
 ifneq ($(DEBUG), )
 
+# ** Function for Conditionals **
+#
+# A key aspect of all these functions is that not all of the
+# arguments are expanded initially. Only those arguments which
+# need to be expanded, will be expanded.
+#
+# Only one of three functions that provide conditional expansion
+# is discussed here -> $(if condition,then-part[,else-part])
+#
+# The if function provides support for conditional expansion in
+# functional context (as opposed to the GNU 'make' makefile
+# conditionals such as 'ifeq').
+#
+# The first argument, 'condition', first has all preceding and
+# trailing whitespace stripped, then is expanded. If it expands
+# to a non-empty string, then the condition is considered to be
+# true. If it expands to an empty string, the condition is considered
+# to be false.
+#
+# If the condition is true then the second argument, 'then-part',
+# is evaluated and this is used as the result of the evaluation
+# of the entire 'if' conditon.
+#
+# If the condition is false then the third argument, 'else-part'
+# is evaluated and this is the result of the 'if' function. If
+# there is no third argument, the 'if' function evaluates to nothing
+# (the empty string).
+#
+# Note that only one of the 'then-part' or the 'else-part' will
+# be evaluated, never both. Thus, either can contain side-effects
+# (such as 'shell' function calls, etc.)
 NAME := $(if $(filter yes,$(DEBUG)),debug,release)
 
+# ** Recursive Use of make **
 # $(MAKE) -> Recursive use of make as a command in a makefile.
 # This technique is useful when you want seperate makefiles for
 # various subsystems that compose a larger system.
@@ -142,10 +218,50 @@ NAME := $(if $(filter yes,$(DEBUG)),debug,release)
 #
 #  You may also find it useful to declare targets that invoke 
 #  recursive make command as `.PHONY`.
+#
+#  For your convenience, when GNU make starts (after it has
+#  processed any -C options) it sets the variable CURDIR to the
+#  pathname of the current working directory. This value is 
+#  never touched by make again: in particular note that if you
+#  include files from  other directories the value of 'CURDIR'
+#  does not change.
+
+# ** Using Empty Recipes **
+#
+# Sometimes we define a recipe that does nothing. One reason 
+# this is useful is to prevent a target from getting implicit
+# recipes (from implicit rules or the .DEFAULT special target;
+# see Implicit Rules and see Defining Last-Resort Default Rules).
+#
+# ** Rule Syntax **
+#
+# The 'recipe' lines start with a tab character (or the first
+# character in the value of the .RECIPEPREFIX variable: see
+# Special Variables). The first recipe line may appear on the
+# line after the prerequisites, with a tab character, or may
+# appear on the same line, with a semicolon. Either way, the 
+# effect is the same.
 all: ; $(MAKE) $(NAME) -C $(NAME) -f ../Makefile DEBUG=
 
 else
 
+# ** How to Use Variables **
+#
+# A variable name may be any sequence of characters not containing
+# ':', '#', '=', or whitespace. However, variable names containing
+# characters other than letters, numbers, and underscores should
+# be considered carefully, as in some shells they cannot be
+# passed through the environment to sub-make. Variable names
+# beginning with '.' and an uppercase letter may be given special
+# meaning in future versions of make.
+#
+# Variable names are case sensitive.
+#
+# It is traditional to use upper case letters, but we recommend
+# using lower case letters for variable names that serve internal
+# purposes in the makefile, and reserving upper case for parameters
+# that control implicit rules or for parameters that the user
+# should override with command options.
 SRCS := max-heap.c max-heap-driver-prog.c
 
 # $(SRCS:.c=.o) means, take the variable value $(SRCS). which is a string
@@ -175,6 +291,42 @@ vpath %.h $(INCLUDE_DIRECTORIES)
 
 vpath %.c ../src
 
+# ** Overriding Variables **
+#
+# Upper case letters are reserved for parameters that control implicit
+# rules or for parameters that the user should override with command
+# options.
+#
+# An argument that contains '=' specifies the value: 'v=x' sets the
+# value of the variable v to x. If you specify a value in this way,
+# all ordinary assignments of the same variable in the makefile are
+# ignored: we say they have been overridden by the command line argument.
+#
+# The most common way to use this facility is to pass extra flags to
+# compilers. For example, in a properly written makefile, the variable
+# 'CFLAGS' is included in each recipe that runs the C compiler, so a
+# file foo.c would be compiled something like this:
+#
+# `CC -c $(CFLAGS) foo.c`
+#
+# Thus, whatever value you set for 'CFLAGS' affects each compilation
+# that occurs. The makefile probably specifies the usual value for
+# 'CFLAGS', like this:
+#
+# `CFLAGS=-g`
+#
+# Each time you run make, you can override this value if you wish.
+# For example, if you say `make CFLAGS='-g -O'`, each C compilation
+# will be done with `cc -c -g -O`. (This also illustrates how you
+# can use quoting in the shell to enclose spaces and the other
+# special characters in the value of a variable when you override it.)
+
+# ** Variables Used by Implicit Rules **
+# 
+# CPPFLAGS
+# 	
+# 	Extra flags to give to the C preprocessor and programs that use 
+# 	it (the C and Fortran compilers.)
 CPPFLAGS += $(addprefix -I,$(INCLUDE_DIRECTORIES))
 
 endif
