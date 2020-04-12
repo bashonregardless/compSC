@@ -275,6 +275,101 @@ OBJS := $(SRCS:.c=.o)
 
 debug: all
 
+# ** Appending More Text to Variables **
+#
+# `object += another.o`
+#
+# This takes the value of the variable 'objects', and adds the text
+# 'another.o' to it (preceded by a single space, if it has a value
+# already).
+# Thus:
+#
+# `objects = main.o foo.o bar.o utils.o
+# objects += another.o
+# `
+#
+# sets objects to 'main.o foo.o bar.o utils.o another.o'.
+#
+# Using '+=' is similar to:
+#
+# `objects = main.o foo.o bar.o utils.o
+# objects := $(objects) another.o
+# `
+#
+# but differs in ways that become important when you use more complex
+# values.
+#
+# When the variable in question has not been defined before, '+=' acts
+# just like normal '=': it defines a recursively-expanded variable.
+# However, when there is previous definition, exactly what '+=' does
+# depends on what flavor of variable you defined originally.
+#
+# When you add to a variable's value with '+=', 'make' acts essentially
+# as if you had included the extra text in the initial definition of the
+# variable. If you defined it first with ':=' or '::=', making it a
+# simply-expanded-variable, '+=' adds to that simply-expanded definition,
+# and expands the new text before appending it to the old value just as
+# ':=' does.
+# If fact,
+#
+# `variable := value
+# variable += more
+# `
+#
+# is exactly equivalent to:
+#
+# `variable := value
+# variable := $(variable) more
+# `
+#
+# On the other hand, when you use '+=' with a variable that you defined
+# first to be recursively-expanded variable, 'make' does not expand the
+# value you set for variable and function references immediately. Instead
+# it stores the text verbatim, and saves these variable and function references
+# to be expanded later, when you refer to a new variable. When you use
+# '+=' on a recursively-expanded variable, it is this unexpanded text to
+# which make appends the new text you specify.
+#
+# `variable = value
+# variable += more
+# `
+#
+# is roughly equivalent to:
+#
+# `temp = value
+# variable = $(temp) more
+# `
+#
+# except that of course it never defines a variable called temp. The importance
+# of this comes when the variable's old value contains variable references.
+# Take this commom example:
+#
+# `CFLAGS = $(include) -O
+# ...
+# CFLAGS += -pg # enable profiling
+# `
+#
+# The first line defines the CFLAGS variable with a reference to another
+# variable, 'includes'. (CFLAGS is used by rules for C compilation). Using
+# '=' for the definition makes CFLAGS a recursively-expanded variable,
+# meaning `$(includes) -O' is not expanded when make processes the definition
+# of CFLAGS. Thus, 'includes' need not be defined yet for its value to
+# take effect. It only has to be defined before any references to CFLAGS.
+# Thus, 'includes' need not be defined yet for its value to take effect.
+# It only has to be defined before any reference to CFLAGS. If we tried
+# to append to the value of CFLAGS without using '+=', we might do it like
+# this:
+#
+# `CFLAGS := $(CFLAGS) -pg # enable profiling`
+#
+# This is pretty close, but not quite what we want. Using ':=' redefines
+# CFLAGS as a simply-expanded variable; this means make exapands the text's
+# `$(CFLAGS) -pg` before setting the variable. If 'includes' is not yet
+# defined, we get ` -O -pg', and a later definition of 'includes' will
+# have no effect. Conversely, by using '+=' we set CFLAGS to the unexpanded
+# value `$(includes) -O -pg`. Thus we preserve the reference to 'includes',
+# so if that variable gets defined at any later point, a reference like
+# `$(CFLAGS)` still uses its value.
 debug: CPPFLAGS += -g
 
 release: all
@@ -285,6 +380,8 @@ max-heap.o: max-heap-hdr.h
 
 max-heap-driver-prog.o: max-heap-hdr.h max-heap.c
 
+# ** Searching Directories for Prerequisites **
+#
 INCLUDE_DIRECTORIES = ../include
 
 vpath %.h $(INCLUDE_DIRECTORIES)
