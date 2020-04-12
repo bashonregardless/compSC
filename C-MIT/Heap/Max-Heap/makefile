@@ -380,10 +380,76 @@ max-heap.o: max-heap-hdr.h
 
 max-heap-driver-prog.o: max-heap-hdr.h max-heap.c
 
-# ** Searching Directories for Prerequisites **
-#
 INCLUDE_DIRECTORIES = ../include
 
+# ** Searching Directories for Prerequisites **
+#
+# For large systems, it is often desirable to put sources in a separate
+# directory from the binaries. The 'directory search' features of make
+# facilitate this by searching several directories automatically to find
+# a prerequisite. When you redistribute the files among directories, you
+# do not need to change the individual rules, just the search paths.
+
+# ** VPATH: Search Path for All Prerequisites **
+#
+# The value of the make variable VPATH specifies a list of directories
+# that make should search. Most often, the directories are expected to 
+# contain prerequisite files that are not in the current directory; however,
+# make uses VPATH as a search list for both prerequisites and targets
+# of rules.
+#
+# Thus, if a file that is listed as target or prerequisite does not exist
+# in the current directory, make searches the directories listed in VPATH
+# for a file with that name. If a file is found in one of them, that
+# file may become the prerequisite. Rules may then specify the names of
+# files in the prerequisite list as if they all existed in the current
+# directory.
+#
+# In VPATH variable, directory names are seperated by colons or blanks.
+# The order in which directories are listed is the order followed by make
+# in its search.
+#
+# For example,
+#
+# `VPATH = src:../headers`
+#
+# specifies a path containing two directories, 'src' and '../headers',
+# which make searches in that order.
+#
+# With this value of VPATH, the following rule,
+#
+# `foo.o : foo.c`
+#
+# is interpreted as if it were written like this:
+#
+# `foo.c : src/foo.c`
+#
+# assuming the file 'foo.c' does not exist in the current directory but 
+# is found in the directory 'src'.
+
+# ** The 'vpath' Directive **
+# Similar to VPATH variable, but more selective.
+# Allows you to specify a search path for a particular class of file names:
+# those that match a particular pattern. Thus you can supply certain 
+# serch directories for one class of file names and other directories
+# (or none) for other file names.
+#
+# There are three forms of 'vpath' directive:
+#
+# `vpath pattern directories`
+#
+# Specify the search path 'directories' for file names that match 'pattern'.
+#
+# The search path, 'directories', is a list of directories to be searched,
+# seperated by colons or blanks, just like the search path used in VPATH.
+#
+# `vpath pattern`
+#
+# Clear out search path associated with pattern.
+#
+# `vpath`
+#
+# Clear all search paths previously specified with vpath directives.
 vpath %.h $(INCLUDE_DIRECTORIES)
 
 vpath %.c ../src
