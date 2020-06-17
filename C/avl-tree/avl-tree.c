@@ -11,6 +11,9 @@
  *
  * node x = node whose children violate height invariant
  * node y = child of x (either left or right)
+ *
+ * Height of the tree has to be updated after bst insert as recursion
+ * progresses up towards parent.
  */
 
 /* Rotation
@@ -213,20 +216,25 @@ struct avlNode* leftChildFixHeightInvar(struct avlNode* node)
 
   // height invar violation 
   if (abs(xHeightDiff) > 1) {
-	int yHeightDiff = checkHeightInvar(node);
+	int yHeightDiff = checkHeightInvar(node->lc);
 
 	// node y is right heavy. Zig-Zag chain
 	if (yHeightDiff == -1) 
 	{
+	  // save ref to new root
+	  struct avlNode* updatedRoot = node->lc->rc;
 	  leftRotate(node->lc);
+	  node->lc = updatedRoot;
 	  rightRotate(node);
-	  return node->rc;
+	  return updatedRoot;
 	}
 	// y is left heavy. Straight chain
 	else
 	{
+	  // save ref to new root
+	  struct avlNode* updatedRoot = node->lc;
 	  rightRotate(node);
-	  return node;
+	  return updatedRoot;
 	}
   }
   // height invar satisfied
@@ -240,23 +248,28 @@ struct avlNode* rightChildFixHeightInvar(struct avlNode* node) {
   int xHeightDiff = checkHeightInvar(node);
 
   if (abs(xHeightDiff) > 1) {
-	int yHeightDiff = checkHeightInvar(node);
+	int yHeightDiff = checkHeightInvar(node->rc);
 
 	// node y is left heavy. Zig-Zag chain
 	if (yHeightDiff == 1) 
 	{
+	  // save ref to new root
+	  struct avlNode* updatedRoot = node->rc->lc;
 	  rightRotate(node->rc);
+	  node->rc = updatedRoot;
 	  leftRotate(node);
-	  return node->rc;
+	  return updatedRoot;
 	}
 	// y is right heavy. Straight chain
 	else
 	{
+	  // save ref to new root
+	  struct avlNode* updatedRoot = node->rc;
 	  leftRotate(node);
-	  return node;
+	  return updatedRoot;
 	}
   }
-  // heght invar satisfied
+  // height invar satisfied
   else
   {
 	return node;
@@ -271,10 +284,14 @@ struct avlNode* bstInsert(struct avlNode* node, int key)
 	if (node->lc == NULL) {
 	  struct avlNode* newNode = nodealloc(key);
 	  node->lc = newNode;
+	  updateHeight(node);
 	  return leftChildFixHeightInvar(node);
 	}
 
 	struct avlNode* updatedRoot = bstInsert(node->lc, key);
+
+	// update height
+	updateHeight(node);
 
 	// update root after insertion
 	node->lc = updatedRoot;
@@ -288,10 +305,14 @@ struct avlNode* bstInsert(struct avlNode* node, int key)
 	{
 	  struct avlNode* newNode = nodealloc(key);
 	  node->rc = newNode;
+	  updateHeight(node);
 	  return rightChildFixHeightInvar(node);
 	}
 
 	struct avlNode* updatedRoot = bstInsert(node->rc, key);
+
+	// update height
+	updateHeight(node);
 
 	// update root after insertion
 	node->rc = updatedRoot;
@@ -314,15 +335,10 @@ struct avlNode* findSuccessor(struct avlNode* node)
 struct avlNode* leftRotate(struct avlNode* node)
 {
   // store ref to y
-  struct avlNode* y = node->lc;
-  if (y->rc != NULL) {
-	node->lc = y->rc;
-	y->rc->lc = y;
-	// make y's rc's lc, rc of y
-	if (y->rc->lc != NULL) {
-	  y->rc = y->rc->lc;
-	}
-  }
+  struct avlNode* y = node->rc;
+
+  node->rc = y->lc;
+  y->lc = node;
 
   updateHeight(y);
 }
@@ -332,9 +348,7 @@ struct avlNode* rightRotate(struct avlNode* node)
   // store ref to y
   struct avlNode* y = node->lc;
 
-  if (y->rc != NULL) {
-	node->lc = y->rc;
-  }
+  node->lc = y->rc;
   y->rc = node;
 
   updateHeight(node);
@@ -342,7 +356,25 @@ struct avlNode* rightRotate(struct avlNode* node)
 
 void updateHeight(struct avlNode* node)
 {
-  node->height = 1 + (node->lc->height > node->rc->height ? node->lc->height : node->rc->height);
+  if (node->lc != NULL && node->rc != NULL)
+  {
+	node->height = 1 + (node->lc->height > node->rc->height ? node->lc->height : node->rc->height);
+  }
+  else
+  {
+	if (node->lc == NULL && node->rc != NULL)
+	{
+	  node->height = 1 + (node->rc->height);
+	}
+	else if (node->lc != NULL && node->rc == NULL)
+	{
+	  node->height = 1 + (node->lc->height);
+	}
+	else
+	{
+	  node->height = 0;
+	}
+  }
 }
 
 void print2D(struct avlNode* node, int space) {
