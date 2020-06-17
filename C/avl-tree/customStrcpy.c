@@ -4,25 +4,25 @@
 // It is not possible to return an array from a function, but a pointer.
 //char *customStrcpy(char source[], int startIdx, int len);
 
-char *customStrcpy(char source[], int startIdx, int len)
+char *customStrcpy(char* source, int startIdx, int len)
 {
-  int i = 0;
-  char *token = malloc(len * sizeof(char *));
+  int i = 0, tokLen = len + 1;
+  char* token = malloc((len + 1) * sizeof(char));
 
-  while (len)
+  while (tokLen)
   {
 	token[i] = source[startIdx + i];
+	tokLen--;
 	i++;
   }
   token[i + 1] = '\0';
   return token;
 }
 
-int main (int argc, char *argv[])
+int main (int argc, char* argv[])
 {
-  char *inputArr = argv[1];
-  char *ch = argv[1];
-  char **integerTokens[50];
+  char ch = argv[1][0];
+  char* integerTokens[5];
   int tokenIdx = 0;
 
   // calculate length of input string
@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
   /*
    * What's the default value? `int i;`.
    *
-   * If ypu declare `int i;` as a (non-static) local variable inside of a
+   * If you declare `int i;` as a (non-static) local variable inside of a
    * function, it has an indeterminate value. It is uninitialized and you
    * can't use it until you write a valid value to it.
    *
@@ -51,14 +51,12 @@ int main (int argc, char *argv[])
    *
    */
   int count = 0;
-  while(*ch != '\0')
+  while(ch != '\0')
   {
-	*ch = argv[1][count];
+	ch = argv[1][count];
 	count++;
   }
   int inpLen = count;
-  //*ch = *(argv[1] - inpLen);
-
 
   // ref: Stanford Essential C, Advanced Arrays and Pointers.
   /* 
@@ -72,30 +70,37 @@ int main (int argc, char *argv[])
   int currTokenLen = 0, currTokenStartIdx = 0, charIdx = 0;
   // where,
   // charIdx is length of string scanned.
-  ch = argv[1];
-  while(*ch != '\0')
+  ch = argv[1][0];
+  while(ch != '\0')
   {
 	charIdx++;
-	if (*ch != ' ')
+	if (ch != ' ')
 	{
 	  currTokenLen++;
 	}
 	else
 	{
-	  currTokenStartIdx = charIdx;
 	  integerTokens[tokenIdx] = customStrcpy(argv[1], currTokenStartIdx, currTokenLen);
+	  currTokenStartIdx = charIdx;
 	  currTokenLen = 0;
 	  tokenIdx++;
 	}
+	ch = argv[1][charIdx];
   }
 
-  printf("Interger Tokens\n");
-  for (int j = 0; j < tokenIdx; j++)
+  ch = argv[1][charIdx];
+  if (ch == '\0')
+  {
+	integerTokens[tokenIdx] = customStrcpy(argv[1], currTokenStartIdx, currTokenLen);
+  }
+
+  printf("Interger Tokens:\n");
+  for (int j = 0; j <= tokenIdx; j++)
   {
 	printf("%s", integerTokens[j]);
   }
 
-  printf("length of input string: %s is %d\n", argv[1], count);
+  printf("\n\nlength of input string: \"%s\" is %d\n", argv[1], count);
 
   //printf("array: %s, arrLen: %lu\n", argv[1], arrLen(argv[1]));
 }
