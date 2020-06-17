@@ -10,6 +10,12 @@ char *customStrcpy(char* source, int startIdx, int len)
   int tokLen = len + 1; // len plus 1 for null termination character '\0'
   char* token = malloc((tokLen) * sizeof(char));
 
+  if (!token)
+  {
+	fputs("error: token allocation failed, exiting.", stderr);
+	exit(EXIT_FAILURE);
+  }
+
   token[tokLen] = '\0'; // assign null termination character to last index
   while (tokLen)
   {
