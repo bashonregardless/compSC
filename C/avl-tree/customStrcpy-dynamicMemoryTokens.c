@@ -1,3 +1,5 @@
+// TODO make `integerTokens` array dynamic
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,10 +9,10 @@
 
 char *customStrcpy(char* source, int startIdx, int len)
 {
-  int tokLen = len + 1; // len plus 1 for null termination character '\0'
+  int tokLen = len + 1;
   char* token = malloc((tokLen) * sizeof(char));
 
-  token[tokLen] = '\0'; // assign null termination character to last index
+  token[tokLen] = '\0';
   while (tokLen)
   {
 	token[tokLen - 1] = source[startIdx + tokLen - 1];
