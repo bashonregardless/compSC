@@ -290,11 +290,12 @@ struct avlNode* bstInsert(struct avlNode* node, int key)
 
 	struct avlNode* updatedRoot = bstInsert(node->lc, key);
 
+	// update root after insertion
+	node->lc = updatedRoot;
+
 	// update height
 	updateHeight(node);
 
-	// update root after insertion
-	node->lc = updatedRoot;
 	return leftChildFixHeightInvar(node);
   }
 
@@ -311,11 +312,12 @@ struct avlNode* bstInsert(struct avlNode* node, int key)
 
 	struct avlNode* updatedRoot = bstInsert(node->rc, key);
 
+	// update root after insertion
+	node->rc = updatedRoot;
+
 	// update height
 	updateHeight(node);
 
-	// update root after insertion
-	node->rc = updatedRoot;
 	return rightChildFixHeightInvar(node);
   }
 }
@@ -340,6 +342,7 @@ struct avlNode* leftRotate(struct avlNode* node)
   node->rc = y->lc;
   y->lc = node;
 
+  updateHeight(node);
   updateHeight(y);
 }
 
