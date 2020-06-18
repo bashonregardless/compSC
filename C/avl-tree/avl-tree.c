@@ -35,7 +35,7 @@
 #define COUNT 10
 
 struct avlNode{
-  int h, key, height, lNullHeight, rNullHeight;
+  int key, height, lNullHeight, rNullHeight;
   struct avlNode* lc;
   struct avlNode* rc;
 };
