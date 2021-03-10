@@ -36,7 +36,7 @@
 #
 # Phony targets are also useful in conjunction with recursive invocation
 # of make. In this situation the makefile will often contain a variable
-# which lists a number of sub-directories to be built. A simplist
+# which lists a number of sub-directories to be built. A simplistic
 # way to handle this is to define one rule with a recipe that loops 
 # over the sub-directories, lik this:
 #
@@ -57,8 +57,8 @@
 # rule.
 #
 # By declaring the sub-directories as, .PHONY targets (you must do this
-# as the sub-directory always exits; otherwise it won't be built) you 
-# can remove these problems:
+# as the sub-directory obviously always exits; otherwise it won't be built)
+# you can remove these problems:
 #
 # `SUBDIRS = foo bar baz
 #
@@ -171,6 +171,7 @@ ifneq ($(DEBUG), )
 
 # ** Function for Conditionals **
 #
+# There are three functions that provide conditional expansion.
 # A key aspect of all these functions is that not all of the
 # arguments are expanded initially. Only those arguments which
 # need to be expanded, will be expanded.
@@ -178,7 +179,7 @@ ifneq ($(DEBUG), )
 # Only one of three functions that provide conditional expansion
 # is discussed here -> $(if condition,then-part[,else-part])
 #
-# The if function provides support for conditional expansion in
+# The 'if' function provides support for conditional expansion in
 # functional context (as opposed to the GNU 'make' makefile
 # conditionals such as 'ifeq').
 #
@@ -202,10 +203,28 @@ ifneq ($(DEBUG), )
 # (such as 'shell' function calls, etc.)
 NAME := $(if $(filter yes,$(DEBUG)),debug,release)
 
-# ** Recursive Use of make **
+# ** How the MAKE Variable Works: Recursive use of make **
+#
+# Recursive make commands should always use the variable MAKE,
+# not the explicit command name ‘make’, as shown here:
+#
+# `subsystem:
+#         cd subdir && $(MAKE)
+# `
+#
 # $(MAKE) -> Recursive use of make as a command in a makefile.
 # This technique is useful when you want seperate makefiles for
 # various subsystems that compose a larger system.
+#
+# The value of this variable is the file name with which make 
+# was invoked. If this file name was /bin/make, then the recipe 
+# executed is
+#
+# `cd subdir && /bin/make`
+#
+#  If you use a special version of make to run the top-level
+#  makefile, the same special version will be executed for 
+#  recursive invocations.
 #
 # -C -> Change to directory before reading Makefiles.
 #  If multiple '-C' options are specified, each is interpreted
@@ -262,6 +281,67 @@ else
 # purposes in the makefile, and reserving upper case for parameters
 # that control implicit rules or for parameters that the user
 # should override with command options.
+#
+
+# ** Setting Variables **
+# To set a variable from the makefile, write a line starting with 
+# the variable name followed by '=', ':=', or '::='.
+# Whatever follows the '=', ':=', or '::=' on the line becomes the
+# value.
+#
+# Variables defined with '=' are recursively expanded variables.
+# Variables defined with ':=' are simply expanded variables; these
+# efinitions can contain variable references which will be expanded 
+# before the definition is made. (See The Two Flavors of Variables.)
+#
+# Recursive expansion example:
+# `
+# foo = $(bar)
+# bar = $(ugh)
+# ugh = Huh?
+#
+# all:;echo $(foo)
+# `
+# will echo 'Huh?': '$(foo)' expands to '$(bar)' which expands to 
+# '$(ugh)' which finally expands to 'Huh?'.
+#
+# The value of a simply expanded variable is scanned once and for all,
+# expanding any references to other variables and functions, when the
+# variable is defined. The actual value of the simply expanded variable 
+# is the result of expanding the text that you write. It does not 
+# contain any references to other variables; it contains their values 
+# as of the time this variable was defined. Therefore,
+#
+# `
+# x := foo
+# y := $(x) bar
+# x := later
+# `
+# is equivalent to
+# `
+# y := foo bar
+# x := later
+# `
+#
+# When a simply expanded variable is referenced, its value is substituted
+# verbatim.
+#
+#
+# There is another assignment operator for variables, '?='.
+# This is called a conditional variable assignment operator, because it 
+# only has an effect if the variable is not yet defined. This statement:
+#
+# `FOO ?= bar`
+#
+# is exactly equivalent to this
+# `
+# ifeq ($(origin FOO), undefined)
+#   FOO = bar
+#   endif
+# `
+#
+# Note that a variable set to an empty value is still defined, so '?='
+# will not set that variable
 SRCS := max-heap.c max-heap-driver-prog.c
 
 # $(SRCS:.c=.o) means, take the variable value $(SRCS). which is a string
@@ -300,7 +380,8 @@ debug: all
 # values.
 #
 # When the variable in question has not been defined before, '+=' acts
-# just like normal '=': it defines a recursively-expanded variable.
+# just like normal '=':
+# it defines a recursively-expanded variable.
 # However, when there is previous definition, exactly what '+=' does
 # depends on what flavor of variable you defined originally.
 #
@@ -428,10 +509,11 @@ INCLUDE_DIRECTORIES = ../include
 # is found in the directory 'src'.
 
 # ** The 'vpath' Directive **
+#
 # Similar to VPATH variable, but more selective.
 # Allows you to specify a search path for a particular class of file names:
 # those that match a particular pattern. Thus you can supply certain 
-# serch directories for one class of file names and other directories
+# search directories for one class of file names and other directories
 # (or none) for other file names.
 #
 # There are three forms of 'vpath' directive:
