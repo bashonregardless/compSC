@@ -15,6 +15,8 @@ SRCS := max-heap.c max-heap-driver-prog.c
 # .c with .o
 # This syntax is similar to bash string replacement (for one word).
 # ref -> https://www.gnu.org/software/make/manual/html_node/Text-Functions.html
+#
+# `$(var:a=b)` is equivalent to `$(patsubst %a,%b,var)`.
 OBJS := $(SRCS:.c=.o)
 
 .PHONY: debug release

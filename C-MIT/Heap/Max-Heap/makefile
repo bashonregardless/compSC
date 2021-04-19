@@ -123,6 +123,20 @@
 #
 # cleandiff :
 # 		rm *.diff
+
+# (Refer 4:Writing Rules)
+#
+# The order of rules is not significant, except for determining the default
+# goal: the target for make to consider, if you do not otherwise specify 
+# one. The default goal is the target of the first rule in the first makefile.
+# If the first rule has multiple targets, only the first target is taken as
+# the default. There are two exceptions: a target starting with a period 
+# is not a default unless it contains one or more slashes '/', as well; and, 
+# a target that defines a pattern rule has no effect on the default goal
+#
+# Therefore, we usually write the makefile so that the first rule is the one
+# for compiling the entire program or all the programs described by 
+# the makefile (often with a target called ‘all’)
 .PHONY: all
 
 # ** Syntax of Conditionals **
