@@ -14,6 +14,7 @@
  * 6. an array
  */
 
+/* FIXME There is a formatting error in case where '{' follows '[' */
 String.prototype.repeat = function(length) {
   return Array(length + 1).join(this);
 };
