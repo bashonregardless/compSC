@@ -1,3 +1,0 @@
-Wed Jun 19 12:03:37 IST 2019
---> Insert timestamp
-  r! date
