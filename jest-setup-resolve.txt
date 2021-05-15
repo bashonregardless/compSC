@@ -1,7 +1,0 @@
-transformIgnorePatterns error!
-
-Useful link: https://stackoverflow.com/questions/54461150/jest-not-parsing-es6-syntaxerror-unexpected-token-import/54463740
-
-Jest and babel-jest version with error - 23.6. Upgraded to 24.9
-
-Added 'babel-plugin-styled-components' package. Added same to babel.config.js
