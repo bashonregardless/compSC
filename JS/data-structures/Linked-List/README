@@ -1,0 +1,6 @@
+Requirements;
+node.js JS runtime environment
+
+Command to run programs;
+Run Singly linked list (This particular implementation follows hole model).
+$ node Singly/linked-list.js
