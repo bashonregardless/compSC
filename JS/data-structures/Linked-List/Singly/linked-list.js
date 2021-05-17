@@ -46,10 +46,16 @@ LinkedList.input = async function input() {
 
     if (input.procedure === 'd') this.deleteNode(input.node);
 
-    if(await this.prompt("Continue? Yes / No > ") === "No")
-      break;
+	if (await stdIn.handleContinue() == 0)
+	  break;
   }
-  console.log(this.list, this.lhead, this.free);
+
+  console.log(
+	`\nList head is at: ${this.lhead}`,
+	`\nfree points to node ${this.free}`,
+	`\n\nList:`
+  );
+  console.log(this.list);
   process.exit();
 }
 
@@ -114,25 +120,28 @@ LinkedList.append = function append(key) {
 }
 
 LinkedList.insertNth = function insertNth(key, pos) {
-  // Get free position(index in the list array)
-  const freePos = this.allocateObject();
+  if (this.list.length === 1) {
+	this.prepend(key);
+  } else {
+	// Get free position(index in the list array)
+	const freePos = this.allocateObject();
 
-  // Initialize an emplty object at freePos
-  this.list[freePos] = {};
+	// Initialize an empty object at freePos
+	this.list[freePos] = {};
 
-  // curr is the index of object in list ( list is represented as array in languages
-  // that have no explicit pointers ) where insertNth procedure is to be performed.
-  const curr = this.traverse(pos);
+	// curr is the index of object in list ( list is represented as array in languages
+	// that have no explicit pointers ) where insertNth procedure is to be performed.
+	const curr = this.traverse(pos);
 
-  // allocate object is taken from free list.
-  this.list[freePos].key = key;
+	// allocate object is taken from free list.
+	this.list[freePos].key = key;
 
-  // make "next of node" being inserted equal to index of current node
-  this.list[freePos].next = this.list[curr].next;
+	// make "next of node" being inserted equal to index of current node
+	this.list[freePos].next = this.list[curr].next;
 
-  // make "next of previous node to current node" equal to "index of node" being inserted
-  this.list[curr].next = freePos;
-
+	// make "next of previous node to current node" equal to "index of node" being inserted
+	this.list[curr].next = freePos;
+  }
 }
 
 LinkedList.findByKey = function findByKey(key) {
