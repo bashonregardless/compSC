@@ -49,12 +49,22 @@ Calc.input = async function input() {
   this.exprToInfix(user_input);
   this.infixToPostfix();
   this.evaluatePostfix();
+  process.exit();
 }
 
+/* FIXME Invalid ch in expression input by user */
 Calc.exprToInfix = function expr_to_infix(expression) {
   let type = 'OPERATOR';
+  console.log(expression);
+  const valid_infix_pat = /[0-9+*\/^%]|\-/g;
 
-  for (const [i, ch] of counteredIterables(expression)) {
+  for (let [i, ch] of counteredIterables(expression)) {
+	console.log(ch);
+	if (!(valid_infix_pat.test(ch))) {
+	  console.log("invalid expression");
+	  process.exit(1);
+	}
+
 	if (ch !== " ") {
 	  /* contains value of token */
 	  const token_value = {

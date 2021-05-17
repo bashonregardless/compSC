@@ -17,9 +17,11 @@ BST.setup = function setup () {
   input_arr.forEach(function insert (each) {
 	this.root = this.treeInsert(this.root, new this.newNode(each));
   }.bind(this));
+  console.log("BST with initial input:\n");
   this.print2D(this.root, 0);
   var node_tobe_deleted = this.recursiveTreeSearch(this.root, 12);
   this.treeDelete(this.root, node_tobe_deleted);
+  console.log("\n\nBST after node with key value 12 was deleted:\n");
   this.print2D(this.root, 0);
 }
 

@@ -30,11 +30,13 @@ AVL.setup = function avl_setup () {
 	this.root = this.updateH(node_tobe_inserted) || this.root;
   }.bind(this));
   
+  console.log("Tree with initial data:", node_arr);
   this.print2D(this.root, 0);
 
   let node_tobe_deleted = this.recursiveTreeSearch(this.root, 4);
   let node_replacing = this.treeDelete(this.root, node_tobe_deleted);
   this.root = this.updateH(node_replacing) || this.root;
+  console.log("\n\nTree after deletion of node with key val 4:");
   this.print2D(this.root, 0);
 }
 

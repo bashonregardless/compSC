@@ -1,0 +1,5 @@
+Requirement:
+node.js JS runtime environment
+
+Command to run program:
+$ node BST/bst.js
