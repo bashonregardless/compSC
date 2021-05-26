@@ -1,11 +1,18 @@
+echo ".bashrc read"
 alias ssh_prod='ssh -i ~/.ssh/sportq-dev.pem ubuntu@52.66.11.198'
+
+#Most shell scripts execute in a private environment: variables are
+#not inherited by child processes unless they are exported by the 
+#parent shell. Sourcing a file containing shell commands is a way 
+#of applying changes to your own environment and setting variables 
+#in the current shell.
 export GOPATH=$HOME/go
 
-# Uncomment the line below to use it as an indication
-# that the command 
-# $ source ~/.bashrc
-# indeed ran.
-#PS1='\[\e[1;91m\][\u \w]\$\[\e[0m\] '
+parse_git_branch() {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+export PS1="\[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
 
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
@@ -14,10 +21,30 @@ alias ls='ls -GFh'
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 export PATH=$PATH:/usr/local/Cellar/mongodb@3.4/3.4.14/bin/
 
+# Delete .swp files
 alias del_swp="find . -name "*.swp" -print -exec rm -i '{}' \;"
 # If del_dSYM command gives error - "is a directory"
 # add -r flag to rm
 alias del_dSYM="find . -name "*.dSYM" -exec rm -i '{}' \;"
+
+export PATH="/usr/local/opt/node@8/bin:$PATH"
+# Search pattern 
+function grall {
+  grep -rinw --color=always "$1" $PWD
+}
+export -f grall
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# Test regexp against string
+function testRegexp {
+  if [[ $1 =~ $2 ]]; then
+   	echo "Yes"
+  else
+	echo "No"
+  fi
+}
+export -f testRegexp
 
 # Iterate through parameters skipping the first: `${@:2}`
 # See Parameter Expansion in bash manual
@@ -33,15 +60,24 @@ alias del_dSYM="find . -name "*.dSYM" -exec rm -i '{}' \;"
 #
 # `fcd [starting-point] [expression1] [expression2] ... [expressionN]`
 fcd () {
-  usage="Usage: fcd [starting-point] [expression1] [expression2] ... [expressionN]"
+  usage="Usage: $0 [starting-point] [expression1] [expression2] ... [expressionN]"
+  set -x
   [[ $# -lt 2 ]] && { echo "$usage"; return 1; }
   for pat in "${@:2}"
   do
-	name_str+="-name $pat "
+	if (( "$#" )); then
+	  name_str+="-name $pat -o "
+	else
+	  name_str+="-name $pat "
+	fi
+	shift
   done;
 
-  find $1 ! \( $name_str\)
+  find $1 ! \( $name_str\) -type f
   unset usage
+  unset name_str
+  set +x
 }
+# NOTE that fcd is not exported. What are the consequences of this?
 
 #xmodmap ~/.xmodmaprc

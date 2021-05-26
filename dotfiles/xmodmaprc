@@ -1,4 +1,5 @@
-!One of the more irritating differences between keyboards is the location of the Control and CapsLock keys.  A common use of xmodmap is to swap these two keys as follows:
+!One of the more irritating differences between keyboards is the location of the
+!Control and CapsLock keys.  A common use of xmodmap is to swap these two keys as follows:
 !
 ! Swap Caps_Lock and Control_L
 !
@@ -11,3 +12,8 @@ add Lock = Caps_Lock
 add Control = Control_L
 
 !This example can be run again to swap the keys back to their previous assignments.
+!A consequence of this is that, when the command `xmodmaprc ~/.xmodmaprc` is put in 
+!the file .bash_profile, and  when a terminal window is first opened
+!the mapping is applied as a result of read from that file.
+!On closing and reopening(or opening another terminal when one already is open)
+!the terminal again, the mapping is reset(or toggled).
