@@ -17,3 +17,5 @@ For eg:
   and
   If you want to exclude the directory content but not the 
   directory itself use dist/* instead of dist.
+  
+  grep 'rsync ' compSC/shell-scripts/copy-excluding-files-rync.txt | sed -e 's,src.*$,CS CS_shell_prac_copy,' | sed -e 's,--ex.* ,,'

@@ -1,3 +1,4 @@
 echo ".bash_profile read"
 echo "sourcing .bashrc from .bash_profile"
+# Note that `source resourcefile` is the same as `. resourcefile`
 source ~/.bashrc

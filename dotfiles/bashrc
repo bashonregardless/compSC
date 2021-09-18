@@ -78,6 +78,6 @@ fcd () {
   unset name_str
   set +x
 }
-# NOTE that fcd is not exported. What are the consequences of this?
+# TODO NOTE that fcd is not exported. What are the consequences of this?
 
 #xmodmap ~/.xmodmaprc

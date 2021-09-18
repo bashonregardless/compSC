@@ -1,0 +1,47 @@
+Sun May 30 17:17:02 IST 2021
+
+Chapter2) Starting Off With a Sha-Bang 
+  
+  (REFER tlpi Pg769)
+  /dev/null is a virtual device that always discards the data written to it. When we
+  want to eliminate the standard output or error of a shell command, we can
+  redirect it to this file. Reads from this device always return end-of-file.
+  
+Mon May 31 21:50:48 IST 2021
+  (REFER https://tldp.org/LDP/abs/html/special-chars.html)
+  : > data.xxx   # File "data.xxx" now empty.
+  # Same effect as   cat /dev/null >data.xxx
+  # However, this does not fork a new process, since ":"  is a builtin.
+
+  Word boundary in a regular expression.
+  bash$ grep '\<the\>' textfile
+
+  TODO The UNIX FAQ, Part3 (REFER http://www.faqs.org/faqs/unix-faq/faq/part3/)
+
+Tue Jun  1 15:53:12 IST 2021
+  (REFER https://tldp.org/LDP/abs/html/varsubn.html)
+
+  Note that $variable is actually a simplified form of ${variable}.
+  In contexts where the $variable syntax causes an error, the longer form may work.
+
+  hello="A B  C   D"
+  echo $hello   # A B C D
+  echo "$hello" # A B  C   D
+  # As we see, echo $hello   and   echo "$hello"   give different results.
+  # =======================================
+  # Quoting a variable preserves whitespace.
+  # =======================================
+
+Sat Jun  5 12:05:44 IST 2021
+  (REFER https://tldp.org/LDP/abs/html/internalvariables.html)
+  TODO 
+	rm -f .[^.]* ..?*   #to remove filenames beginning with multiple dots.
+	Pattern not clear?
+  ANSWER
+	See Globbing in advanced bash guide
+
+Sun Jun  6 00:09:33 IST 2021
+  (REFER https://tldp.org/LDP/abs/html/string-manipulation.html)
+  TODO
+	[[ "$line" =~ [*{\.}]$ ]]
+	Pattern not clear?
