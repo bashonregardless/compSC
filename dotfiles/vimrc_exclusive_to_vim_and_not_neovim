@@ -1,0 +1,41 @@
+" NOTE that the below configurations are exclusive to vim and are not applied
+" to neovim because of strong defaults it already offers
+
+set hlsearch
+hi Search ctermbg=Black
+hi Search ctermfg=Red
+
+" (Refer Practical Vim Pg134: Jump Between Matching Keywords)
+" Enable matchit plugin
+set nocompatible
+filetype plugin on
+runtime macros/matchit.vim
+
+" NOTE Surround plugin enable on Sun Mar 21 10:41:55 IST 2021
+" See Surround.vim by tpope
+
+" Put your non-Plugin stuff after this line
+
+"set cursorline
+set cursorline
+"autocmd BufRead,BufEnter,WinEnter * setlocal cursorline
+"autocmd BufEnter,WinLeave * setlocal nocursorline
+
+set tabstop=4
+syntax on
+" bind K to grep word under cursor
+"nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+set t_Co=256
+syntax enable
+set background=dark
+"colorscheme solarized
+set backspace=indent,eol,start
+
+" (Refer textbook Pg 158, Interact with system clipboard)
+" Enabling the autoindent setting is a sure way to induce strange effects when
+" pasting from the system clipboard.
+"
+" See paste option
+set autoindent
+set shiftwidth=2
+set smartindent

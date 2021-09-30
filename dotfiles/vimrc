@@ -1,98 +1,9 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
-set hlsearch
-hi Search ctermbg=Black
-hi Search ctermfg=Red
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'gmarik/Vundle.vim'
-
-" The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
-" plugin on GitHub repo
-"Plugin 'tpope/vim-fugitive'
-" plugin from http://vim-scripts.org/vim/scripts.html
-"Plugin 'L9'
-" Git plugin not hosted on GitHub
-"Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-"Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" Avoid a name conflict with L9
-"Plugin 'user/L9', {'name': 'newL9'}
-
-" My plugins
-Plugin 'tpope/vim-bundler'
-"Plugin 'scrooloose/nerdtree'
-Plugin 'tpope/vim-projectionist'
-" Syntax Highlighting JS and JSX
-Plugin 'pangloss/vim-javascript'
-"Plugin 'mxw/vim-jsx'
-"Expand CSS selectors into HTML (or JSX) on the fly
-"Plugin 'mattn/emmet-vim'
-"Syntax checking, for JSX
-Plugin 'w0rp/ale'
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-filetype plugin on
-"
-" Brief help
-" :PluginList          - list configured plugins
-" :PluginInstall(!)    - install (update) plugins
-" :PluginSearch(!) foo - search (or refresh cache first) for foo
-" :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
-
-" see :h vundle for more details or wiki for FAQ
-
-" (Refer Practical Vim Pg134: Jump Between Matching Keywords)
-" Enable matchit plugin
-set nocompatible
-filetype plugin on
-runtime macros/matchit.vim
-
-" NOTE Surround plugin enable on Sun Mar 21 10:41:55 IST 2021
-" See Surround.vim by tpope
-
-" Put your non-Plugin stuff after this line
-
-"set cursorline
-set cursorline
-"autocmd BufRead,BufEnter,WinEnter * setlocal cursorline
-"autocmd BufEnter,WinLeave * setlocal nocursorline
-
-set tabstop=4
-syntax on
-" bind K to grep word under cursor
-"nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
-set t_Co=256
-syntax enable
-set background=dark
-"colorscheme solarized
-set backspace=indent,eol,start
-
-" (Refer Pg158, Interact with system clipboard)
-" Enabling the autoindent setting is a sure way to induce strange effects when
-" pasting from the system clipboard.
-"
-" See paste option
-set autoindent
-set shiftwidth=2
-set smartindent
+" NOTE that the below configs are for both vim to neovim
 
 "Define map leader
 let mapleader = ","
 " Don't Throw Away the Reverse Character Search Command
+" REFER Practical Vim Textbook
 noremap \ ,
 
 "split navigations
@@ -121,11 +32,6 @@ nnoremap [A :first<CR>
 "set relative 'hybrid' line numbers
 :set nu
 
-let g:indentLine_char = '|'
-
-"Enable fzf
-set rtp+=~/.fzf
-
 "map <Esc>
 nnoremap fj <esc>
 vnoremap fj <esc>
@@ -138,8 +44,6 @@ nnoremap <leader>s :%s/\v<<C-r><C-w>>/
 "Alternatively, you could use this mapping so that the final /g is already
 "entered:
 ":nnoremap <Leader>s :%s/\v<<C-r><C-w>>/g<Left><Left>
-
-nnoremap <leader>f :FZF<CR>
 
 "search and replace visually highlighted text
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
