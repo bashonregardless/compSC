@@ -1,0 +1,35 @@
+# Iterate through parameters skipping the first: `${@:2}`
+# See Parameter Expansion in bash manual
+#
+# 
+# Find and delete with function fcd:
+# First find and display.
+# Wait for confirmation from user.
+# Remove with confirmation -i flag (Remove this flag to delete large #files).
+# Command format;
+# Eg:
+#	find . ! \( -name makefile -o -name *.c \) 
+#
+# `fcd [starting-point] [expression1] [expression2] ... [expressionN]`
+fcd () {
+  usage="Usage: $0 [starting-point] [expression1] [expression2] ... [expressionN]"
+  set -x
+  [[ $# -lt 2 ]] && { echo "$usage"; return 1; }
+  for pat in "${@:2}"
+  do
+	if (( "$#" )); then
+	  name_str+="-name $pat -o "
+	else
+	  name_str+="-name $pat "
+	fi
+	shift
+  done;
+
+  find $1 ! \( $name_str\) -type f
+  unset usage
+  unset name_str
+  set +x
+}
+# TODO NOTE that fcd is not exported. What are the consequences of this?
+
+#xmodmap ~/.xmodmaprc
