@@ -1,4 +1,4 @@
-" NOTE that the below configs are for both vim to neovim
+" NOTE that the below configs are for both vim and neovim
 
 "Define map leader
 let mapleader = ","

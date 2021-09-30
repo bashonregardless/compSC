@@ -1,0 +1,9 @@
+# Copied from textbook 'Modern Vim', Pg 7
+export VIMCONFIG=~/.config/nvim
+export VIMDATA=~/.local/share/nvim
+
+# Copied from textbook 'Modern Vim', Pg 24
+export PATH=$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin
+
+# Copied from textbook 'Modern Vim', Pg 29
+export FZF_DEFAULT_COMMAND='rg --files'
