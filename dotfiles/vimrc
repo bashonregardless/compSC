@@ -8,6 +8,7 @@ noremap \ ,
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
+" TODO NOTE that the below mapping is interfering with LSP mapping
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
@@ -109,3 +110,7 @@ inoremap <leader>ws <esc>gUawea
 " Fold
 nnoremap z{ zfa{ 
 nnoremap z( zfa( 
+
+" Copied from ALE docs on github, section ' How can I use ALE and coc.nvim
+" together?'
+let g:ale_disable_lsp = 1
