@@ -1,3 +1,5 @@
+echo "Inside custom .bashrc"
+
 parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
@@ -34,3 +36,5 @@ export -f testRegexp
 
 # Copied from textbook 'Modern Vim', Pg 29
 export FZF_DEFAULT_COMMAND='rg --files'
+
+echo "Exiting custom .bashrc file"

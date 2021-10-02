@@ -1,5 +1,11 @@
 " NOTE that the below configs are for both vim and neovim
 
+" set syntax off (a regexp based syntax highlighter and let 
+" tree sitter handle highlighting.
+" NOTE that this option does not necessarily affect tree-sitter
+" syntax highlighting. 
+syntax=off
+
 "Define map leader
 let mapleader = ","
 " Don't Throw Away the Reverse Character Search Command
