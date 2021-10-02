@@ -18,6 +18,6 @@ if [ -z "$TMUX" ] ; then
 fi
 
 # Source bash_profile_common
-. /Volumes/Linux-CaseSensitive/non-company/compSC/dotfiles/bash_profile_custom
+. /Volumes/Linux-CaseSensitive/non-company/compSC/dotfiles/bash_profile_common
 
 echo "Exiting custom bash_profile"
