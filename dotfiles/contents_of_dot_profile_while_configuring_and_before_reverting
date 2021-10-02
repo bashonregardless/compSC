@@ -1,0 +1,27 @@
+# This was the content of .profle before I reverted back to OS installtion time
+# contents. This happend when I was configuring PATH to include /home/bin,
+# which surprisingly in Ubuntu is already there.
+
+# Making changes to Terminal settings and changing code (that
+# was setup by OS, during its installation) of original .profile file.
+# In Ubuntu, the setting change is: enabling "Run command as login shell"
+# option in Terminal setting, but this is not a permanent solution, 
+# it is platform specific. This change is made so that .profile is read.
+#
+# ~/.profile: executed by the command interpreter for login shells.
+# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
+# exists.
+# see /usr/share/doc/bash/examples/startup-files for examples.
+# the files are located in the bash-doc package.
+
+# the default umask is set in /etc/profile; for setting the umask
+# for ssh logins, install and configure the libpam-umask package.
+#umask 022
+
+echo "Inside .profile. This should be the first file read among all files when .bash_profile is not present"
+
+# TODO Check for existence of file before sourcing it
+. ~/repos/compSC/dotfiles/profile
+
+echo "Exiting .profile file"
+

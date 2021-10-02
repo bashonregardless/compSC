@@ -1,0 +1,40 @@
+(REFER SO Ask Ubuntu Q 'What is the meaning of -bash?')
+
+Meaning of output of command:
+
+`echo $0`	---- 1
+
+the output of this command can be either 'bash' or '-bash'
+
+Before deciphering the meaning of this, let's see what the bash manual,
+section on INVOCATION says:
+"A login shell is one whose first character of argument zero is a -, or one started with the --login option."
+
+Now recall that there is an option in Ubuntu Terminal Settings(or, Preferences),
+"Run command as login shell"
+
+If you enable this option and run command 1, the o/p is '-bash', otherwise
+the o/p is 'bash'
+These outputs can be taken as indication the determine whether the shell is
+login or non login. But,
+according to Greg wiki bash guide, Parameters page,
+`$0` "Contains the name, or the path, of the script. This is not always reliable."
+
+Nevertheless, we have a way to test this. According to bash manual, section on INVOCATION:
+"$- includes i if bash is interactive, allowing a shell script or a startup file to test this state."
+
+
+READ INVOCATION section in bash manual, to find out more about files in /etc/*, and files like
+.bash_profile, .bash_login, .profile.
+
+and
+ 
+READ comments in these files.
+TODO Later move these comments from those files to this file.
+
+
+In Ubuntu, right after OS installation the contents of
+~/.profile file and /etc/skel/.profile file are ditto, and
+so are the contents of
+~/.bashrc file and /etc/skel/.bashrc .
+skel stands for skeleton
