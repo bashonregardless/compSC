@@ -1,0 +1,42 @@
+# add $HOME/bin to $PATH for any binary that will be put in $HOME/bin
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] && [ -z "$TMUX" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+# In SO question "When I execute bash, the $PATH keeps repeating itself",
+# it is stated that don't set your PATH incrementally in .bashrc; set it 
+# once in .profile and leave it alone thereafter.
+#
+# The reason is in
+#
+# SO question on Super User community "Difference between .bashrc and .bash_profile".
+# Setting path incrementally in .bashrc is not correct way to set PATH.
+# Any time you do source ~/.bashrc, path duplicates and same entries are
+# added to PATH.
+# On modern unices, there's an added
+# complication related to ~/.profile, which could be solved by some
+# effort.
+#
+# In Ubuntu, this is solved by enabling "Run command as login shell" option in
+# Terminal setting, but this is not a permanent solution, it is platform
+# specific.
+
+# (REFER Greg wiki Bash, Test and Conditionals)
+# Good Practice: Whenever you're making a Bash script, you should always use [[ rather than [.
+# Whenever you're making a Shell script, which may end up being used in an environment where 
+# Bash is not available, you should use [, because it is far more portable.
+# (While being built in to Bash and some other shells, [ should be available
+# as an external application as well; meaning it will work as argument to,
+# for example, find's -exec and xargs.)
+# Don't ever use the -a or -o tests of the [ command. Use multiple [ commands instead
+# (or use [[ if you can). POSIX doesn't define the behavior of [ with complex
+# sets of tests, so you never know what you'll get.
+
+# Copied from textbook 'Modern Vim', Pg 7
+export VIMCONFIG=~/.config/nvim
+export VIMDATA=~/.local/share/nvim
+
+# Copied from textbook 'Modern Vim', Pg 24
+if [ -z "$TMUX" ] ; then
+	export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
+fi

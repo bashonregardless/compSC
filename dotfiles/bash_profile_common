@@ -1,4 +1,4 @@
-echo "Inside custom .bash_profile"
+echo "Inside bash_profile_common"
 
 # This piece of code is copied from original .profile file (the one that 
 # came with OS installation)
@@ -52,4 +52,4 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 # Note that `source resourcefile` is the same as `. resourcefile`
 
-echo "Exiting custom .bash_profile"
+echo "Exiting bash_profile_common"

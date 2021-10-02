@@ -1,0 +1,6 @@
+echo "Inside custom .bash_profile_ubuntu"
+
+# Source bash_profile_common
+. ~/repos/compSC/dotfiles/bash_profile_common
+
+echo "Exiting custom .bash_profile_ubuntu"
