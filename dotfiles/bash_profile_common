@@ -1,5 +1,20 @@
 echo "Inside bash_profile_common"
 
+# Copied from SO Unix and Linux question "How can I set my default shell to start up tmux"
+#
+# Setup tmux shell
+if command -v tmux &> /dev/null && [[ "$-" == *i* ]] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+	echo "Condition to test for existence of tmux evaluated to true"
+	echo "Sleep for few moments, then exec tmux"
+	sleep 4
+	exec tmux
+	echo "This statement will never be printed"
+else 
+	echo
+	echo "Condition to test for existence of tmux evaluated to true"
+	echo
+fi
+
 # This piece of code is copied from original .profile file (the one that 
 # came with OS installation)
 #
@@ -37,13 +52,12 @@ echo "Inside bash_profile_common"
 export VIMCONFIG=~/.config/nvim
 export VIMDATA=~/.local/share/nvim
 
-# Since tmux starts as login shell by default. It will read .bash_profile
-# which 
-if [ -z "$TMUX" ] ; then
 # Copied from textbook 'Modern Vim', Pg 24
-	export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
-	source .config/nvim/pack/bundle/start/fzf/shell/completion.bash
-fi
+export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
+
+# fzf when installed using package manager, needs sourcing of the command
+# below make the "Fuzzy completion trigger" functionality work.
+source .config/nvim/pack/bundle/start/fzf/shell/completion.bash
 
 # This piece of code is copied from original .profile file (the one that 
 # came with OS installation)

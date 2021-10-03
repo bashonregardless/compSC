@@ -6,13 +6,13 @@ echo "Inside custom .bash_profile"
 # Find out what it is?
 
 
-# add $HOME/bin to $PATH for any binary that will be put in $HOME/bin
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] && [ -z "$TMUX" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
 # Source bash_profile_common
 . /Volumes/Linux-CaseSensitive/non-company/compSC/dotfiles/bash_profile_common
+
+# add $HOME/bin to $PATH for any binary that will be put in $HOME/bin
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
 
 echo "Exiting custom bash_profile"
