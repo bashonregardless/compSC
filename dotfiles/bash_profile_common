@@ -4,7 +4,7 @@ echo "Inside bash_profile_common"
 #
 # Setup tmux shell
 if command -v tmux &> /dev/null && [[ "$-" == *i* ]] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-	echo "Condition to test for existence of tmux evaluated to true"
+	echo "Condition to test for existence of tmux evaluated to false"
 	echo "Sleep for few moments, then exec tmux"
 	sleep 4
 	exec tmux
@@ -55,10 +55,6 @@ export VIMDATA=~/.local/share/nvim
 # Copied from textbook 'Modern Vim', Pg 24
 export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
 
-# fzf when installed using package manager, needs sourcing of the command
-# below make the "Fuzzy completion trigger" functionality work.
-source .config/nvim/pack/bundle/start/fzf/shell/completion.bash
-
 # This piece of code is copied from original .profile file (the one that 
 # came with OS installation)
 #
@@ -70,5 +66,16 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 # Note that `source resourcefile` is the same as `. resourcefile`
+
+# Note that for fzf tab completion to work properly, 
+# "it has to go to the BOTTOM of ~/.bashrc because there are some completions
+# that are overwriting",
+# as state in github issue "cd tab completion not working".
+#
+# fzf when installed using package manager, needs sourcing of the command
+# below make the "Fuzzy completion trigger" functionality work.
+#
+# Source fzf completion file
+source .config/nvim/pack/bundle/start/fzf/shell/completion.bash
 
 echo "Exiting bash_profile_common"
