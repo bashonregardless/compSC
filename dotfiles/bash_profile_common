@@ -37,8 +37,13 @@ echo "Inside bash_profile_common"
 export VIMCONFIG=~/.config/nvim
 export VIMDATA=~/.local/share/nvim
 
+# Since tmux starts as login shell by default. It will read .bash_profile
+# which 
+if [ -z "$TMUX" ] ; then
 # Copied from textbook 'Modern Vim', Pg 24
-export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
+	export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
+	source .config/nvim/pack/bundle/start/fzf/shell/completion.bash
+fi
 
 # This piece of code is copied from original .profile file (the one that 
 # came with OS installation)
