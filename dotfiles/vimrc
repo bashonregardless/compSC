@@ -4,7 +4,7 @@
 " tree sitter handle highlighting.
 " NOTE that this option does not necessarily affect tree-sitter
 " syntax highlighting. 
-syntax=off
+" syntax=off
 
 "Define map leader
 let mapleader = ","
@@ -124,4 +124,4 @@ let g:ale_disable_lsp = 1
 let g:ale_sign_error = '❌'
 let g:ale_sign_warning = '⚠️'
 
-let g:ale_fix_on_save = 1
+let g:ale_fix_on_save = 0
