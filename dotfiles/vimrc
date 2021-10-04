@@ -128,3 +128,10 @@ let g:ale_sign_error = '❌'
 let g:ale_sign_warning = '⚠️'
 
 let g:ale_fix_on_save = 0
+
+" Find files using Telescope command-line sugar.
+" Copied from telescope github page
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
