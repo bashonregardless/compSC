@@ -1,6 +1,6 @@
 echo "Inside bash_profile_common"
 
-# Copied from SO Unix and Linux question "How can I set my default shell to start up tmux"
+# Excerpted SO Unix and Linux question "How can I set my default shell to start up tmux"
 #
 # Setup tmux shell
 if command -v tmux &> /dev/null && [[ "$-" == *i* ]] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
@@ -47,12 +47,11 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-
-# Copied from textbook 'Modern Vim', Pg 7
+# Excerpted textbook 'Modern Vim', Pg 7
 export VIMCONFIG=~/.config/nvim
 export VIMDATA=~/.local/share/nvim
 
-# Copied from textbook 'Modern Vim', Pg 24
+# Excerpted textbook 'Modern Vim', Pg 24
 export PATH="$PATH:$VIMCONFIG/pack/bundle/start/fzf/bin"
 
 # This piece of code is copied from original .profile file (the one that 

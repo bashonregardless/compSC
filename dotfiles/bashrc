@@ -1,5 +1,13 @@
 echo "Inside custom .bashrc"
 
+#if [ -d "/Volumes/Linux-CaseSensitive/non-company/compSC/dotfiles/" ]; then
+#  source /Volumes/Linux-CaseSensitive/non-company/compSC/dotfiles/macOs_var
+#fi
+#
+#if [ -d "/user/home/repos/compSc/ubuntu_var/" ]; then
+#  source /user/home/repos/compSc/ubuntu_var/
+#fi
+
 parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
@@ -34,7 +42,36 @@ function testRegexp {
 }
 export -f testRegexp
 
+#---
+# Excerpted from "Modern Vim",
+# published by The Pragmatic Bookshelf.
+# Copyrights apply to this code. It may not be used to create training material,
+# courses, books, articles, and the like. Contact us if you are in doubt.
+# We make no guarantees that this code is fit for any purpose.
+# Visit http://www.pragmaticprogrammer.com/titles/modvim for more book information.
+#---
+if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+  if [ -x "$(command -v nvr)" ]; then
+    alias nvim=nvr
+  else
+    alias nvim='echo "No nesting!"'
+  fi
+fi
+
 # Copied from textbook 'Modern Vim', Pg 29
 export FZF_DEFAULT_COMMAND='rg --files'
 
+# TODO put this command in separate file specific to macOS (or your machine)
+ compSc="/Volumes/Linux-CaseSensitive/non-company/compSC/"
+
+#if [ -d "$compSC" ]; then
+#  source "${compSc}/dotfiles/hr_aliases"
+#fi
+#
+#if [ -d "$compSC" ]; then
+#  alias cdcos="cd $compSc"
+#fi
+ alias cdcos="cd $compSc"
+
 echo "Exiting custom .bashrc file"
+

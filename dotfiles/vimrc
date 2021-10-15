@@ -6,6 +6,12 @@
 " syntax highlighting. 
 " syntax=off
 
+let g:tokyonight_style = "night"
+colorscheme tokyonight
+set shiftwidth=2
+set smartindent
+"set cursorline
+set cursorline
 "Define map leader
 let mapleader = ","
 " Don't Throw Away the Reverse Character Search Command
@@ -117,10 +123,10 @@ inoremap <leader>ws <esc>gUawea
 nnoremap z{ zfa{ 
 nnoremap z( zfa( 
 
-" Copied form textbook 'Modern Vim' Pg24
+" Excerpted form textbook 'Modern Vim' Pg24
 nnoremap <C-p> :<C-u>FZF<CR>
 
-" Copied from ALE docs on github, section ' How can I use ALE and coc.nvim
+" Excerpted from ALE docs on github, section ' How can I use ALE and coc.nvim
 " together?'
 let g:ale_disable_lsp = 1
 
@@ -129,9 +135,35 @@ let g:ale_sign_warning = '⚠️'
 
 let g:ale_fix_on_save = 0
 
+" Excerpted from https://github.com/dense-analysis/ale/blob/master/doc/ale-typescript.txt
+" , section on tslint
+let g:ale_linters_ignore = {'typescript': ['tslint']}
+
+" Excerpted from https://github.com/dense-analysis/ale/blob/master/doc/ale-typescript.txt
+" , section on tsserver
+let g:ale_typescript_tsserver_use_global=1
+
 " Find files using Telescope command-line sugar.
-" Copied from telescope github page
+" Excerpted from telescope github page
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" Terminal in vertical split mapping
+nnoremap <leader>t :vsplit \| terminal<cr>
+
+if has('nvim')
+" Terminal insert mode exit
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap <C-v><Esc> <Esc>
+
+  highlight! link TermCursor Cursor
+  highlight! TermCursorNC guibg=red guifg=white ctermbg=1 ctermfg=15
+
+" switch buffers in terminal mode
+  tnoremap <M-h> <c-\><c-n><c-w>h
+  tnoremap <M-j> <c-\><c-n><c-w>j
+  tnoremap <M-k> <c-\><c-n><c-w>k
+  tnoremap <M-l> <c-\><c-n><c-w>l
+endif
