@@ -1,0 +1,3 @@
+ git shortlog -sne | grep '[author-name]'
+
+ git log --no-merges --author="[author-name]" --name-only

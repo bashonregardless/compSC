@@ -1,3 +1,33 @@
+" Excerpted from minpac doc on github
+set packpath^=~/.config/nvim
+" Try to load minpac.
+packadd minpac
+
+if !exists('g:loaded_minpac')
+  " minpac is not available.
+
+  " Settings for plugin-less environment.
+  ...
+else
+  " Excerpted from book 'Modern Vim Craft' by Drew Neil
+  call minpac#add('k-takata/minpac', {'type': 'opt'})
+  call minpac#add('junegunn/fzf', {'type': 'bundle'})
+  call minpac#add('mhinz/neovim-remote', {'type': 'bundle'})
+  call minpac#add('neovim/nvim-lspconfig', {'type': 'bundle'})
+  call minpac#add('nvim-treesitter/nvim-treesitter', {'type': 'bundle'})
+  call minpac#add('nvim-lua/plenary.nvim', {'type': 'bundle'})
+  call minpac#add('nvim-telescope/telescope.nvim', {'type': 'bundle'})
+  call minpac#add('nvim-telescope/telescope-fzf-native.nvim', {'type': 'bundle'})
+  call minpac#add('tpope/vim-fugitive', {'type': 'bundle'})
+  call minpac#add('tpope/vim-surround', {'type': 'bundle'})
+
+  " In ex-mode call 
+  " PluginUpdate		- to update plugin usgin minpac
+  " PluginClean		- to clean plugin usgin minpac
+  command! PackUpdate call minpac#update()
+  command! PackClean call minpac#clean()
+endif
+
 " NOTE that the below configs are for both vim and neovim
 
 " set syntax off (a regexp based syntax highlighter and let 
@@ -8,10 +38,13 @@
 
 let g:tokyonight_style = "night"
 colorscheme tokyonight
+
 set shiftwidth=2
 set smartindent
+
 "set cursorline
 set cursorline
+
 "Define map leader
 let mapleader = ","
 " Don't Throw Away the Reverse Character Search Command
