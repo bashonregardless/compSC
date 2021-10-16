@@ -26,6 +26,7 @@ function errExit(msg, lineNumber) {
 }
 
 function formatJson () {
+  // TODO handle the case when there is no second index like process.argv[2] 
   const jsonString = process.argv[2];
 
   function closeCaseBracket(token, prevToken, collectionType) {
