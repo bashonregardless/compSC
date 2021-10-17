@@ -179,6 +179,13 @@ fi
 # cd somewhere, but I don't want to change the $PWD for the current shell.
 
 # Create a symbolic link in ~/bin dir to ~/software/nvim
+if test ! -d ~/bin
+then
+	mkdir ~/bin
+fi
+
+# Create a symbolic link in ~/bin dir to ~/software/nvim
+ln "$software_dir/nvim.appimage" ~/bin/nvim
 
 
 # Update PATH env var to include path to nvim executable.
