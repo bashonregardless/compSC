@@ -187,5 +187,21 @@ fi
 # Create a symbolic link in ~/bin dir to ~/software/nvim
 ln "$software_dir/nvim.appimage" ~/bin/nvim
 
+# Update dotfiles (create, if non-existent)
+if [ ! -d ~/.bash_profile ]; then
+	# Copy and rename in the same time
+	cp "$repos_dir/dotfiles/bash_profile" "$HOME/.bash_profile"
+	# Rename only
+	# `mv path/to/file.xyz path/to/file_renamed.xyz
+else
+	"$repos_dir/dotfiles/bash_profile" >> ~/.bash_profile 
+fi
 
-# Update PATH env var to include path to nvim executable.
+if [ ! -d ~/.bashrc ]; then
+	cp "$repos_dir/dotfiles/.bashrc" "$HOME/.bashrc"
+else
+	"$repos_dir/dotfiles/bashrc" >> ~/.bashrc 
+fi
+# Inspect PATH env var in the system to see if it includes ~/bin or not.
+# Update PATH env var to include the path (~/bin in this case) to nvim executable.
+# NOTE that similar script is present in bash_profile_common file.
