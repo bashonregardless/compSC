@@ -178,7 +178,7 @@ fi
 #
 # cd somewhere, but I don't want to change the $PWD for the current shell.
 
-# Create a symbolic link in ~/bin dir to ~/software/nvim
+# Create ~/bin dir if it does not exist
 if test ! -d ~/bin
 then
 	mkdir ~/bin
@@ -186,6 +186,31 @@ fi
 
 # Create a symbolic link in ~/bin dir to ~/software/nvim
 ln "$software_dir/nvim.appimage" ~/bin/nvim
+
+# ALTERNATE WAY TO INSTALL NVIM.
+#
+# BUILDING NEOVIM
+# (https://github.com/neovim/neovim/wiki/Building-Neovim)
+#
+# Follow instructions in the link above.
+# After installation, create a symbolic link to executable in build/bin
+#
+# We have to clone the the neovim repo, then use the instructions in BUILDING NEOVIM
+#
+#( cd "$software_dir"
+# git clone https://github.com/neovim/neovim
+# cd neovim && make
+# git checkout stable
+#
+# ####  If cmake is not installed cmake from https://github.com/Kitware/CMake following
+# # instruction on https://github.com/Kitware/CMake#building-cmake-from-scratch 
+# # 
+# # Again clone the cmake repo and run the command.
+# ####
+# 
+# # Remove existing nvim in ~/bin
+# ln "$software_dir/neovim/build/bin/vim" ~/bin/nvim
+#)
 
 # Update dotfiles (create, if non-existent)
 if [ ! -d ~/.bash_profile ]; then
