@@ -1,0 +1,87 @@
+---> How to enable Emacs-like keybindings system-wide?
+A. https://askubuntu.com/a/663822
+
+---> How to safely shell script in a safe environment?
+A.  NOTE on Safety and Security:
+	(REFER https://askubuntu.com/questions/1141064/how-can-i-test-a-shell-script-in-a-safe-environment-to-avoid-harm-to-my-comput)
+	
+	If you're not sure what a script does, you're better off not
+	running it until you are sure what it does. Ways to reduce the 
+	damage radius of a bad script include running it using a new 
+	user, running it in a container, or running it in a virtual machine. 
+	But that first statement still holds: If you're not sure what 
+	something does, consider not running it until you do.
+	
+	Next action: Installing VM(or, some kind of sandbox), to avoid
+	polluting my host system.
+	
+	If you want to inspect the script for malware, this is not 
+	an effective solution. This is a way of testing the functionality 
+	without polluting your host system.
+	
+	This approach is not safe, because, After you've run the script in the 
+	sandbox, how are you going to tell whether it was safe? It 
+	might have harmful effects that you can't easily say. Malware 
+	doesn't necessarily pop up and say "Haha, got you!". Also,
+	a malicious script could easily behave in a benign way while 
+	in a sandbox or VM and then behave maliciously on your real 
+	computer. (For instance, VM detection is a thing, as is machine 
+	fingerprinting.)  
+
+
+---> How to install a Virtual Machine/VM?
+A. Using "Multipass" VM
+	[Refer: https://multipass.run/in]
+	[Refer: https://github.com/canonical/multipass]
+
+---> How to list available multipass commands?
+A. `multipass --help`
+
+---> How to list multipass instance info?
+A. `multipass info [instance name]`
+	Here you will find the IPv4 address of your instance.
+
+---> How to copy files from one machine to another machine/server?
+A. `scp shell-scripts/environment-setup.sh ubuntu@10.66.53.250:~/.`
+	or, more generally,
+	`scp source target`
+	where,
+	The source and target may be specified as a local pathname, a remote host with optional path in the form [user@]host:[path],
+	or a URI in the form scp://[user@]host[:port][/path].  Local file names can be made explicit using absolute or relative 
+	pathnames to avoid scp treating file names containing ‘:’ as host specifiers.
+
+	---> How to set up remote ssh authentication?
+	A. [Refer: https://kb.iu.edu/d/aews]
+		Generate RSA keys, on the command line 
+		`ssh-keygen -t rsa`
+
+		Important: If you don't password-protect your private key, anyone with access to your computer conceivably can 
+		SSH (without being prompted for a password) to your account on any remote system that has the corresponding public key.
+
+	---> How to copy the public key file (for example, ~/.ssh/id_rsa.pub) to your account on the remote system ?
+	A. `scp ~/.ssh/id_rsa.pub ubuntu@10.66.53.250:~/.`
+		where,
+		first arg is the location/pathname of the pub key.
+
+		or,
+		`ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@10.66.53.250`
+
+---> How to solve the "ubuntu@10.66.53.250: Permission denied (publickey)." error on trying to ssh or scp?
+A. [Refer: https://phoenixnap.com/kb/ssh-permission-denied-publickey#:~:text=If%20you%20want%20to%20use,login%20in%20the%20sshd_config%20file.&text=In%20the%20file%2C%20find%20the,disable%20it%20by%20adding%20no%20.]
+	`sudo nano /etc/ssh/sshd_config`
+	In the file, find the PasswordAuthentication line and make sure it ends with yes.
+	Find the ChallengeResponseAuthentication option and disable it by adding no.
+	Restart the SSH service by typing the following command: `sudo systemctl restart sshd`
+
+	--> What if there is password prompted when you ssh/scp to remote and the remote passwd is unknown?
+	A. Set the remote passwd. You should have access to remote.
+
+---> How to set passwd from command line?
+A. `sudo passwd ubuntu`
+
+
+
+
+
+
+ 

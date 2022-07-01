@@ -223,7 +223,7 @@ else
 fi
 
 if [ ! -d ~/.bashrc ]; then
-	cp "$repos_dir/dotfiles/.bashrc" "$HOME/.bashrc"
+	cp "$repos_dir/dotfiles/bashrc" "$HOME/.bashrc"
 else
 	"$repos_dir/dotfiles/bashrc" >> ~/.bashrc 
 fi
