@@ -66,6 +66,16 @@ A. `scp shell-scripts/environment-setup.sh ubuntu@10.66.53.250:~/.`
 		or,
 		`ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@10.66.53.250`
 
+---> How to copy files from/to a Linux VM?
+A. [Research: https://uoa-eresearch.github.io/vmhandbook/doc/copy-file-linux.html]
+	Downloading files from your home directory on the login node to your home directory on your local machine is a similar process as shown below:
+
+	Download the file ~/yourFile.xyz to your home directory on your computer:
+	`scp username@cerzheprd03.its.auckland.ac.nz:~/yourFile.xyz ~/.`
+
+	Download the folder yourFolder to your home directory on your computer:
+	`scp -r username@cerzheprd03.its.auckland.ac.nz:~/yourFolder ~/.`
+
 ---> How to solve the "ubuntu@10.66.53.250: Permission denied (publickey)." error on trying to ssh or scp?
 A. [Refer: https://phoenixnap.com/kb/ssh-permission-denied-publickey#:~:text=If%20you%20want%20to%20use,login%20in%20the%20sshd_config%20file.&text=In%20the%20file%2C%20find%20the,disable%20it%20by%20adding%20no%20.]
 	`sudo nano /etc/ssh/sshd_config`
