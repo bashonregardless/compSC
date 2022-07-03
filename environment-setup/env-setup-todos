@@ -13,4 +13,4 @@
 10. Change template of bashrc to be copied in $HOME/.bashrc
 11. Change template of bash_profile to copied in $HOME/.bash_profile
 12. Create a file to document the decision for the logic and the flow. Name the file
-	"environment-setup-documentation-and-flow"
+"environment-setup-documentation-and-flow"
