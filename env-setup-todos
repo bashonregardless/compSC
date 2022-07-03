@@ -1,12 +1,16 @@
  1. add code in script to add vimrc to .vim/vimrc
  2. add code in script to add init.vim to .config/nvim 
- 3. add file exits conditional check before sourcing hr-scripts
+ 3. add file exists conditional check before sourcing hr-scripts
  4. add code in script to source bash_profile after running environment-setup.sh
- 5. add code to script add minpac as optional plugin (See Modern vim craft)
+ 5. add code to script to add minpac as optional plugin (See Modern vim craft)
  6. add code to vimrc(or, other appropriate place) to add correct runtimepath in vim for minpac if runtimepath does not contain the path,
-   or, add minpac to an existing runtimepath. NOTE use glob pattern as in mac.
+   or, add minpac in a directory that is also in the list of runtimepath. NOTE use glob pattern as in mac.
  7. add code to install fzf and enable ctrl-p search. It is not working by default.
  8. add script to clean up on failure.
    NOTE Take care not to delete existing folders on users machine, i.e if software directory already existed then delete on the
    installed software in this directory and not the entire directory. 
 9. Solve the error that comes on opening `vim` after install `nvim`
+10. Change template of bashrc to be copied in $HOME/.bashrc
+11. Change template of bash_profile to copied in $HOME/.bash_profile
+12. Create a file to document the decision for the logic and the flow. Name the file
+	"environment-setup-documentation-and-flow"
