@@ -212,20 +212,46 @@ ln "$software_dir/nvim.appimage" ~/bin/nvim
 # ln "$software_dir/neovim/build/bin/vim" ~/bin/nvim
 #)
 
+# Update vimrc at ~/.vim/vimrc
+if [ -d ~/.vim ]; then
+	mkdir ~/.vim
+	if [ ! -e ~/.vim/vimrc ]; then
+		# create a new file by copying dotfile vimrc
+		cp "$repos_dir/dotfiles/vimrc" "$HOME/.vim/vimrc"
+	else
+		cat "$repos_dir/dotfiles/vimrc" >> ~/.vim/vimrc 
+	fi
+fi
+
+# Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
+if [ ! -d ~/.config ]; then
+	mkdir ~/.config
+else
+	if [ ! -d ~/.config/nvim ]; then
+		mkdir ~/.config/nvim
+		if [ ! -e ~/.config/nvim/init.vim ]; then
+			# create a new file by copying dotfile vimrc
+			cp "$repos_dir/dotfiles/init.vim" "$HOME/.config/nvim/init.vim"
+		else
+			cat "$repos_dir/dotfiles/init.vim" >> ~/.config/nvim/init.vim 
+		fi
+	fi
+fi
+
 # Update dotfiles (create, if non-existent)
-if [ ! -d ~/.bash_profile ]; then
+if [ ! -e ~/.bash_profile ]; then
 	# Copy and rename in the same time
 	cp "$repos_dir/dotfiles/bash_profile" "$HOME/.bash_profile"
 	# Rename only
 	# `mv path/to/file.xyz path/to/file_renamed.xyz
 else
-	"$repos_dir/dotfiles/bash_profile" >> ~/.bash_profile 
+	cat "$repos_dir/dotfiles/bash_profile" >> ~/.bash_profile 
 fi
 
-if [ ! -d ~/.bashrc ]; then
+if [ ! -e ~/.bashrc ]; then
 	cp "$repos_dir/dotfiles/bashrc" "$HOME/.bashrc"
 else
-	"$repos_dir/dotfiles/bashrc" >> ~/.bashrc 
+	cat "$repos_dir/dotfiles/bashrc" >> ~/.bashrc 
 fi
 # Inspect PATH env var in the system to see if it includes ~/bin or not.
 # Update PATH env var to include the path (~/bin in this case) to nvim executable.
