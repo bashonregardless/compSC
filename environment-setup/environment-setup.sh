@@ -222,10 +222,8 @@ else
 fi
 
 # Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
-if [ ! -d ~/.config ]; then
-	mkdir ~/.config
-	[ ! -d ~/.config/nvim ] && mkdir ~/.config/nvim
-fi
+[ ! -d ~/.config ] && mkdir ~/.config
+[ ! -d ~/.config/nvim ] && mkdir ~/.config/nvim
 if [ ! -e ~/.config/nvim/init.vim ]; then
 	# create a new file by copying dotfile vimrc
 	cp "$repos_dir/dotfiles/init.vim" "$HOME/.config/nvim/init.vim"
