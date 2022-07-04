@@ -15,3 +15,4 @@
 12. Create a file to document the decision for the logic and the flow. Name the file
 	"environment-setup-documentation-and-flow"
 13. Add code to source vimrc from ~/repos/dotfiles/vimrc instead of directly copying the contents to ~/.vim/vimrc
+14. Add code to clean up the work done in this setup irrespective of bad exit.

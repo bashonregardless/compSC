@@ -232,7 +232,12 @@ fi
 
 # add minpac vim plugin manager (See Modern vim craft)
 [ ! -d "$HOME/.config/nvim/pack/minpac/opt" ] && mkdir -p "$HOME/.config/nvim/pack/minpac/opt"
+cd "$HOME/.config/nvim/pack/minpac/opt"
+(
+# TODO minpac does not show up with the code run in subshell
+)
 git clone https://github.com/k-takata/minpac.git
+cd -
 
 # Update dotfiles (create, if non-existent)
 if [ ! -e ~/.bash_profile ]; then
