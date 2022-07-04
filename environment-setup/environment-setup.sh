@@ -213,7 +213,7 @@ ln "$software_dir/nvim.appimage" ~/bin/nvim
 #)
 
 # Update vimrc at ~/.vim/vimrc
-if [ -d ~/.vim ]; then
+if [ ! -d ~/.vim ]; then
 	mkdir ~/.vim
 	if [ ! -e ~/.vim/vimrc ]; then
 		# create a new file by copying dotfile vimrc
@@ -226,7 +226,6 @@ fi
 # Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
 if [ ! -d ~/.config ]; then
 	mkdir ~/.config
-else
 	if [ ! -d ~/.config/nvim ]; then
 		mkdir ~/.config/nvim
 		if [ ! -e ~/.config/nvim/init.vim ]; then
