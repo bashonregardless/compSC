@@ -230,6 +230,10 @@ else
 	cat "$repos_dir/dotfiles/init.vim.template" >> ~/.config/nvim/init.vim 
 fi
 
+# add minpac vim plugin manager (See Modern vim craft)
+[ ! -d "$HOME/.config/nvim/pack/minpac/opt" ] && mkdir -p "$HOME/.config/nvim/pack/minpac/opt"
+git clone https://github.com/k-takata/minpac.git
+
 # Update dotfiles (create, if non-existent)
 if [ ! -e ~/.bash_profile ]; then
 	# Copy and rename in the same time
