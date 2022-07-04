@@ -216,27 +216,25 @@ ln "$software_dir/nvim.appimage" ~/bin/nvim
 [ ! -d ~/.vim ] && mkdir ~/.vim
 if [ ! -e ~/.vim/vimrc ]; then
 	# create a new file by copying dotfile vimrc
-	cp "$repos_dir/dotfiles/vimrc" "$HOME/.vim/vimrc"
+	cp "$repos_dir/dotfiles/vimrc.template" "$HOME/.vim/vimrc"
 else
-	cat "$repos_dir/dotfiles/vimrc" >> ~/.vim/vimrc 
+	cat "$repos_dir/dotfiles/vimrc.template" >> ~/.vim/vimrc 
 fi
 
 # Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
-[ ! -d ~/.config ] && mkdir ~/.config
-[ ! -d ~/.config/nvim ] && mkdir ~/.config/nvim
+[ ! -d ~/.config/nvim ] && mkdir -p ~/.config/nvim
 if [ ! -e ~/.config/nvim/init.vim ]; then
 	# create a new file by copying dotfile vimrc
-	cp "$repos_dir/dotfiles/init.vim" "$HOME/.config/nvim/init.vim"
+	cp "$repos_dir/dotfiles/init.vim.template" "$HOME/.config/nvim/init.vim"
 else
-	cat "$repos_dir/dotfiles/init.vim" >> ~/.config/nvim/init.vim 
+	cat "$repos_dir/dotfiles/init.vim.template" >> ~/.config/nvim/init.vim 
 fi
 
 # Update dotfiles (create, if non-existent)
 if [ ! -e ~/.bash_profile ]; then
 	# Copy and rename in the same time
 	cp "$repos_dir/dotfiles/bash_profile" "$HOME/.bash_profile"
-	# Rename only
-	# `mv path/to/file.xyz path/to/file_renamed.xyz
+	# Rename only : `mv path/to/file.xyz path/to/file_renamed.xyz`
 else
 	cat "$repos_dir/dotfiles/bash_profile" >> ~/.bash_profile 
 fi

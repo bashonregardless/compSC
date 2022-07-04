@@ -1,5 +1,5 @@
- 1. add code in script to add vimrc to .vim/vimrc
- 2. add code in script to add init.vim to .config/nvim 
+ 1. add code in script to add vimrc.template to .vim/vimrc
+ 2. add code in script to add init.vim.template to .config/nvim 
  3. add file exists conditional check before sourcing hr-scripts
  4. add code in script to source bash_profile after running environment-setup.sh
  5. add code to script to add minpac as optional plugin (See Modern vim craft)
@@ -14,3 +14,4 @@
 11. Change template of bash_profile to copied in $HOME/.bash_profile
 12. Create a file to document the decision for the logic and the flow. Name the file
 	"environment-setup-documentation-and-flow"
+13. Add code to source vimrc from ~/repos/dotfiles/vimrc instead of directly copying the contents to ~/.vim/vimrc
