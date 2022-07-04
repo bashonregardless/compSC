@@ -213,28 +213,24 @@ ln "$software_dir/nvim.appimage" ~/bin/nvim
 #)
 
 # Update vimrc at ~/.vim/vimrc
-if [ ! -d ~/.vim ]; then
-	mkdir ~/.vim
-	if [ ! -e ~/.vim/vimrc ]; then
-		# create a new file by copying dotfile vimrc
-		cp "$repos_dir/dotfiles/vimrc" "$HOME/.vim/vimrc"
-	else
-		cat "$repos_dir/dotfiles/vimrc" >> ~/.vim/vimrc 
-	fi
+[ ! -d ~/.vim ] && mkdir ~/.vim
+if [ ! -e ~/.vim/vimrc ]; then
+	# create a new file by copying dotfile vimrc
+	cp "$repos_dir/dotfiles/vimrc" "$HOME/.vim/vimrc"
+else
+	cat "$repos_dir/dotfiles/vimrc" >> ~/.vim/vimrc 
 fi
 
 # Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
 if [ ! -d ~/.config ]; then
 	mkdir ~/.config
-	if [ ! -d ~/.config/nvim ]; then
-		mkdir ~/.config/nvim
-		if [ ! -e ~/.config/nvim/init.vim ]; then
-			# create a new file by copying dotfile vimrc
-			cp "$repos_dir/dotfiles/init.vim" "$HOME/.config/nvim/init.vim"
-		else
-			cat "$repos_dir/dotfiles/init.vim" >> ~/.config/nvim/init.vim 
-		fi
-	fi
+	[ ! -d ~/.config/nvim ] && mkdir ~/.config/nvim
+fi
+if [ ! -e ~/.config/nvim/init.vim ]; then
+	# create a new file by copying dotfile vimrc
+	cp "$repos_dir/dotfiles/init.vim" "$HOME/.config/nvim/init.vim"
+else
+	cat "$repos_dir/dotfiles/init.vim" >> ~/.config/nvim/init.vim 
 fi
 
 # Update dotfiles (create, if non-existent)
