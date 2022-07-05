@@ -1,0 +1,32 @@
+Inside environment-setup.sh
+
+1. creating ~/repos directory.
+2. cloning dotfiles repo inside repos.
+3. cloning compSc repo inside repos.
+4. creating software dir inside home.
+5. downloading nvim inside software dir.
+6. changing the permission of the downloaded file nvim.appimage.
+7. creating bin dir inside home.
+8. creating symlink of nvim.appimage with ~/bin/nvim
+9. create ~/.vim/vimrc (mkdir -p).
+10. copy/create or append to ~/.vim/vimrc.
+
+"NOTE That we are merely creating script vimrc, bash_profile, and bashrc. 
+To run/source the script is a different thing altogether."
+
+Inside vimrc
+
+Exit vimrc
+
+11. mkdir -p "$HOME/.config/nvim/pack/minpac/opt" 
+12. clone k-takata/minpac indside "$HOME/.config/nvim/pack/minpac/opt" 
+13. copy/create or append to "$HOME/.bash_profile"
+
+Inside "$HOME/.bash_profile"
+
+Exit "$HOME/.bash_profile"
+
+Inside "$HOME/.bashrc"
+
+Exit "$HOME/.bashrc"
+

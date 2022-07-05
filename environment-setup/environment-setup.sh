@@ -38,7 +38,7 @@
 # tldp stands for "the linux documentation project"
 # abs stands for "advanced bash scripting guide"
 
-repos_dir=~/repos
+repos_dir="$HOME/repos"
 if [ ! -d "$repos_dir" ]; then
   mkdir -p "$repos_dir"
 fi
@@ -53,7 +53,7 @@ fi
 
 # `git clone https://github.com/bashonregardless/dotfiles.git "$repos_dir/dotfiles"`
 #
-# NOTE that doing a simple git clone w/o creating directory (like ~/repos)
+# NOTE that doing a simple git clone w/o creating directory (like "$HOME/repos")
 # first will result in an error:
 # fatal: could not create work tree dir '/dotfiles': Permission denied
 #
@@ -111,7 +111,7 @@ git clone https://github.com/bashonregardless/dotfiles.git "$repos_dir/dotfiles"
   # because it then closes your connection.
 # fi
 
-software_dir=~/software
+software_dir="$HOME/software"
 # Create a directory to download nvim software.
 if test ! -d "$software_dir"; then
   mkdir "$software_dir"
@@ -133,7 +133,11 @@ fi
 cd "$software_dir"
 # (Refer: https://github.com/neovim/neovim/wiki/Installing-Neovim)
 # Download Neovim on Linux
-if test $? = 0 && [ -x "$(command -v curl)" ]; then
+if test $? = 0 && "$(command -v curl)" &> dev/null; then
+# `if test $? = 0 && [ -x "$(command -v curl)" ]; then`
+# TODO Why are you checking if the file/command has execute permission?
+	# The explanation for the conditional above can be found here:
+	#[Refer: https://stackoverflow.com/a/677212/11320006]
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
   chmod u+x nvim.appimage
 else
@@ -154,8 +158,8 @@ fi
 # try to download one and then retry download again.
 
 # TODO implement script to download neovim on macOS.
-# Also in this script, create symbolic link in ~/bin for executable
-# in ~/software/nvim-osx64/bin/nvim
+# Also in this script, create symbolic link in "$HOME/bin" for executable
+# in "$HOME/software/nvim-osx64/bin/nvim"
 # Update PATH env var accordingly.
 
 # TODO The above if-else can also be written as:
@@ -174,18 +178,17 @@ fi
 # (REFER https://askubuntu.com/questions/606378/when-to-use-vs-in-bash#)
 # For example, I might use a subshell if I:
 # want to alter $IFS for a few commands, but I don't want to alter
-# $IFS globally for the current shell.
-#
+# $IFS globally for the current shell, or,
 # cd somewhere, but I don't want to change the $PWD for the current shell.
 
-# Create ~/bin dir if it does not exist
-if test ! -d ~/bin
+# Create "$HOME/bin" dir if it does not exist
+if test ! -d "$HOME/bin"
 then
-	mkdir ~/bin
+	mkdir "$HOME/bin"
 fi
 
-# Create a symbolic link in ~/bin dir to ~/software/nvim
-ln "$software_dir/nvim.appimage" ~/bin/nvim
+# Create a symbolic link in "$HOME/bin" dir to "$HOME/software/nvim"
+ln "$software_dir/nvim.appimage" "$HOME/bin/nvim"
 
 # ALTERNATE WAY TO INSTALL NVIM.
 #
@@ -208,49 +211,54 @@ ln "$software_dir/nvim.appimage" ~/bin/nvim
 # # Again clone the cmake repo and run the command.
 # ####
 # 
-# # Remove existing nvim in ~/bin
-# ln "$software_dir/neovim/build/bin/vim" ~/bin/nvim
+# # Remove existing nvim in "$HOME/bin"
+# ln "$software_dir/neovim/build/bin/vim" "$HOME/bin/nvim"
 #)
 
-# Update vimrc at ~/.vim/vimrc
-[ ! -d ~/.vim ] && mkdir ~/.vim
-if [ ! -e ~/.vim/vimrc ]; then
+# Update vimrc at "$HOME/.vim/vimrc"
+[ ! -d "$HOME/.vim" ] && mkdir "$HOME/.vim"
+if [ ! -e "$HOME/.vim/vimrc" ]; then
 	# create a new file by copying dotfile vimrc
 	cp "$repos_dir/dotfiles/vimrc.template" "$HOME/.vim/vimrc"
 else
-	cat "$repos_dir/dotfiles/vimrc.template" >> ~/.vim/vimrc 
+	cat "$repos_dir/dotfiles/vimrc.template" >> "$HOME/.vim/vimrc" 
 fi
 
-# Update init.vim at ~/.config/nvim/ (VIMCONFIG=~/.config/nvim)
-[ ! -d ~/.config/nvim ] && mkdir -p ~/.config/nvim
-if [ ! -e ~/.config/nvim/init.vim ]; then
+# Update init.vim at "$HOME/.config/nvim/" (VIMCONFIG="$HOME/.config/nvim")
+[ ! -d "$HOME/.config/nvim" ] && mkdir -p "$HOME/.config/nvim"
+if [ ! -e "$HOME/.config/nvim/init.vim" ]; then
 	# create a new file by copying dotfile vimrc
 	cp "$repos_dir/dotfiles/init.vim.template" "$HOME/.config/nvim/init.vim"
 else
-	cat "$repos_dir/dotfiles/init.vim.template" >> ~/.config/nvim/init.vim 
+	cat "$repos_dir/dotfiles/init.vim.template" >> "$HOME/.config/nvim/init.vim" 
 fi
 
 # add minpac vim plugin manager (See Modern vim craft)
 [ ! -d "$HOME/.config/nvim/pack/minpac/opt" ] && mkdir -p "$HOME/.config/nvim/pack/minpac/opt"
+# TODO Q. minpac does not show up with the code run in subshell?
+# code: `( cd "$HOME/.config/nvim/pack/minpac/opt" && git clone "$HOME/.config/nvim/pack/minpac/opt" )`
+# A. Directory changes made in a subshell do not carry over to the parent shell.
+# TODO Verify the reason and the above answer.
+#
+# An alternative approach
 cd "$HOME/.config/nvim/pack/minpac/opt"
-# TODO minpac does not show up with the code run in subshell
 git clone https://github.com/k-takata/minpac.git
 cd -
 
 # Update dotfiles (create, if non-existent)
-if [ ! -e ~/.bash_profile ]; then
+if [ ! -e "$HOME/.bash_profile" ]; then
 	# Copy and rename in the same time
 	cp "$repos_dir/dotfiles/bash_profile" "$HOME/.bash_profile"
 	# Rename only : `mv path/to/file.xyz path/to/file_renamed.xyz`
 else
-	cat "$repos_dir/dotfiles/bash_profile" >> ~/.bash_profile 
+	cat "$repos_dir/dotfiles/bash_profile" >> "$HOME/.bash_profile" 
 fi
 
-if [ ! -e ~/.bashrc ]; then
+if [ ! -e "$HOME/.bashrc" ]; then
 	cp "$repos_dir/dotfiles/bashrc" "$HOME/.bashrc"
 else
-	cat "$repos_dir/dotfiles/bashrc" >> ~/.bashrc 
+	cat "$repos_dir/dotfiles/bashrc" >> "$HOME/.bashrc" 
 fi
-# Inspect PATH env var in the system to see if it includes ~/bin or not.
-# Update PATH env var to include the path (~/bin in this case) to nvim executable.
+# Inspect PATH env var in the system to see if it includes "$HOME/bin" or not.
+# Update PATH env var to include the path ("$HOME/bin" in this case) to nvim executable.
 # NOTE that similar script is present in bash_profile_common file.
