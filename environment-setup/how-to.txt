@@ -89,7 +89,15 @@ A. [Refer: https://phoenixnap.com/kb/ssh-permission-denied-publickey#:~:text=If%
 ---> How to set passwd from command line?
 A. `sudo passwd ubuntu`
 
+----> How to not quit the terminal when executing the script with a command like this
+  `. script.sh`?
+A. The "problem" really is that you're sourcing and not executing the script. When you source a file,
+  its contents will be executed in the current shell, instead of spawning a subshell. So everything,
+  including exit, will affect the current shell.
 
+  Instead of using exit, you will want to use return.
+  or,
+  execute it with `bash script` command.
 
 
 

@@ -28,7 +28,6 @@ else
 fi
 )
 
-
 # Create "$HOME/bin" dir if it does not exist
 if test ! -d "$HOME/bin"
 then

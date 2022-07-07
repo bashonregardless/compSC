@@ -1,6 +1,9 @@
 #!/bin/bash
 
 #####
+# Basic skeleton taken from
+# [Refer : https://acloudguru.com/blog/engineering/how-to-write-a-backup-script-with-bash].
+# 
 # This is a script given to users on a machine when they want to back 
 # up their work to a specific backup directory (/home/$USER/work_backup)
 # 
@@ -25,12 +28,10 @@ MYLOG=$1
 # That basically means that it holds a numbered list of strings. Since each of 
 # these strings is a separate entity (element), it can safely contain any character,
 # even whitespace.
-# We have a multiple files that we want to backup.
-bash_profile="$HOME/.bash_profile"
-bashrc="$HOME/.bashrc"
-vimrc="$HOME/.vim/vimrc"
-dot_config_nvim="$HOME/.config/nvim"
-BACKUP_FROM=$2
+# 
+# We have multiple directories and files that we want to backup. 
+# These can be safely represented in Bash using arrays.
+BACKUP_FROM=("$2.sh")
 
 function ctrlc {
 	rm -rf /home/$USER/work/work_backup
@@ -101,12 +102,12 @@ echo "Creating backup directory" >> $MYLOG
 # `echo test 2> afile.txt`
 #
 # `>&` is the syntax to redirect a stream to another file descriptor
-if ! (mkdir /home/$USER/work/work_backup 2> /dev/null)
-then
-	echo "Directory already existed." >> $MYLOG
-fi
-
-echo "Copying Files" >> $MYLOG
-cp -v $BACKUP_FROM/* /home/$USER/work/work_backup/ >> $MYLOG
+#if ! (mkdir /home/$USER/work/work_backup 2> /dev/null)
+#then
+#	echo "Directory already existed." >> $MYLOG
+#fi
+#
+#echo "Copying Files" >> $MYLOG
+#cp -v $BACKUP_FROM/* /home/$USER/work/work_backup/ >> $MYLOG
 echo "Finished Copying Files" >> $MYLOG
 echo "Timestamp after work is done $(date +"%D %T")" >> $MYLOG
