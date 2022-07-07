@@ -11,8 +11,6 @@
 # will be and the second is what directory will be backed up.
 #####
 
-
-
 if [ -z "$1" ] || [ -z "$2" ]; then
 	echo "You have failed to pass a parameter."
 	echo "Reminder that all required files will be copied to /home/\$USER/work/work_backup."
@@ -31,7 +29,43 @@ MYLOG=$1
 # 
 # We have multiple directories and files that we want to backup. 
 # These can be safely represented in Bash using arrays.
-BACKUP_FROM=("$2.sh")
+#
+# [Refer : On page https://tldp.org/LDP/abs/html/arrays.html
+# Search for term "load the contents of a text file into an array."]
+
+# Variable operations inside a subshell, even to a GLOBAL variable
+# do not affect the value of the variable outside the subshell!
+#
+# [Refer : On page https://tldp.org/LDP/abs/html/arrays.html
+# Search for term "Assignment, in conjunction with 'echo' and command substitution,
+# can read a function's stdout."]
+# Before reaching for a Big Hammer -- Perl, Python, or all the rest --
+#  recall:
+#    $( ... ) is command substitution.
+#    A function runs as a sub-process.
+#    A function writes its output (if echo-ed) to stdout.
+#    Assignment, in conjunction with "echo" and command substitution,
+#+   can read a function's stdout.
+#    The name[@] notation specifies (the equivalent of) a "for-each"
+#+   operation.
+#  Bash is more powerful than you think!
+# 
+
+# Q. How to access command line arguments of the caller inside a function?
+# A. Usually you just pass them as parameters to the function at call time.
+# TODO READ further on this.
+create_backup_pathname_array() {
+  IFS="\n"
+  echo "IFS inside function execution: $IFS"
+  BACKUP_FROM=($( cat "$1.sh" ))
+  echo ${BACKUP_FROM[@]}
+}
+echo "IFS before function execution: $IFS"
+BACKUP_FROM=$(create_backup_pathname_array $2)
+echo "IFS before function execution: $IFS"
+
+echo ${BACKUP_FROM[@]}
+echo ${#BACKUP_FROM[@]}
 
 function ctrlc {
 	rm -rf /home/$USER/work/work_backup
