@@ -54,15 +54,64 @@ MYLOG=$1
 # Q. How to access command line arguments of the caller inside a function?
 # A. Usually you just pass them as parameters to the function at call time.
 # TODO READ further on this.
+#
+# Funcitons are blocks of commands, much like normal scripts you might write,
+# except they don't reside in separate files, and they don't cause a separate 
+# process to be executed.
 create_backup_pathname_array() {
-  IFS="\n"
-  echo "IFS inside function execution: $IFS"
-  BACKUP_FROM=($( cat "$1.sh" ))
+  # Q. Why when I try to set IFS to newline by using syntax `IFS="\n"`, it does 
+  #+ not work as expected?
+  # A. [Refer : https://unix.stackexchange.com/a/477962/395825]
+  # IFS=\n would set IFS to n (\ is treated as a quoting operator)
+  # and IFS="\n" or IFS='\n' would set IFS to the two characters backslash and n.
+  # Refer link for futther clarification, answer by Stéphane Chazelas.
+  IFS=$'\n'
+  echo -n "IFS inside function execution: "
+  printf %q "$IFS"
+  BACKUP_FROM=($( cat "$1" ))
+  echo
+  echo
+  echo -n "Backup pathname array inside funciton"
+
+  # Q. Why the echo in the line below does not print to stdout?
+  # A. TODO WIP Reading abs [Refer : https://tldp.org/LDP/abs/html/functions.html]
   echo ${BACKUP_FROM[@]}
 }
-echo "IFS before function execution: $IFS"
+
+echo -n "IFS before function execution: "
+printf %q "$IFS"
+echo
+
+# Observation on o/p when funciton is called in the two following ways:
+# 1. `BACKUP_FROM=$(create_backup_pathname_array $2)`
+# 2. `create_backup_pathname_array $2`
+#
+# O/P in case 1:
+# IFS before function execution: $' \t\n'
+# IFS inside function execution: $'\n'
+# 
+# Backup pathname array inside funcitonrepos_dir="$HOME/repos" software_dir="$HOME/software" bin="$HOME /bin" bash_profile="$HOME/.bash_profile" bashrc="$HOME/.bashrc" vimrc="$HOME/.vim/vimrc" dot_config_nvim="$HOME/.config/nvim"
+# 
+# IFS after function execution: $'\n'
+# 
+# repos_dir="$HOME/repos" software_dir="$HOME/software" bin="$HOME /bin" bash_profile="$HOME/.bash_profile" bashrc="$HOME/.bashrc" vimrc="$HOME/.vim/vimrc" dot_config_nvim="$HOME/.config/nvim"
+# 7
+#
+# O/P in case 2:
+# IFS before function execution: $' \t\n'
+# 
+# IFS after function execution: $' \t\n'
+# 
+# IFS inside function execution: $'\n' Backup pathname array inside funcitonrepos_dir="$HOME/repos" software_dir="$HOME/software" bin="$HOME /bin" bash_profile="$HOME/.bash_profile" bashrc="$HOME/.bashrc" vimrc="$HOME/.vim/vimrc" dot_config_nvim="$HOME/.config/nvim"
+# 1
+
+# create_backup_pathname_array $2
 BACKUP_FROM=$(create_backup_pathname_array $2)
-echo "IFS before function execution: $IFS"
+echo
+echo -n "IFS after function execution: "
+printf %q "$IFS"
+echo
+echo
 
 echo ${BACKUP_FROM[@]}
 echo ${#BACKUP_FROM[@]}
