@@ -4,34 +4,40 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 	exit 255;
 fi
 
+create_array() {
+  echo
+  echo
 
-MYLOG=$1
-
-create_backup_pathname_array() {
   IFS=$'\n'
   echo -n "IFS inside function execution: "
   printf %q "$IFS"
-  BACKUP_FROM=($( cat "$1" ))
-  echo
-  echo
-  echo -n "Backup pathname array inside funciton: "
+  array=($( cat "$1" ))
 
-  echo ${BACKUP_FROM[@]}
+  echo
+  echo
+
+  echo "Inside funciton array length is ${#array[@]} and its contents are : ${array[@]}"
+
+ # # Inside parentheses, and therefore a subshell . . .
+ # while [ 1 ]   # Endless loop.
+ # do
+ #   echo "Subshell running . . ."
+ # done
 }
 
 echo -n "IFS before function execution: "
 printf %q "$IFS"
 echo
 
-create_backup_pathname_array "$2"
-# create_backup_pathname_array $2
-# BACKUP_FROM=$(create_backup_pathname_array $2)
+# create_array "$2"
+array=$(create_array $2)
+
 echo
+
 echo -n "IFS after function execution: "
 printf %q "$IFS"
+
 echo
 echo
 
-echo ${BACKUP_FROM[@]}
-echo ${#BACKUP_FROM[@]}
-
+echo "Outside funciton array length is ${#array[@]} and its contents are : ${array[@]}"
