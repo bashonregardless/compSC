@@ -9,32 +9,12 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 
 create_array() {
-  echo
   local passed_array
-  echo
-  echo
 
   IFS=$'\n'
-  echo -n "IFS inside function execution: "
-  printf %q "$IFS"
-  echo
-  echo
 
   passed_arg="$1"
-  echo "\$1 inside function execution: $1"
-  echo
-  echo
-
-  passed_arg=$(cat "$passed_arg")
-  echo "passed_array inside function execution: $passed_arg"
-  echo
-  echo
-
-  passed_array=(${passed_array[@]})
-  echo "\${passed_array} inside function execution: $passed_array"
-
-  echo
-  echo
+  passed_array=$(cat "$passed_arg")
 
   echo "Inside function passed_array length is ${#passed_array[@]} and its contents are : ${passed_array[@]}"
 
@@ -46,18 +26,10 @@ create_array() {
   # done
 }
 
-echo -n "IFS before function execution: "
-printf %q "$IFS"
-echo
-
 create_array "$2"
-#array=($(create_array $2))
-echo
-
-echo -n "IFS after function execution: "
-printf %q "$IFS"
+# array=($(create_array $2))
 
 echo
 echo
 
-echo "Outside funciton array length is ${#array[@]} and its contents are : ${array[@]}"
+echo "Returned array length is ${#array[@]} and its contents are : ${array[@]}"
