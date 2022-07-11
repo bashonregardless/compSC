@@ -99,7 +99,66 @@ A. The "problem" really is that you're sourcing and not executing the script. Wh
   or,
   execute it with `bash script` command.
 
+----> How to return value in bash like we would in programming language like javascript, python, etc?
+A. [Refer: https://stackoverflow.com/a/17336953/11320006]
+  Although Bash has a return statement, the only thing you can specify with it is the 
+  function's own exit status (a value between 0 and 255, 0 meaning "success"). So return 
+  is not what you want.
+  You might want to convert your return statement to an echo statement - that way your 
+  function output could be captured using $() braces, which seems to be exactly what you want.
 
 
+  [Refer: https://tldp.org/LDP/abs/html/commandsub.html#FTN.AEN7211]
+  In a more technically correct sense, command substitution extracts the stdout of a command,
+  then assigns it to a variable using the = operator.
 
- 
+
+  [Search the above reference for more] 
+  Command substitution makes it possible to extend the toolset available to Bash. It is simply
+  a matter of writing a program or script that outputs to stdout (like a well-behaved UNIX 
+  tool should) and assigning that output to a variable.
+  Example:
+    `
+    #include <stdio.h>
+    
+    /*  "Hello, world." C program  */		
+    
+    int main()
+    {
+      printf( "Hello, world.\n" );
+      return (0);
+    }
+    `
+    Compile the program:
+    bash$ gcc -o hello hello.c
+    	      
+    `
+    #!/bin/bash
+    # hello.sh		
+    
+    greeting=`./hello`
+    echo $greeting
+    `
+    Run the program:
+    bash$ sh hello.sh
+    o/p:
+    Hello, world.
+
+
+  [Refer: https://tldp.org/LDP/abs/html/arrays.html]
+  Before reaching for a Big Hammer -- Perl, Python, or all the rest --
+  
+  recall:
+    $( ... ) is command substitution.
+
+    A function runs as a sub-process.
+
+    A function writes its output (if echo-ed) to stdout.
+
+    Assignment, in conjunction with "echo" and command substitution,
+    can read a function's stdout.
+
+    The name[@] notation specifies (the equivalent of) a "for-each"
+    operation.
+
+  Bash is more powerful than you think!
