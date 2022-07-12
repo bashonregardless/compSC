@@ -18,7 +18,7 @@ fi
 cd "$software_dir"
 # (Refer: https://github.com/neovim/neovim/wiki/Installing-Neovim)
 # Download Neovim on Linux
-if test $? = 0 && "$(command -v curl)" &> dev/null; then
+if test $? = 0 && command -v curl &> dev/null; then
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
   chmod u+x nvim.appimage
 else
