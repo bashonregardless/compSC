@@ -16,4 +16,7 @@
 	"environment-setup-documentation-and-flow"
 13. Add code to source vimrc from ~/repos/dotfiles/vimrc instead of directly copying the contents to ~/.vim/vimrc
 14. Add code to clean up the work done in this setup irrespective of bad exit.
-15. Add 
+15. If curl not found, script continues execution in the main body/parent shell because 
+exit is happening in the subshell. Fix this to exit the script/parent shell altogether.
+16. add code in script to add/append bashrc.template and bash_profile.template 
+to .bashrc and .bash_profile respectively rather than adding/appending the file "$repos_dir/dotfiles/bash_profile"

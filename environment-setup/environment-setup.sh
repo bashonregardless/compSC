@@ -28,6 +28,17 @@ else
 fi
 )
 
+# Since exit in the subshell Only exits the subshell!, 
+#+ The parent shell has not been affected, and the environment is preserved,
+#+ thus the script continues execution.
+#+ But what we want if the curl command is not found is to exit
+#+ the execution of the script.
+if [ $? -ne 0 ]; then
+  echo "Error: curl is not installed"
+  echo
+  exit 64
+fi
+
 # Create "$HOME/bin" dir if it does not exist
 if test ! -d "$HOME/bin"
 then
@@ -64,14 +75,14 @@ cd -
 # Update dotfiles (create, if non-existent)
 if [ ! -e "$HOME/.bash_profile" ]; then
 	# Copy and rename in the same time
-	cp "$repos_dir/dotfiles/bash_profile" "$HOME/.bash_profile"
+	cp "$repos_dir/dotfiles/bash_profile.template" "$HOME/.bash_profile"
 	# Rename only : `mv path/to/file.xyz path/to/file_renamed.xyz`
 else
-	cat "$repos_dir/dotfiles/bash_profile" >> "$HOME/.bash_profile" 
+	cat "$repos_dir/dotfiles/bash_profile.template" >> "$HOME/.bash_profile" 
 fi
 
 if [ ! -e "$HOME/.bashrc" ]; then
-	cp "$repos_dir/dotfiles/bashrc" "$HOME/.bashrc"
+	cp "$repos_dir/dotfiles/bashrc.template" "$HOME/.bashrc"
 else
-	cat "$repos_dir/dotfiles/bashrc" >> "$HOME/.bashrc" 
+	cat "$repos_dir/dotfiles/bashrc.template" >> "$HOME/.bashrc" 
 fi
