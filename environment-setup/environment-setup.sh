@@ -11,7 +11,7 @@ git clone https://github.com/bashonregardless/dotfiles.git "$repos_dir/dotfiles"
 software_dir="$HOME/software"
 # Create a directory to download nvim software.
 if test ! -d "$software_dir"; then
-  mkdir "$software_dir"
+  mkdir -p "$software_dir"
 fi
 
 (
@@ -27,7 +27,6 @@ else
   exit 64
 fi
 )
-
 
 # Create "$HOME/bin" dir if it does not exist
 if test ! -d "$HOME/bin"
