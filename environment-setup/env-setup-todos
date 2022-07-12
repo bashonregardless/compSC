@@ -19,4 +19,4 @@
 15. If curl not found, script continues execution in the main body/parent shell because 
 exit is happening in the subshell. Fix this to exit the script/parent shell altogether.
 16. add code in script to add/append bashrc.template and bash_profile.template 
-to .bashrc and .bash_profile respectively rather than adding/appending the file "$repos_dir/dotfiles/bash_profile"  
+to .bashrc and .bash_profile respectively rather than adding/appending the file "$repos_dir/dotfiles/bash_profile"
