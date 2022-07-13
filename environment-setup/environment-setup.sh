@@ -14,30 +14,31 @@ if test ! -d "$software_dir"; then
   mkdir -p "$software_dir"
 fi
 
-(
 cd "$software_dir"
 # (Refer: https://github.com/neovim/neovim/wiki/Installing-Neovim)
 # Download Neovim on Linux
-if test $? = 0 && command -v curl &> /dev/null; then
+if command -v curl &> /dev/null; then
+# if test command -v curl &> /dev/null; then
+  echo "Inside vim installation"
+  # exit 64
+  echo "curl exits. Proceeding with cloning nvim"
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
   chmod u+x nvim.appimage
+  echo "Nvim cloned and Installed"
+  echo
 else
   echo "Error: curl is not installed"
   echo
   exit 64
 fi
-)
+cd -
 
-# Since exit in the subshell Only exits the subshell!, 
+#* Take care, as this is the exit status of the last command run, which can just as well be echo
+#+ Since exit in the subshell Only exits the subshell!, 
 #+ The parent shell has not been affected, and the environment is preserved,
 #+ thus the script continues execution.
 #+ But what we want if the curl command is not found is to exit
 #+ the execution of the script.
-if [ $? -ne 0 ]; then
-  echo "Error: curl is not installed"
-  echo
-  exit 64
-fi
 
 # [Refer: Modern vim pg 29]
 # Install Ripgrep if it does not exist.
@@ -47,7 +48,14 @@ fi
 #* This command is specific to Debian derivative like Ubuntu.
 # TODO making the script independent of platform.
 #+ Check which derivative is the platform.
-if [ ! command -v rg &> /dev/null ]; then
+
+#* TODO 
+#+ Test construct `if [ ! command -v rg &> /dev/null ]; then`
+#+ fails. Why?
+# What test construct to write if we want to check two conditions
+#+ simultaneously, first, if the exit status of prev command was 0,
+#+ and on success to check if command exists?
+if ! command -v rg &> /dev/null; then
   curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
   sudo dpkg -i ripgrep_13.0.0_amd64.deb
   echo "Ripgrep installed successfullly in the system"
@@ -64,10 +72,12 @@ if [ $? -ne 0 ];then
   echo "$HOME/.config/nvim/pack/bundle/start not created successfully"
   exit 64
 else
+  cd "$HOME/.config/nvim/pack/bundle/start" 
   git clone https://github.com/junegunn/fzf
   $HOME/.config/nvim/pack/bundle/start/fzf/install --bin
   echo "fzf installed successfully"
   echo
+  cd -
 fi
 
 # Create "$HOME/bin" dir if it does not exist
