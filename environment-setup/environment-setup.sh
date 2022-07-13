@@ -51,8 +51,23 @@ fi
 if [ command -v rg &> /dev/null ]; then
   curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
   sudo dpkg -i ripgrep_13.0.0_amd64.deb
+  echo "Ripgrep installed successfullly in the system"
+  echo
 else
   echo "Ripgrep already installed in the system"
+  echo
+fi
+
+if [ ! -d "$HOME/.config/nvim/pack/bundle/start" ]; then
+  mkdir -p "$HOME/.config/nvim/pack/bundle/start" 
+fi 
+if [ $? -ne 0 ];then
+  echo "$HOME/.config/nvim/pack/bundle/start not created successfully"
+  exit 64
+else
+  git clone https://github.com/junegunn/fzf
+  $HOME/.config/nvim/pack/bundle/start/fzf/install --bin
+  echo "fzf installed successfully"
   echo
 fi
 
@@ -88,9 +103,6 @@ fi
 cd "$HOME/.config/nvim/pack/minpac/opt"
 git clone https://github.com/k-takata/minpac.git
 cd -
-
-# run vim ex command to install packs
-"$software_dir/nvim.appimage" -c "call minpac:update()"
 
 # Update dotfiles (create, if non-existent)
 if [ ! -e "$HOME/.bash_profile" ]; then
