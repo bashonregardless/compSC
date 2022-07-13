@@ -83,8 +83,14 @@ fi
 
 # install nvr [Refer: modern vimcraft Pg 7]
 if ! command -v pip3 &> /dev/null; then
+  # [Refer: https://askubuntu.com/a/1301162]
+  #+ Before installing python3-pip,
+  #+ You may have to enable the universe repository first.
+  sudo add-apt-repository universe
+  # Then run the following command to synchronize your package database.
+  sudo apt update
   echo "installing pip3/python3-pip"
-  # install pip3
+  # Finally install pip3
   sudo apt install python3-pip
   echo "pip/python3-pip installed successfully"
 else
