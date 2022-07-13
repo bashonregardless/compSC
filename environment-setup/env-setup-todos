@@ -24,3 +24,5 @@ to .bashrc and .bash_profile respectively rather than adding/appending the file 
 18. Update script to install fzf.
 19. Install nvr (See modern vim craft)
 20. Update script to install nvr
+21. nvr not working as expected. Check to see if new version of nvim has different way to do this.
+22. Install dep - bat - for fzf.vim https://github.com/junegunn/fzf.vim#dependencies
