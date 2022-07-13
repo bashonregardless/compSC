@@ -47,7 +47,7 @@ fi
 #* This command is specific to Debian derivative like Ubuntu.
 # TODO making the script independent of platform.
 #+ Check which derivative is the platform.
-if [ command -v rg &> /dev/null ]; then
+if [ ! command -v rg &> /dev/null ]; then
   curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
   sudo dpkg -i ripgrep_13.0.0_amd64.deb
   echo "Ripgrep installed successfullly in the system"
@@ -102,9 +102,6 @@ fi
 cd "$HOME/.config/nvim/pack/minpac/opt"
 git clone https://github.com/k-takata/minpac.git
 cd -
-
-# run vim ex command to install packs
-"$software_dir/nvim.appimage" -c "call minpac:update()"
 
 # Update dotfiles (create, if non-existent)
 if [ ! -e "$HOME/.bash_profile" ]; then
