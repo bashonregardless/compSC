@@ -103,6 +103,9 @@ cd "$HOME/.config/nvim/pack/minpac/opt"
 git clone https://github.com/k-takata/minpac.git
 cd -
 
+# run vim ex command to install packs
+"$software_dir/nvim.appimage" -c "call minpac:update()"
+
 # Update dotfiles (create, if non-existent)
 if [ ! -e "$HOME/.bash_profile" ]; then
 	# Copy and rename in the same time
