@@ -76,6 +76,7 @@ else
   cd "$HOME/.config/nvim/pack/bundle/start" 
   git clone https://github.com/junegunn/fzf
   $HOME/.config/nvim/pack/bundle/start/fzf/install --bin
+  git clone https://github.com/junegunn/fzf.vim
   echo "fzf installed successfully"
   echo
   cd -
