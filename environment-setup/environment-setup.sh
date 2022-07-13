@@ -58,6 +58,7 @@ cd -
 if ! command -v rg &> /dev/null; then
   curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
   sudo dpkg -i ripgrep_13.0.0_amd64.deb
+  rm ripgrep_13.0.0_amd64.deb
   echo "Ripgrep installed successfullly in the system"
   echo
 else
@@ -78,6 +79,33 @@ else
   echo "fzf installed successfully"
   echo
   cd -
+fi
+
+# install nvr [Refer: modern vimcraft Pg 7]
+if ! command -v pip3 &> /dev/null; then
+  echo "installing pip3/python3-pip"
+  # install pip3
+  sudo apt install python3-pip
+  echo "pip/python3-pip installed successfully"
+else
+  echo "pip3 is already installed in the system"
+fi
+
+# To enable the Python 3 provider, you need to install the Python client. 
+#+ You can get this using pip
+if command -v pip3 &> /dev/null; then
+  pip3 install --user --upgrade neovim
+  # neovim-remote gets installed  in ~/.local/bin
+  #+ For nvr command to work properly, this path has to
+  #+ be appended to $PATH, which is happening in ~/.bash_profile
+  #+ , but before appending it checks for the existence of 
+  #+ that path. So, you might, if you install nvr not as part
+  #+ of this script, need to source ~/.bash_profile again.
+  pip3 install --user --upgrade neovim-remote
+else
+  echo "pip3 not found"
+  exit 64
+  echo
 fi
 
 # Create "$HOME/bin" dir if it does not exist
