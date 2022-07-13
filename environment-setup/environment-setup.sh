@@ -18,7 +18,7 @@ fi
 cd "$software_dir"
 # (Refer: https://github.com/neovim/neovim/wiki/Installing-Neovim)
 # Download Neovim on Linux
-if test $? = 0 && "$(command -v curl)" &> dev/null; then
+if test $? = 0 && command -v curl &> /dev/null; then
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
   chmod u+x nvim.appimage
 else
@@ -37,6 +37,22 @@ if [ $? -ne 0 ]; then
   echo "Error: curl is not installed"
   echo
   exit 64
+fi
+
+# [Refer: Modern vim pg 29]
+# Install Ripgrep if it does not exist.
+#+ Ripgrep is a non-essential dependency for fzf.
+#+ This is required if you have command
+#+ `export FZF_DEFAULT_COMMAND='rg --files' in your bash_profile/bashrc.
+#* This command is specific to Debian derivative like Ubuntu.
+# TODO making the script independent of platform.
+#+ Check which derivative is the platform.
+if [ command -v rg &> /dev/null ]; then
+  curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+  sudo dpkg -i ripgrep_13.0.0_amd64.deb
+else
+  echo "Ripgrep already installed in the system"
+  echo
 fi
 
 # Create "$HOME/bin" dir if it does not exist
@@ -71,6 +87,9 @@ fi
 cd "$HOME/.config/nvim/pack/minpac/opt"
 git clone https://github.com/k-takata/minpac.git
 cd -
+
+# run vim ex command to install packs
+"$software_dir/nvim.appimage" -c "call minpac:update()"
 
 # Update dotfiles (create, if non-existent)
 if [ ! -e "$HOME/.bash_profile" ]; then
