@@ -20,3 +20,7 @@
 exit is happening in the subshell. Fix this to exit the script/parent shell altogether.
 16. add code in script to add/append bashrc.template and bash_profile.template 
 to .bashrc and .bash_profile respectively rather than adding/appending the file "$repos_dir/dotfiles/bash_profile"
+17. Install fzf, fzf.vim. Fzf should work in shell as well. 
+18. Update script to install fzf.
+19. Install nvr (See modern vim craft)
+20. Update script to install nvr

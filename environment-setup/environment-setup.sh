@@ -39,7 +39,6 @@ if [ $? -ne 0 ]; then
   exit 64
 fi
 
-
 # [Refer: Modern vim pg 29]
 # Install Ripgrep if it does not exist.
 #+ Ripgrep is a non-essential dependency for fzf.
