@@ -82,6 +82,11 @@ else
   cd -
 fi
 
+# Install bat for fzf preview coloring
+#+ bat supports syntax highlighting for a large number of programming and markup languages.
+#+ TODO This is ubuntu specific. Make it generic for other platform
+sudo apt install bat
+
 # install nvr [Refer: modern vimcraft Pg 7]
 if ! command -v pip3 &> /dev/null; then
   # [Refer: https://askubuntu.com/a/1301162]
