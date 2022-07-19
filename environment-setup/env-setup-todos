@@ -26,3 +26,5 @@ to .bashrc and .bash_profile respectively rather than adding/appending the file 
 20. Update script to install nvr
 21. nvr not working as expected. Check to see if new version of nvim has different way to do this.
 22. Install dep - bat - for fzf.vim https://github.com/junegunn/fzf.vim#dependencies
+23. [Refer: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md]
+  Add lsp server for languages like typescriptreact, vim.
