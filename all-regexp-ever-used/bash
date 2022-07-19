@@ -1,6 +1,0 @@
-1. Replace ~/path/name/ or ~/path/name 
-	with 
-	"$HOME/path/name/" or "$HOME/path/name"
-
-	Regexp : '\v\~(\/\S+(\w|\/))'
-	substitution : %s//"$HOME\1"/gc

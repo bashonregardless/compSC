@@ -1,0 +1,11 @@
+---> 1. String: ~/path/name/ or ~/path/name 
+  Sub: "$HOME/path/name/" or "$HOME/path/name"
+
+  Regexp : '\v\~(\/\S+(\w|\/))'
+  substitution : %s//"$HOME\1"/gc
+
+---> 2. String: [Git(master)]
+  Sub: master
+
+  Regexp:  '\v\[.*\((.*)\)\]'
+  substitution:  substitute(pat, '\v\[.*\((.*)\)\]', '\1', '')
