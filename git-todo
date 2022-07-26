@@ -1,0 +1,2 @@
+---> How stash and keep changes on local only?
+    Add Session.vim to .gitignore and stash that change in local. This should not be pushed upstream.
