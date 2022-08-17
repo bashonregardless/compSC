@@ -14,11 +14,3 @@ A. [Refer: https://github.com/facebook/react/issues/3907#issuecomment-107247839]
 
 Saturday 13 August 2022 03:10:28 PM IST
 
-Q. Using regular expression to split lines with different line endings/ends
- of line/line breaks?
-
- [Refer: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp#using_regular_expression_to_split_lines_with_different_line_endingsends_of_lineline_breaks]
-
- NOTE Windows is \r\n for a new line.
- Note that the order of the patterns in the regular expression matters.
-

@@ -167,3 +167,5 @@ if [ ! -e "$HOME/.bashrc" ]; then
 else
 	cat "$repos_dir/dotfiles/bashrc.template" >> "$HOME/.bashrc" 
 fi
+
+# TODO Install 'tsserver' and 'vimls'. [Refer: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#vimls]
