@@ -162,3 +162,41 @@ A. [Refer: https://stackoverflow.com/a/17336953/11320006]
     operation.
 
   Bash is more powerful than you think!
+
+  
+Monday 26 September 2022 12:53:16 PM IST
+
+----> Github use updated personal access token after generating a new one.
+A. [Reference: Copied from doc shared by Matt Goo in transcarent]
+  NOTE that you tried `git remote set-url ...` command and it was not working.
+
+  Then you contacted Harshil!
+
+  STEPS:
+
+  Add personal .npmrc 
+  Adding this will allow you to access/download foundation and graphql-types from our other repositories. 
+
+  1. Generate a Github personal access token if you have not already from step Github Packages > 2
+
+    a. you only need repo & write:packagessettings selected
+
+
+    b. Click on the Configure SSO token button, and Authorize
+
+
+    c. Copy this token and add to step #2
+
+  2. Follow this guide [https://docs.npmjs.com/cli/v8/using-npm/config#npmrc-files] of adding a personal .npmrc file
+
+
+    a. `vi $HOME/.npmrc`
+
+    b.
+      `
+      //npm.pkg.github.com/:_authToken=<INSERT_YOUR_PERSONAL_GITHUB_TOKEN_HERE>
+      @transcarent:registry=https://npm.pkg.github.com
+      `
+    c. Save file
+
+  You are now ready for action :boom:
