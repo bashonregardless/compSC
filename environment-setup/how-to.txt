@@ -200,3 +200,8 @@ A. [Reference: Copied from doc shared by Matt Goo in transcarent]
     c. Save file
 
   You are now ready for action :boom:
+
+
+  NOTE This solved the `yarn` auth probem, but on a next `git pull` you got wrong url, since you had changed
+  remote url as a part of fixing the above error.
+  this was corrected by `git remote set-url origin https://username:personalaccesstoken@github.com/organization/repo.git`
