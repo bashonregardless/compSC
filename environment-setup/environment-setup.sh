@@ -1,5 +1,11 @@
 #!bin/bash
 
+# TODO Check for all the dependencies, like curl etc before installing. If not present
+#+ either install them or take an alternate path, like `wget` in place of curl.
+
+# TODO [Refer: https://stackoverflow.com/a/3466183]
+#+ Identify the platform (Linux Derivative (whether Debian(Ubuntu) or Darwin(macOS)), mostly)
+#+ and then use the correct command to clone the latest stable version of the 
 repos_dir="$HOME/repos"
 if [ ! -d "$repos_dir" ]; then
   mkdir -p "$repos_dir"
@@ -19,6 +25,9 @@ cd "$software_dir"
 # (Refer: https://github.com/neovim/neovim/wiki/Installing-Neovim)
 # Download Neovim on Linux
 if test $? = 0 && command -v curl &> /dev/null; then
+  # TODO The curl command below is platform dependent. This curl is Linux Debian specific.
+  #+ See macOS installation steps.
+  #+ Test for platform before installation. This time installed nvim using brew as given in Modern Vimcraft.
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
   chmod u+x nvim.appimage
 else
@@ -76,6 +85,8 @@ then
 	mkdir "$HOME/bin"
 fi
 
+# TODO the name "nvim.appimage" and path to it is platform dependent.
+#+ This command below is Debian specific. For MacOs see installtion guide.
 # Create a symbolic link in "$HOME/bin" dir to "$HOME/software/nvim"
 ln "$software_dir/nvim.appimage" "$HOME/bin/nvim"
 
@@ -103,6 +114,8 @@ cd "$HOME/.config/nvim/pack/minpac/opt"
 git clone https://github.com/k-takata/minpac.git
 cd -
 
+# TODO While installing in mac, failed here with error "/Users/harshvardhansharma/software/nvim.appimage: cannot execute binary file"
+#+ If failed here, change script so that it does not exit, but bypasses
 # run vim ex command to install packs
 "$software_dir/nvim.appimage" -c "call minpac:update()"
 
