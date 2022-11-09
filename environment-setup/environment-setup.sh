@@ -1,5 +1,8 @@
 #!bin/bash
 
+# TODO Missing deps
+#+ fzf.vim installation code
+
 # TODO Check for all the dependencies, like curl etc before installing. If not present
 #+ either install them or take an alternate path, like `wget` in place of curl.
 
@@ -57,6 +60,7 @@ fi
 # TODO making the script independent of platform.
 #+ Check which derivative is the platform.
 if [ command -v rg &> /dev/null ]; then
+  # TODO Check platform and write script to install for macOS. Below is Debian specific
   curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
   sudo dpkg -i ripgrep_13.0.0_amd64.deb
   echo "Ripgrep installed successfullly in the system"
@@ -73,6 +77,7 @@ if [ $? -ne 0 ];then
   echo "$HOME/.config/nvim/pack/bundle/start not created successfully"
   exit 64
 else
+  # TODO The commands below did not install fzf
   git clone https://github.com/junegunn/fzf
   $HOME/.config/nvim/pack/bundle/start/fzf/install --bin
   echo "fzf installed successfully"
