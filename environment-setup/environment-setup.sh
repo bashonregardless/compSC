@@ -77,7 +77,8 @@ if [ $? -ne 0 ];then
   echo "$HOME/.config/nvim/pack/bundle/start not created successfully"
   exit 64
 else
-  # TODO The commands below did not install fzf
+  # TODO The commands below did not install fzf. It installed fzf in the directory
+  #+ from where the script was run.
   git clone https://github.com/junegunn/fzf
   $HOME/.config/nvim/pack/bundle/start/fzf/install --bin
   echo "fzf installed successfully"

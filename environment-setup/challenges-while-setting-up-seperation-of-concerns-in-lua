@@ -1,0 +1,21 @@
+First and foremost - What you are trying to do? 
+Answer: You are separating the large vimrc file to separated files. You did it with vimscript.
+But since neovim uses lua, you are trying separation of concern using lua language. For this
+you are following Praveen Dhawan's dotfile repo.
+
+Hurdles encountered :-
+
+1. modules listed in config_file.lua were not found .
+
+  --> [https://github.com/nanotee/nvim-lua-guide#module]
+  Lua modules are found inside a lua/ folder in your 'runtimepath' (for most users, this will mean ~/.config/nvim/lua on *nix systems and ~/AppData/Local/nvim/lua on Windows). You can require() files in this folder as Lua modules.
+
+  [https://stackoverflow.com/a/72205451/11320006]
+  To overcome errors similar to "no field package.preload['lua.plugins']", what you had to do was
+  copy files required files from dotfiles/* to ~/.config/nvim
+
+2. In lua/plugins/keybindings/lsp/init.lua require('lspconfig') throwing similar error as above.
+
+  [Tip 2 in Modern Vim Craft]
+  Answer: nvim-lspconfig is installed in ~/.vim/pack/*. To run the pacakges installed in this
+  path we have to include in runtimepath ~/.vim/*
